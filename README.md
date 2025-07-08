@@ -1,8 +1,3 @@
-완벽하게 복붙 가능한 마크다운(Markdown) 형식으로 깔끔하게 정리해줄게!
-아래 내용을 그대로 README.md에 붙여 넣기만 하면 돼 👇
-
-⸻
-
 
 # 🚀 React + TypeScript + Vite 프로젝트
 
