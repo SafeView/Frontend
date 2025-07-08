@@ -1,69 +1,61 @@
-# React + TypeScript + Vite
+완벽하게 복붙 가능한 마크다운(Markdown) 형식으로 깔끔하게 정리해줄게!
+아래 내용을 그대로 README.md에 붙여 넣기만 하면 돼 👇
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+⸻
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+# 🚀 React + TypeScript + Vite 프로젝트
 
-## Expanding the ESLint configuration
+이 프로젝트는 **Vite** 기반의 **React + TypeScript** 웹 애플리케이션입니다.  
+빠른 번들링, 타입 안정성, 개발 편의성을 갖춘 환경을 제공합니다.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+<br/>
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 📦 기술 스택
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+- ⚛️ React 18
+- 🌀 TypeScript
+- ⚡ Vite
+- 🧹 ESLint & Prettier (코드 품질 및 스타일 유지)
+- 📦 Node.js (개발 환경)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+<br/>
+
+## 🛠️ 프로젝트 시작 방법
+
+```bash
+# 1. 의존성 설치
+npm install
+
+# 2. 개발 서버 실행
+npm run dev
+
+# 3. 빌드 (배포용)
+npm run build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+<br/>
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+📁 폴더 구조
 ```
+.
+├── public/              # 정적 파일 (favicon, etc)
+├── src/                 # 소스 코드
+│   ├── assets/          # 이미지, 폰트 등 정적 자원
+│   ├── components/      # 재사용 가능한 컴포넌트
+│   ├── pages/           # 라우팅 페이지 컴포넌트
+│   ├── styles/          # 전역 스타일 및 테마
+│   ├── App.tsx          # 루트 컴포넌트
+│   └── main.tsx         # 앱 진입점
+├── .eslintrc.cjs        # ESLint 설정
+├── .prettierrc          # Prettier 설정
+├── index.html
+├── tsconfig.json
+├── vite.config.ts
+└── README.md
+
+<br/>
+
+
+
