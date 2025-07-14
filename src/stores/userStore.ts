@@ -19,16 +19,15 @@ export const useUserStore = create<UserState>((set) => ({
     user: null,
     token: null,
 
+
     login: async (email, password) => {
-        const data = await loginService(email, password);
-        const { token, user } = data;
-        set({ token, user });
+        const { token, email: userEmail, nickname } = await loginService(email, password);
+        set({ token, user: { email: userEmail, nickname } });
     },
 
     signup: async (email, password, nickname) => {
-        const data = await signupService(email, password, nickname);
-        const { token, user } = data;
-        set({ token, user });
+        const { token, email: userEmail, nickname: nick } = await signupService(email, password, nickname);
+        set({ token, user: { email: userEmail, nickname: nick } });
     },
 
     logout: () => {
