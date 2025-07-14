@@ -2,15 +2,23 @@ import { useState } from 'react';
 import styles from './LoginPage.module.css';
 import Header from '../components/Header/Header';
 import {useNavigate} from "react-router-dom";
+import {useUserStore} from "../stores/userStore.ts";
+
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const { login } = useUserStore();
     const navigate = useNavigate();
 
-    const handleLogin = () => {
-        console.log('로그인 시도:', { email, password });
-        // TODO: axios.post('/api/auth/login') 연결 예정
+    const handleLogin = async () => {
+        try {
+            await login(email, password);
+            alert('로그인 성공!');
+            navigate('/');
+        } catch (e) {
+            alert('로그인 실패!');
+        }
     };
 
     const goToSignup = () => {

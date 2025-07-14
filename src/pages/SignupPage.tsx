@@ -2,17 +2,24 @@ import { useState } from 'react';
 import styles from './SignupPage.module.css';
 import Header from '../components/Header/Header';
 import {useNavigate} from "react-router-dom";
+import {useUserStore} from "../stores/userStore.ts";
 
 const SignupPage = () => {
     const [email, setEmail] = useState('');
     const [nickname, setNickname] = useState('');
     const [password, setPassword] = useState('');
+    const { signup } = useUserStore();
+
     const navigate = useNavigate(); // 🔁 페이지 이동용 훅
 
-
-    const handleSignup = () => {
-        console.log('회원가입 시도:', { email, password, nickname });
-        // TODO: axios.post('/api/auth/signup') 연동 예정
+    const handleSignup = async () => {
+        try {
+            await signup(email, password, nickname);
+            alert('회원가입 완료!');
+            navigate('/');
+        } catch (e) {
+            alert('회원가입 실패!');
+        }
     };
 
     const goToLogin = () => {
