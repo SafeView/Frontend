@@ -20,7 +20,7 @@ const Header = () => {
                 <button className={styles.iconBtn}>🔔</button>
                 <Link to="/login">
                     <img
-                        src="/vite.svg" // Placeholder profile image
+                        src="/assets/defaultProfile.png" // Placeholder profile image
                         alt="profile"
                         className={styles.profile}
                     />
