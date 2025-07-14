@@ -58,3 +58,24 @@
     border-radius: 50%;
     background-color: white;
 }
+
+.welcome {
+    margin-right: 1rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+.loginBtn,
+.logoutBtn {
+    background-color: #535bf2;
+    color: white;
+    border: none;
+    padding: 0.4rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.loginBtn:hover,
+.logoutBtn:hover {
+    background-color: #3d47c0;
+}
