@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import SummaryCard from "../components/SummaryCard";
-import AlertTable from "../components/AlertTable";
+import SummaryCard from "../components/SummaryCard/SummaryCard";
+import AlertTable from "../components/AlertTable/AlertTable";
 import { useAlertStore } from "../stores/alertStore";
 import styles from "./HomePage.module.css";
 
@@ -23,7 +23,6 @@ const HomePage = () => {
         </div>
 
         <h2 className={styles.sectionTitle}>Live Feeds</h2>
-        {/* <CameraFeed /> */}
         <AlertTable />
       </div>
     </>

@@ -16,11 +16,11 @@ export const router = createBrowserRouter([
         element: <HomePage />,
       },
       {
-        path: "home",
+        path: "/home",
         element: <HomePage />,
       },
       {
-        path: "live",
+        path: "/live",
         element: <CameraPage />,
       },
       {
