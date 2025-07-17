@@ -1,6 +1,10 @@
 import React, { useRef, useEffect, useState } from 'react';
 
-const CameraFeed: React.FC = () => {
+interface CameraFeedProps {
+  decrypted?: boolean;
+}
+
+const CameraFeed: React.FC<CameraFeedProps> = ({ decrypted = false }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,7 +40,7 @@ const CameraFeed: React.FC = () => {
   }, []);
 
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
       {error ? (
         <p style={{ color: 'red' }}>{error}</p>
       ) : (
@@ -44,9 +48,19 @@ const CameraFeed: React.FC = () => {
           ref={videoRef}
           autoPlay
           playsInline
-          style={{ width: '100%', maxWidth: '600px', border: '1px solid black' }}
+          style={{
+            width: '100%',
+            maxWidth: '600px',
+            border: '1px solid black',
+            borderRadius: 12,
+            filter: decrypted ? 'none' : 'blur(12px)',
+            background: '#222'
+          }}
         />
       )}
+      <span style={{ marginTop: 8, color: '#aaa', fontSize: 14 }}>
+        {decrypted ? '복호화된 영상입니다.' : '모자이크 처리된 영상입니다.'}
+      </span>
     </div>
   );
 };
