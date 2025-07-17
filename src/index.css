@@ -3,3 +3,9 @@
   line-height: 1.5;
 
 }
+
+body {
+  background: #0d0d0d;
+  color: white;
+  min-height: 100vh;
+}
