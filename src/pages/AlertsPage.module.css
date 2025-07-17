@@ -1,0 +1,62 @@
+.container {
+    color: white;
+    padding: 2rem;
+    background-color: #0f1117;
+}
+
+.title {
+    font-size: 1.8rem;
+    margin-bottom: 2rem;
+}
+
+.alertTable {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #181b23;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.alertTable th,
+.alertTable td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #2a2e39;
+}
+
+.alertTable th {
+    background-color: #1f1f1f;
+    font-weight: 600;
+}
+
+.alertTable tr:hover {
+    background-color: #2a2e39;
+}
+
+.thumbnail {
+    width: 80px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #444;
+}
+
+/* Severity Color Tags */
+.severity {
+    padding: 0.3rem 0.6rem;
+    border-radius: 6px;
+    font-weight: 600;
+    color: white;
+}
+
+.low {
+    background-color: #4caf50;
+}
+
+.medium {
+    background-color: #ffc107;
+}
+
+.high {
+    background-color: #f44336;
+}
