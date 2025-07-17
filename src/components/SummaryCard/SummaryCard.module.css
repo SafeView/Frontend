@@ -1,0 +1,21 @@
+.card {
+    background-color: #1a1d23;
+    border: 1px solid #2c2f36;
+    padding: 1.2rem 1.5rem;
+    border-radius: 10px;
+    color: white;
+    flex: 1;
+    min-width: 160px;
+}
+
+.title {
+    font-size: 0.85rem;
+    color: #ccc;
+    margin-bottom: 0.3rem;
+}
+
+.value {
+    font-size: 1.6rem;
+    font-weight: bold;
+    color: #fff;
+}
