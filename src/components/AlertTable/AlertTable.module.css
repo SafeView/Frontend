@@ -1,0 +1,47 @@
+.tableWrapper {
+    margin-top: 2rem;
+    color: white;
+}
+
+.title {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    font-weight: bold;
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+    background-color: #13161d;
+    border: 1px solid #2a2d34;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+th,
+td {
+    padding: 0.8rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #2a2d34;
+}
+
+th {
+    background-color: #1b1e25;
+    color: #aaa;
+    font-weight: 600;
+}
+
+tr:hover {
+    background-color: #20242b;
+}
+
+.typeBadge {
+    display: inline-block;
+    background-color: #2f3545;
+    color: #fff;
+    padding: 0.3rem 0.7rem;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+}
