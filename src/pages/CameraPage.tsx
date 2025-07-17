@@ -1,6 +1,7 @@
 import { useState } from "react";
 import styles from "./CameraPage.module.css";
 import { FaStop, FaPlay, FaCircle, FaEye, FaEyeSlash } from "react-icons/fa";
+import CameraFeed from "../components/CameraFeed.tsx";
 
 /** -------------------------------
  * 더미 카메라 목록
@@ -11,6 +12,7 @@ const dummyCameras = [
     { id: 2, name: "Parking Lot", location: "Lot A", videoSrc: "/videos/cam2.mp4" },
     { id: 3, name: "Back Door", location: "Rear Exit", videoSrc: "/videos/cam3.mp4" },
     { id: 4, name: "Front Desk", location: "Lobby", videoSrc: "/videos/cam4.mp4" },
+    { id: 5, name: "Web Cam", location: "Office", videoSrc: "/videos/cam4.mp5" }, // 녹화 파일 없음
 ];
 
 /** -------------------------------
@@ -142,16 +144,18 @@ const CameraPage = () => {
                 </h2>
 
                 <div className={styles.videoWrapper}>
-                    <video
-                        key={currentVideoSrc}
-                        src={currentVideoSrc}
-                        className={`${styles.videoPlayer} ${
-                            isMosaic ? styles.mosaic : ""
-                        }`}
-                        controls
-                        autoPlay
-                        muted
-                    />
+                    {selectedCamera.name === "Web Cam" ? (
+                        <CameraFeed />
+                    ) : (
+                        <video
+                            key={currentVideoSrc}
+                            src={currentVideoSrc}
+                            className={`${styles.videoPlayer} ${isMosaic ? styles.mosaic : ""}`}
+                            controls
+                            autoPlay
+                            muted
+                        />
+                    )}
                 </div>
 
                 {/* 영상 컨트롤 버튼들 */}
