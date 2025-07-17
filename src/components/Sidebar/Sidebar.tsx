@@ -1,38 +1,7 @@
-// src/components/Sidebar.tsx
+// src/components/Sidebar/Sidebar.tsx
 import { Link, useLocation } from 'react-router-dom';
-import styled from '@emotion/styled';
 import { FaHome, FaCamera, FaBell, FaChartBar, FaCog } from 'react-icons/fa';
-
-const SidebarWrapper = styled.aside`
-  width: 250px;
-  background-color: #181b23;
-  padding: 2rem 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-`;
-
-const Title = styled.h1`
-  color: white;
-  font-size: 1.5rem;
-  margin-bottom: 3rem;
-`;
-
-const MenuLink = styled(Link)<{ active: boolean }>`
-  color: ${({ active }) => (active ? '#fff' : '#aaa')};
-  font-weight: ${({ active }) => (active ? 'bold' : 'normal')};
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
-  background: ${({ active }) => (active ? '#2a2e39' : 'transparent')};
-
-  &:hover {
-    background-color: #2a2e39;
-    color: #fff;
-  }
-`;
+import styles from './Sidebar.module.css';
 
 const Sidebar = () => {
     const location = useLocation();
@@ -46,19 +15,18 @@ const Sidebar = () => {
     ];
 
     return (
-        <SidebarWrapper>
-            <Title>VISTA-Guard</Title>
+        <aside className={styles.sidebar}>
             {menus.map((menu) => (
-                <MenuLink
+                <Link
                     key={menu.path}
                     to={menu.path}
-                    active={location.pathname === menu.path}
+                    className={`${styles.link} ${location.pathname === menu.path ? styles.active : ''}`}
                 >
-                    {menu.icon}
+                    <span className={styles.icon}>{menu.icon}</span>
                     {menu.label}
-                </MenuLink>
+                </Link>
             ))}
-        </SidebarWrapper>
+        </aside>
     );
 };
 
