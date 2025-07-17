@@ -3,8 +3,9 @@ import { createBrowserRouter } from "react-router-dom";
 import HomePage from "../pages/HomePage";
 import LoginPage from "../pages/LoginPage";
 import SignupPage from "../pages/SignupPage";
-import CameraPage from "../pages/CameraPage";
+import LivePage from "../pages/LivePage.tsx";
 import HomeLayout from "../layouts/HomeLayout";
+import CameraPage from "../pages/CameraPage.tsx";
 
 export const router = createBrowserRouter([
   {
@@ -21,7 +22,11 @@ export const router = createBrowserRouter([
       },
       {
         path: "/live",
-        element: <CameraPage />,
+        element: <LivePage />,
+      },
+      {
+        path: "/cameras",
+        element: <CameraPage />, // Placeholder for Cameras Page
       },
       {
         path: "/login",
