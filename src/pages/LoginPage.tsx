@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import styles from './LoginPage.module.css';
-import Header from '../components/Header/Header';
 import {useNavigate} from "react-router-dom";
 import {useUserStore} from "../stores/userStore.ts";
-
 
 const LoginPage = () => {
     const [email, setEmail] = useState('');
@@ -27,7 +25,6 @@ const LoginPage = () => {
 
     return (
         <>
-            <Header />
             <div className={styles.container}>
                 <h1 className={styles.title}>Login</h1>
                 <input
