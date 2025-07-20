@@ -1,9 +1,7 @@
 import { useEffect } from "react";
-import SummaryCard from "../components/SummaryCard";
-import CameraFeed from "../components/CameraFeed";
-import AlertTable from "../components/AlertTable";
+import SummaryCard from "../components/SummaryCard/SummaryCard";
+import AlertTable from "../components/AlertTable/AlertTable";
 import { useAlertStore } from "../stores/alertStore";
-import Header from "../components/Header/Header.tsx";
 import styles from "./HomePage.module.css";
 
 const HomePage = () => {
@@ -25,7 +23,6 @@ const HomePage = () => {
         </div>
 
         <h2 className={styles.sectionTitle}>Live Feeds</h2>
-        {/* <CameraFeed /> */}
         <AlertTable />
       </div>
     </>

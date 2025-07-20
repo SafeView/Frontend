@@ -1,0 +1,18 @@
+.layout {
+    display: flex;
+    height: 100vh;
+    background-color: #0e0e0e; /* 배경 전체 어두운 톤 */
+}
+
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+}
