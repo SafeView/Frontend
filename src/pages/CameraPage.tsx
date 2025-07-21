@@ -1,18 +1,18 @@
 import { useState } from "react";
 import styles from "./CameraPage.module.css";
 import { FaStop, FaPlay, FaCircle, FaEye, FaEyeSlash } from "react-icons/fa";
-import CameraFeed from "../components/CameraFeed.tsx";
+import CameraFeed from "../components/Camera/CameraFeed.tsx";
 
 /** -------------------------------
  * 더미 카메라 목록
  * 실제 구현 시 백엔드에서 받아올 예정
  * -------------------------------- */
 const dummyCameras = [
-    { id: 1, name: "Entrance 1", location: "Main Gate", videoSrc: "/videos/cam1.mp4" },
-    { id: 2, name: "Parking Lot", location: "Lot A", videoSrc: "/videos/cam2.mp4" },
-    { id: 3, name: "Back Door", location: "Rear Exit", videoSrc: "/videos/cam3.mp4" },
-    { id: 4, name: "Front Desk", location: "Lobby", videoSrc: "/videos/cam4.mp4" },
-    { id: 5, name: "Web Cam", location: "Office", videoSrc: "/videos/cam4.mp5" }, // 녹화 파일 없음
+    { id: 1, name: "Web Cam", location: "Office", videoSrc: "/videos/cam4.mp5" }, // 실제 웹캠
+    { id: 2, name: "Entrance 1", location: "Main Gate", videoSrc: "/videos/cam1.mp4" },
+    { id: 3, name: "Parking Lot", location: "Lot A", videoSrc: "/videos/cam2.mp4" },
+    { id: 4, name: "Back Door", location: "Rear Exit", videoSrc: "/videos/cam3.mp4" },
+    { id: 5, name: "Front Desk", location: "Lobby", videoSrc: "/videos/cam4.mp4" },
 ];
 
 /** -------------------------------
@@ -26,6 +26,20 @@ const dummyHistory: Record<
     1: [
         {
             timestamp: "2025-07-17 14:30",
+            type: "AI Detection",
+            description: "Person detected with AI",
+            videoSrc: "/recordings/webcam_ai_20250717.mp4",
+        },
+        {
+            timestamp: "2025-07-16 09:15",
+            type: "Motion",
+            description: "Motion detected",
+            videoSrc: "/recordings/webcam_motion_20250716.mp4",
+        },
+    ],
+    2: [
+        {
+            timestamp: "2025-07-17 14:30",
             type: "Intrusion",
             description: "Person detected",
             videoSrc: "/recordings/cam1_intrusion_20250717.mp4",
@@ -37,7 +51,7 @@ const dummyHistory: Record<
             videoSrc: "/recordings/cam1_motion_20250716.mp4",
         },
     ],
-    2: [
+    3: [
         {
             timestamp: "2025-07-17 09:00",
             type: "Suspicious Activity",
@@ -45,8 +59,8 @@ const dummyHistory: Record<
             videoSrc: "/recordings/cam2_susp_20250717.mp4",
         },
     ],
-    3: [],
-    4: [
+    4: [],
+    5: [
         {
             timestamp: "2025-07-15 11:00",
             type: "Crowd",
@@ -60,14 +74,14 @@ type Mode = "live" | "history";
 
 const CameraPage = () => {
     // 현재 선택된 카메라
-    const [selectedCamera, setSelectedCamera] = useState(dummyCameras[0]);
+    const [selectedCamera, setSelectedCamera] = useState(dummyCameras[0]); // Web Cam이 첫 번째
 
     // 현재 재생 모드 (라이브 / 히스토리)
     const [mode, setMode] = useState<Mode>("live");
 
     // 현재 재생할 영상 소스 (라이브면 selectedCamera.videoSrc, 히스토리면 해당 기록 videoSrc)
     const [currentVideoSrc, setCurrentVideoSrc] = useState<string>(
-        dummyCameras[0].videoSrc
+        dummyCameras[0].videoSrc // Web Cam이 첫 번째
     );
 
     // 녹화 토글 상태
@@ -145,7 +159,7 @@ const CameraPage = () => {
 
                 <div className={styles.videoWrapper}>
                     {selectedCamera.name === "Web Cam" ? (
-                        <CameraFeed />
+                        <CameraFeed enableAI={true} decrypted={false} />
                     ) : (
                         <video
                             key={currentVideoSrc}
