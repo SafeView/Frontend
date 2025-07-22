@@ -23,7 +23,7 @@ export const DecryptModal: React.FC<DecryptModalProps> = ({
   return (
     <div className={styles.decryptModal}>
       <div className={styles.decryptModalContent}>
-        <h3>🔐 복호화키 입력</h3>
+        <h3>복호화키 입력</h3>
         <p>모자이크가 해제된 영상을 보려면 복호화키를 입력하세요.</p>
         <input
           type="password"

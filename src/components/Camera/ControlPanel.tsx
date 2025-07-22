@@ -13,9 +13,7 @@ interface ControlPanelProps {
   onStartAIStreaming: () => void;
   onStopStreaming: () => void;
   onTestAIConnection: () => void;
-  onCheckPermission: () => void;
   onDecryptClick: () => void;
-  onTestImage: () => void;
 }
 
 export const ControlPanel: React.FC<ControlPanelProps> = ({
@@ -30,9 +28,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   onStartAIStreaming,
   onStopStreaming,
   onTestAIConnection,
-  onCheckPermission,
-  onDecryptClick,
-  onTestImage
+  onDecryptClick
 }) => {
   if (!enableAI) return null;
 
@@ -53,28 +49,16 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
         >
           AI 서버 연결 테스트
         </button>
-        <button
-          onClick={onCheckPermission}
-          className={styles.actionButton}
-        >
-          카메라 권한 확인
-        </button>
+
         <button
           onClick={onStopStreaming}
           disabled={!isStreaming}
           className={styles.actionButton}
         >
-          스트리밍 중단
+          AI 서버 연결 해제
         </button>
         
-        {/* 테스트용 버튼 */}
-        <button
-          onClick={onTestImage}
-          className={styles.actionButton}
-          style={{ backgroundColor: '#ff6b6b' }}
-        >
-          테스트 이미지
-        </button>
+
         
         {/* 어드민 전용 복호화 버튼 */}
         {isAdmin && (
@@ -82,19 +66,19 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
             onClick={onDecryptClick}
             className={`${styles.actionButton} ${isDecrypted ? styles.decryptActive : styles.decryptButton}`}
           >
-            {isDecrypted ? '🔓 복호화됨' : '🔒 복호화'}
+            {isDecrypted ? '복호화됨' : '복호화'}
           </button>
         )}
       </div>
 
       {/* 상태 표시 */}
       <div className={styles.statusText}>
-        {isDecrypted ? '🔓 복호화된 영상' : '📹 원본 영상'}
+        {isDecrypted ? '복호화된 영상' : '원본 영상'}
         {stream && ` | 카메라 연결됨`}
         {enableAI && isStreaming && ` | AI 모드 활성화`}
         {enableAI && ` | ${status}`}
         {enableAI && aiFrameCount > 0 && ` | AI 프레임: ${aiFrameCount}개`}
-        {isAdmin && ` | 👤 관리자 권한`}
+        {isAdmin && ` | 관리자 권한`}
         {enableAI && ` | AI 서버: ${isConnected ? '연결됨' : '연결 안됨'}`}
       </div>
 

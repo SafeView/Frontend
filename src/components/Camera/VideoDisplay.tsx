@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import styles from './CameraFeed.module.css';
+import styles from './VideoDisplay.module.css';
 
 interface VideoDisplayProps {
   stream: MediaStream | null;
@@ -72,18 +72,14 @@ export const VideoDisplay: React.FC<VideoDisplayProps> = ({
   }, [stream]);
 
   if (isLoading) {
-    return (
-      <div className={styles.loadingOverlay}>
-        카메라 연결 중...
-      </div>
-    );
+    return null;
   }
 
   if (error) {
     return (
       <div className={styles.errorContainer}>
         <p>{error}</p>
-        <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+        <div className={styles.errorButtonContainer}>
           <button
             onClick={onRetry}
             className={styles.retryButton}
@@ -93,8 +89,7 @@ export const VideoDisplay: React.FC<VideoDisplayProps> = ({
           {onRetryCamera && (
             <button
               onClick={onRetryCamera}
-              className={styles.retryButton}
-              style={{ backgroundColor: '#ff6b6b' }}
+              className={styles.cameraReconnectButton}
             >
               카메라 재연결
             </button>
@@ -111,18 +106,10 @@ export const VideoDisplay: React.FC<VideoDisplayProps> = ({
         <h3>원본 영상</h3>
         <video
           ref={videoRef}
-          className={styles.video}
+          className={`${styles.video} ${styles.originalVideo}`}
           autoPlay
           playsInline
           muted
-          style={{ 
-            border: '2px solid #646cff',
-            borderRadius: '8px',
-            backgroundColor: '#1a1a1a',
-            width: '480px',
-            height: '360px',
-            objectFit: 'cover'
-          }}
           onLoadStart={() => console.log('비디오 로드 시작')}
           onLoadedMetadata={() => console.log('비디오 메타데이터 로드됨')}
           onCanPlay={() => console.log('비디오 재생 가능')}
@@ -136,42 +123,26 @@ export const VideoDisplay: React.FC<VideoDisplayProps> = ({
       {enableAI && (
         <div className={styles.videoItem}>
           <h3>AI 처리된 영상</h3>
-          <img
-            ref={aiImageRef}
-            className={styles.aiVideo}
-            alt="AI 처리 영상"
-            style={{ 
-              border: '2px solid #646cff',
-              borderRadius: '8px',
-              backgroundColor: '#1a1a1a',
-              width: '480px',
-              height: '360px',
-              objectFit: 'cover'
-            }}
-            src={isStreaming ? undefined : "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjQwIiBoZWlnaHQ9IjQ4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMjIyIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxNCIgZmlsbD0iI2NjYyIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkFJIOyCrOq4uOyngCDsl4bsnYw8L3RleHQ+PC9zdmc+"}
-            onLoad={(e) => {
-              console.log('이미지 onLoad 이벤트 발생:', e.target);
-              console.log('이미지 크기:', (e.target as HTMLImageElement).width, 'x', (e.target as HTMLImageElement).height);
-            }}
-            onError={(e) => {
-              console.error('이미지 onError 이벤트 발생:', e);
-            }}
-          />
-          {!isStreaming && (
-            <div style={{
-              position: 'absolute',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              color: '#888',
-              fontSize: '14px',
-              backgroundColor: 'rgba(0,0,0,0.7)',
-              padding: '8px 16px',
-              borderRadius: '4px'
-            }}>
-              AI 서버 연결 대기 중...
-            </div>
-          )}
+          <div className={styles.aiVideoWrapper}>
+            <img
+              ref={aiImageRef}
+              className={styles.aiVideo}
+              alt="AI 처리 영상"
+              src={isStreaming ? undefined : ""}
+              onLoad={(e) => {
+                console.log('이미지 onLoad 이벤트 발생:', e.target);
+                console.log('이미지 크기:', (e.target as HTMLImageElement).width, 'x', (e.target as HTMLImageElement).height);
+              }}
+              onError={(e) => {
+                console.error('이미지 onError 이벤트 발생:', e);
+              }}
+            />
+            {!isStreaming && (
+              <div className={styles.aiWaitingOverlay}>
+                AI 서버 연결 대기 중...
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>

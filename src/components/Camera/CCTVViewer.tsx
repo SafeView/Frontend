@@ -50,7 +50,7 @@ const CCTVViewer: React.FC<CCTVViewerProps> = ({ cameraId, cameraName, location 
               className={`${styles.decryptBtn} ${isDecrypted ? styles.active : ''}`}
               onClick={handleDecryptToggle}
             >
-              {isDecrypted ? '🔓 복호화됨' : '🔒 복호화'}
+              {isDecrypted ? '복호화됨' : '복호화'}
             </button>
           </div>
         )}
@@ -101,7 +101,7 @@ const CCTVViewer: React.FC<CCTVViewerProps> = ({ cameraId, cameraName, location 
             {!isDecrypted && (
               <div className={styles.mosaicOverlay}>
                 <div className={styles.mosaicMessage}>
-                  <span>🔒 모자이크 처리됨</span>
+                  <span>모자이크 처리됨</span>
                   {isAdmin && (
                     <p>복호화키를 입력하여 원본 영상을 확인하세요.</p>
                   )}
@@ -115,11 +115,11 @@ const CCTVViewer: React.FC<CCTVViewerProps> = ({ cameraId, cameraName, location 
       {/* 상태 표시 */}
       <div className={styles.statusBar}>
         <span className={styles.cameraStatus}>
-          📹 {cameraName} | {isDecrypted ? '🔓 복호화됨' : '🔒 모자이크 처리됨'}
+          {cameraName} | {isDecrypted ? '복호화됨' : '모자이크 처리됨'}
         </span>
         {isAdmin && (
           <span className={styles.adminStatus}>
-            👤 관리자 권한
+            관리자 권한
           </span>
         )}
       </div>

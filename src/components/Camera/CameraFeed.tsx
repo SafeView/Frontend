@@ -57,31 +57,6 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ decrypted = false, enableAI = f
     }
   };
 
-  // 테스트 이미지 핸들러
-  const handleTestImage = () => {
-    if (aiImageRef.current) {
-      const canvas = document.createElement('canvas');
-      canvas.width = 640;
-      canvas.height = 480;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.fillStyle = '#646cff';
-        ctx.fillRect(0, 0, 640, 480);
-        ctx.fillStyle = 'white';
-        ctx.font = '24px Arial';
-        ctx.textAlign = 'center';
-        ctx.fillText('AI 테스트 이미지', 320, 240);
-        ctx.fillText(new Date().toLocaleTimeString(), 320, 280);
-        
-        const testUrl = canvas.toDataURL('image/jpeg');
-        aiImageRef.current.src = testUrl;
-        console.log('테스트 이미지 설정됨:', testUrl);
-      }
-    }
-  };
-
-
-
   return (
     <div className={styles.container}>
       {/* 비디오 표시 컴포넌트 */}
@@ -110,9 +85,7 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ decrypted = false, enableAI = f
         onStartAIStreaming={handleStartAIStreaming}
         onStopStreaming={stopStreaming}
         onTestAIConnection={testAIConnection}
-        onCheckPermission={checkPermission}
         onDecryptClick={handleDecryptClick}
-        onTestImage={handleTestImage}
       />
 
       {/* 복호화 모달 컴포넌트 */}
