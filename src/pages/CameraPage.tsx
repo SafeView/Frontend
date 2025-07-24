@@ -255,40 +255,51 @@ const CameraPage = () => {
 
 
                 {/* 필터 UI 추가 */}
-                <div className={styles.filterContainer}>
+                <div className={styles.filterWrapper}>
+                    {/* 검색어 */}
                     <input
                         type="text"
-                        placeholder="검색어 (Type/Description)"
+                        placeholder="검색어를 입력하세요 (Type 또는 Description)"
                         value={filterKeyword}
                         onChange={(e) => setFilterKeyword(e.target.value)}
-                        className={styles.filterInput}
+                        className={styles.searchInput}
                     />
-                    <input
-                        type="date"
-                        value={filterStartDate}
-                        onChange={(e) => setFilterStartDate(e.target.value)}
-                        className={styles.filterInput}
-                    />
-                    <span className={styles.tilde}>~</span>
-                    <input
-                        type="date"
-                        value={filterEndDate}
-                        onChange={(e) => setFilterEndDate(e.target.value)}
-                        className={styles.filterInput}
-                    />
-                    <input
-                        type="time"
-                        value={filterStartTime}
-                        onChange={(e) => setFilterStartTime(e.target.value)}
-                        className={styles.filterInput}
-                    />
-                    <span className={styles.tilde}>~</span>
-                    <input
-                        type="time"
-                        value={filterEndTime}
-                        onChange={(e) => setFilterEndTime(e.target.value)}
-                        className={styles.filterInput}
-                    />
+
+                    {/* 날짜 필터 */}
+                    <div className={styles.rowFilterGroup}>
+                        <label className={styles.filterLabel}>📅 날짜:</label>
+                        <input
+                            type="date"
+                            value={filterStartDate}
+                            onChange={(e) => setFilterStartDate(e.target.value)}
+                            className={styles.filterInput}
+                        />
+                        <span className={styles.tilde}>~</span>
+                        <input
+                            type="date"
+                            value={filterEndDate}
+                            onChange={(e) => setFilterEndDate(e.target.value)}
+                            className={styles.filterInput}
+                        />
+                    </div>
+
+                    {/* 시간 필터 */}
+                    <div className={styles.rowFilterGroup}>
+                        <label className={styles.filterLabel}>⏰ 시간:</label>
+                        <input
+                            type="time"
+                            value={filterStartTime}
+                            onChange={(e) => setFilterStartTime(e.target.value)}
+                            className={styles.filterInput}
+                        />
+                        <span className={styles.tilde}>~</span>
+                        <input
+                            type="time"
+                            value={filterEndTime}
+                            onChange={(e) => setFilterEndTime(e.target.value)}
+                            className={styles.filterInput}
+                        />
+                    </div>
                 </div>
 
                 {/* 히스토리 테이블 */}
