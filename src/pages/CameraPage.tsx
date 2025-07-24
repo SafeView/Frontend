@@ -90,6 +90,15 @@ const CameraPage = () => {
     // 모자이크 토글 상태
     const [isMosaic, setIsMosaic] = useState(false);
 
+    // 필터링 상태
+    const [filterKeyword, setFilterKeyword] = useState("");
+
+    // 날짜/시간 필터링 상태
+    const [filterStartDate, setFilterStartDate] = useState("");
+    const [filterEndDate, setFilterEndDate] = useState("");
+    const [filterStartTime, setFilterStartTime] = useState("");
+    const [filterEndTime, setFilterEndTime] = useState("");
+
     // 선택 카메라 변경 시 라이브로 전환
     const handleSelectCamera = (cam: (typeof dummyCameras)[number]) => {
         setSelectedCamera(cam);
@@ -129,6 +138,27 @@ const CameraPage = () => {
     };
 
     const history = dummyHistory[selectedCamera.id] || [];
+
+
+    // 필터링된 히스토리
+    const filteredHistory = history.filter((record) => {
+        const [date, time] = record.timestamp.split(" ");
+        const keywordMatch =
+            !filterKeyword ||
+            record.type.toLowerCase().includes(filterKeyword.toLowerCase()) ||
+            record.description.toLowerCase().includes(filterKeyword.toLowerCase());
+
+        const dateMatch =
+            (!filterStartDate || date >= filterStartDate) &&
+            (!filterEndDate || date <= filterEndDate);
+
+        const timeMatch =
+            (!filterStartTime || time >= filterStartTime) &&
+            (!filterEndTime || time <= filterEndTime);
+
+        return keywordMatch && dateMatch && timeMatch;
+    });
+
 
     return (
         <div className={styles.container}>
@@ -221,8 +251,47 @@ const CameraPage = () => {
                     </button>
                 </div>
 
-                {/* 히스토리 테이블 */}
                 <h3 className={styles.historyTitle}>Recording History</h3>
+
+
+                {/* 필터 UI 추가 */}
+                <div className={styles.filterContainer}>
+                    <input
+                        type="text"
+                        placeholder="검색어 (Type/Description)"
+                        value={filterKeyword}
+                        onChange={(e) => setFilterKeyword(e.target.value)}
+                        className={styles.filterInput}
+                    />
+                    <input
+                        type="date"
+                        value={filterStartDate}
+                        onChange={(e) => setFilterStartDate(e.target.value)}
+                        className={styles.filterInput}
+                    />
+                    <span className={styles.tilde}>~</span>
+                    <input
+                        type="date"
+                        value={filterEndDate}
+                        onChange={(e) => setFilterEndDate(e.target.value)}
+                        className={styles.filterInput}
+                    />
+                    <input
+                        type="time"
+                        value={filterStartTime}
+                        onChange={(e) => setFilterStartTime(e.target.value)}
+                        className={styles.filterInput}
+                    />
+                    <span className={styles.tilde}>~</span>
+                    <input
+                        type="time"
+                        value={filterEndTime}
+                        onChange={(e) => setFilterEndTime(e.target.value)}
+                        className={styles.filterInput}
+                    />
+                </div>
+
+                {/* 히스토리 테이블 */}
                 <table className={styles.historyTable}>
                     <thead>
                     <tr>
@@ -232,8 +301,8 @@ const CameraPage = () => {
                     </tr>
                     </thead>
                     <tbody>
-                    {history.length > 0 ? (
-                        history.map((record, idx) => (
+                    {filteredHistory.length > 0 ? (
+                        filteredHistory.map((record, idx) => (
                             <tr
                                 key={idx}
                                 className={styles.historyRow}

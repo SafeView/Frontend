@@ -131,10 +131,38 @@ html, body {
 }
 
 /* ---------- 히스토리 테이블 ---------- */
+
 .historyTitle {
     font-size: 1.2rem;
     margin-bottom: 1rem;
     margin-top: 2rem;
+}
+
+.filterContainer {
+    display: flex;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.filterInput {
+    padding: 0.4rem 0.6rem;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background-color: #1f1f1f;
+    color: white;
+    font-size: 0.9rem;
+    min-width: 120px;
+}
+
+.filterInput::placeholder {
+    color: #aaa;
+}
+
+.tilde {
+    color: #888;
+    font-size: 1.2rem;
 }
 
 .historyTable {
