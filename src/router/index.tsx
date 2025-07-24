@@ -1,8 +1,8 @@
 // src/router/index.tsx
 import {createBrowserRouter} from "react-router-dom";
 import HomePage from "../pages/HomePage";
-import LoginPage from "../pages/LoginPage";
-import SignupPage from "../pages/SignupPage";
+import LoginPage from "../pages/Auth/LoginPage";
+import SignupPage from "../pages/Auth/SignupPage";
 import HomeLayout from "../layouts/HomeLayout";
 import CameraPage from "../pages/CameraPage.tsx";
 import AlertsPage from "../pages/AlertsPage";
