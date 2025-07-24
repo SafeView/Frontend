@@ -3,7 +3,6 @@ import {createBrowserRouter} from "react-router-dom";
 import HomePage from "../pages/HomePage";
 import LoginPage from "../pages/LoginPage";
 import SignupPage from "../pages/SignupPage";
-import LivePage from "../pages/LivePage.tsx";
 import HomeLayout from "../layouts/HomeLayout";
 import CameraPage from "../pages/CameraPage.tsx";
 import AlertsPage from "../pages/AlertsPage";
@@ -22,10 +21,6 @@ export const router = createBrowserRouter([
             {
                 path: "/home",
                 element: <HomePage/>,
-            },
-            {
-                path: "/live",
-                element: <LivePage/>,
             },
             {
                 path: "/cameras",

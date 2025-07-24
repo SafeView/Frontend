@@ -1,0 +1,240 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  padding: 10px;
+  width: 100%;
+  max-width: 100%;
+  overflow-y: auto;
+  min-height: 100vh;
+}
+
+
+
+.controlPanel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 1000px;
+  flex-shrink: 0;
+  overflow: visible;
+}
+
+.buttonContainer {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 0;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.actionButton {
+  padding: 8px 12px;
+  background: #646cff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s;
+  white-space: nowrap;
+  min-width: 140px;
+  max-width: 200px;
+}
+
+.actionButton:hover:not(:disabled) {
+  background: #535bf2;
+  transform: translateY(-1px);
+}
+
+.actionButton:disabled {
+  background: #666;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.statusText {
+  color: #aaa;
+  font-size: 12px;
+  text-align: center;
+  margin-top: 8px;
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+}
+
+.instructions {
+  margin-top: 8px;
+  padding: 12px;
+  background: rgba(100, 108, 255, 0.1);
+  border: 1px solid rgba(100, 108, 255, 0.3);
+  border-radius: 8px;
+  color: #ccc;
+  font-size: 11px;
+  line-height: 1.4;
+  width: 100%;
+  text-align: center;
+}
+
+.instructions strong {
+  color: #646cff;
+}
+
+/* 복호화 관련 스타일 */
+.decryptButton {
+  background-color: #2f3545 !important;
+  border: 1px solid #555 !important;
+}
+
+.decryptButton:hover {
+  background-color: #3a4155 !important;
+  border-color: #646cff !important;
+}
+
+.decryptActive {
+  background-color: #646cff !important;
+  border-color: #646cff !important;
+  color: white !important;
+}
+
+.decryptModal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.decryptModalContent {
+  background-color: #181b23;
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px solid #2e2e2e;
+  max-width: 400px;
+  width: 90%;
+}
+
+.decryptModalContent h3 {
+  margin: 0 0 1rem 0;
+  color: #fff;
+}
+
+.decryptModalContent p {
+  margin: 0 0 1.5rem 0;
+  color: #ccc;
+  font-size: 0.9rem;
+}
+
+.decryptInput {
+  width: 100%;
+  padding: 0.8rem;
+  border: 1px solid #555;
+  border-radius: 6px;
+  background-color: #1f1f1f;
+  color: white;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  box-sizing: border-box;
+}
+
+.decryptInput:focus {
+  outline: none;
+  border-color: #646cff;
+}
+
+.decryptError {
+  color: #ff6b6b;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background-color: rgba(255, 107, 107, 0.1);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 107, 107, 0.3);
+}
+
+.decryptModalButtons {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.submitBtn {
+  background-color: #646cff;
+  color: white;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.submitBtn:hover {
+  background-color: #535bf2;
+}
+
+.cancelBtn {
+  background-color: transparent;
+  color: #ccc;
+  border: 1px solid #555;
+  padding: 0.5rem 1.5rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.cancelBtn:hover {
+  background-color: #2a2e39;
+  border-color: #888;
+}
+
+@media (max-width: 768px) {
+  .videoContainer {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .video {
+    width: 320px;
+    height: 240px;
+  }
+  
+  .aiVideo {
+    width: 320px;
+    height: 240px;
+    min-height: 240px;
+  }
+  
+  .buttonContainer {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .actionButton {
+    width: 100%;
+    max-width: 280px;
+    min-width: auto;
+  }
+  
+  .errorContainer {
+    max-width: 90vw;
+  }
+  
+  .instructions {
+    max-width: 90vw;
+    font-size: 12px;
+  }
+} 

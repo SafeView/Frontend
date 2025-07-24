@@ -1,0 +1,161 @@
+/* VideoDisplay 컴포넌트 전용 스타일 */
+
+.videoContainer {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 20px;
+  overflow: visible;
+  min-height: 0;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.videoItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.videoItem h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.loadingOverlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  z-index: 1;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 10px 20px;
+  border-radius: 8px;
+}
+
+.errorContainer {
+  color: red;
+  padding: 20px;
+  text-align: center;
+  background: #1a1a1a;
+  border-radius: 8px;
+  border: 1px solid #ff4444;
+  max-width: 400px;
+}
+
+.retryButton {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background: #646cff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.retryButton:hover {
+  background: #535bf2;
+}
+
+.video {
+  width: 480px;
+  height: 360px;
+  border-radius: 12px;
+  background: #222;
+  border: 2px solid #333;
+  object-fit: cover;
+}
+
+.originalVideo {
+  border: 2px solid #646cff;
+  border-radius: 8px;
+  background-color: #1a1a1a;
+  width: 480px;
+  height: 360px;
+  object-fit: cover;
+}
+
+.aiVideo {
+  width: 480px;
+  height: 360px;
+  border-radius: 8px;
+  background: #1a1a1a;
+  border: 2px solid #646cff;
+  object-fit: cover;
+  display: block;
+  min-height: 360px;
+}
+
+.aiVideoWrapper {
+  position: relative;
+}
+
+.aiWaitingOverlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 16px;
+  background-color: rgba(0,0,0,0.8);
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 500;
+  z-index: 10;
+}
+
+.errorButtonContainer {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.cameraReconnectButton {
+  margin-top: 10px;
+  padding: 8px 16px;
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.cameraReconnectButton:hover {
+  background: #ff5252;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .videoContainer {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .video {
+    width: 320px;
+    height: 240px;
+  }
+  
+  .originalVideo {
+    width: 320px;
+    height: 240px;
+  }
+  
+  .aiVideo {
+    width: 320px;
+    height: 240px;
+    min-height: 240px;
+  }
+  
+  .errorContainer {
+    max-width: 90vw;
+  }
+} 

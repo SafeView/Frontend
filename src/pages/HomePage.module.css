@@ -5,7 +5,8 @@
     padding: 2rem;
     background: #0d0d0d;
     color: white;
-    min-height: 100vh;
+    height: 100%;
+    overflow: hidden;
 }
 
 .heading {

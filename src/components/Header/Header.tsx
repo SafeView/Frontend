@@ -32,7 +32,6 @@ const Header = () => {
                         <button className={styles.iconBtn}>
                             <FaBell/>
                         </button>
-                        <button className={styles.iconBtn}>🔔</button>
                         <button className={styles.logoutBtn} onClick={handleLogout}>
                             로그아웃
                         </button>
