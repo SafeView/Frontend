@@ -1,0 +1,98 @@
+/* 주소 검색 관련 스타일 */
+.addressSection {
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 1rem;
+}
+
+.addressInputWrapper {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.addressInput {
+  flex: 1;
+  padding: 0 1rem;
+  border: 1px solid #333;
+  border-radius: 12px;
+  background-color: #1f1f1f;
+  color: white;
+  font-size: 1rem;
+  box-sizing: border-box;
+  height: 56px;
+  transition: all 0.2s ease;
+  font-weight: 400;
+}
+
+.addressInput:focus {
+  outline: none;
+  border-color: #646cff;
+  background-color: #1a1a1a;
+}
+
+.addressInput::placeholder {
+  color: #888;
+  font-weight: 400;
+}
+
+.addressSearchButton {
+  padding: 0 1.25rem;
+  border-radius: 12px;
+  border: none;
+  background-color: #646cff;
+  color: white;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 0;
+  letter-spacing: -0.01em;
+}
+
+.addressSearchButton:hover {
+  background-color: #535bf2;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(100, 108, 255, 0.3);
+}
+
+.addressSearchButton:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(100, 108, 255, 0.2);
+}
+
+.detailInput {
+  width: 100%;
+  max-width: 100%;
+  padding: 0 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #333;
+  border-radius: 12px;
+  background-color: #1f1f1f;
+  color: white;
+  font-size: 1rem;
+  box-sizing: border-box;
+  height: 56px;
+  transition: all 0.2s ease;
+  font-weight: 400;
+}
+
+.detailInput:focus {
+  outline: none;
+  border-color: #646cff;
+  background-color: #1a1a1a;
+}
+
+.detailInput::placeholder {
+  color: #888;
+  font-weight: 400;
+} 

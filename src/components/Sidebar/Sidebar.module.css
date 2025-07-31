@@ -3,11 +3,107 @@
 .sidebar {
     width: 200px;
     background-color: #0e0e0e; /* 진한 블랙 */
-    padding: 2rem 1rem;
+    padding: 0;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
     border-right: 1px solid #ffffff30; /* 흰색 구분선 */
+    transition: transform 0.3s ease, width 0.3s ease;
+    overflow: hidden;
+}
+
+.sidebarHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.5rem 1rem;
+    border-bottom: 1px solid #ffffff20;
+}
+
+.sidebarTitle {
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    color: #aaa;
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.closeButton:hover {
+    background-color: #ffffff10;
+    color: #fff;
+}
+
+.nav {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
+}
+
+.sidebar.open {
+    transform: translateX(0);
+    width: 200px;
+}
+
+.sidebar.closed {
+    transform: translateX(-100%);
+    width: 0;
+}
+
+.sidebarClosed {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 60px;
+    height: 100vh;
+    background-color: #0e0e0e;
+    border-right: 1px solid #ffffff30;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 5rem; /* 헤더 높이 + 여백 */
+    z-index: 999; /* 헤더보다 낮은 z-index */
+    transition: transform 0.3s ease;
+}
+
+.sidebarClosed.visible {
+    transform: translateX(0);
+}
+
+.sidebarClosed.hidden {
+    transform: translateX(-100%);
+}
+
+.openButton {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 0.8rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.openButton:hover {
+    background-color: #ffffff10;
+    color: #646cff;
 }
 
 .link {
@@ -16,9 +112,10 @@
     display: flex;
     align-items: center;
     gap: 0.8rem;
-    padding: 0.6rem 1rem;
+    padding: 0.8rem 1rem;
     border-radius: 8px;
     transition: background 0.2s ease, color 0.2s ease;
+    font-weight: 500;
 }
 
 .link:hover {

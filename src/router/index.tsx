@@ -38,14 +38,14 @@ export const router = createBrowserRouter([
                 path: "/settings",
                 element: <SettingsPage/>, // Placeholder for Settings Page
             },
-            {
-                path: "/login",
-                element: <LoginPage/>,
-            },
-            {
-                path: "/signup",
-                element: <SignupPage/>,
-            },
         ],
+    },
+    {
+        path: "/login",
+        element: <LoginPage/>,
+    },
+    {
+        path: "/signup",
+        element: <SignupPage/>,
     },
 ]);
