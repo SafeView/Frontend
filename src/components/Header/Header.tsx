@@ -1,20 +1,24 @@
+import React, { useCallback } from 'react';
 import {useNavigate} from "react-router-dom";
 import styles from "./Header.module.css";
 import {useUserStore} from "../../stores/userStore.ts";
-import {FaBell} from "react-icons/fa";
+import {useUIStore} from "../../stores/uiStore.ts";
+import {FaBell, FaBars} from "react-icons/fa";
 
 
-const Header = () => {
-    const {user, logout} = useUserStore();
+const Header = React.memo(() => {
+    const user = useUserStore((state) => state.user);
+    const logout = useUserStore((state) => state.logout);
+    const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
     const navigate = useNavigate();
 
-    const handleLogout = () => {
+    const handleLogout = useCallback(() => {
         logout(); // 상태 초기화
         navigate("/"); // 홈으로 이동
-    };
+    }, [logout, navigate]);
 
     return (
-        <header className={styles.header}>
+        <header className={`${styles.header} ${isSidebarOpen ? styles.sidebarOpen : styles.sidebarClosed}`}>
             {/* ✅ 왼쪽: 로고 및 타이틀 */}
             <div className={styles.left}>
                 {/* 🔒 로고 넣고 싶으면 여기에 <img src="/logo.svg" className={styles.logo} /> 추가 */}
@@ -27,7 +31,7 @@ const Header = () => {
                 {user ? (
                     <>
             <span className={styles.welcome}>
-              {user.nickname} 님 환영합니다!
+              {user.name} 님 환영합니다!
             </span>
                         <button className={styles.iconBtn}>
                             <FaBell/>
@@ -39,7 +43,7 @@ const Header = () => {
                 ) : (
                     <button
                         className={styles.loginBtn}
-                        onClick={() => navigate("/login")}
+                        onClick={useCallback(() => navigate("/login"), [navigate])}
                     >
                         로그인 하러가기
                     </button>
@@ -47,6 +51,6 @@ const Header = () => {
             </div>
         </header>
     );
-};
+});
 
 export default Header;

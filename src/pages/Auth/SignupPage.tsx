@@ -1,90 +1,77 @@
 import { useState } from "react";
 import styles from "./SignupPage.module.css";
 import { useNavigate } from "react-router-dom";
-import { useUserStore } from "../../stores/userStore.ts";
+import { useSignupMutation } from "../../hooks/UserSignupMutation.ts";
+import { useEmailCheck } from "../../hooks/useEmailCheck.ts";
+import AddressInput from "../../components/AddressInput/AddressInput.tsx";
 
 const SignupPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
+  const [detailAddress, setDetailAddress] = useState("");
   const [phone, setPhone] = useState("");
   const [gender, setGender] = useState("");
   const [birthday, setBirthday] = useState("");
-  const [emailChecked, setEmailChecked] = useState(false);
 
-  const { signup } = useUserStore();
   const navigate = useNavigate();
+  const { emailChecked, checkEmailDuplication, resetEmailCheck } = useEmailCheck();
+  
+  // 회원가입 뮤테이션 훅 사용
+  const signupMutation = useSignupMutation();
 
-  // 이메일 중복 체크 함수 (가상 예시, 실제는 API 호출 필요)
-  const checkEmailDuplication = async () => {
-    if (!email) {
-      alert("이메일을 입력하세요.");
-      return;
-    }
-    try {
-      // 예시: API 호출하여 중복 여부 확인
-      // const response = await fetch(`/api/check-email?email=${email}`);
-      // const result = await response.json();
-
-      // 여기서는 임의로 중복 아님(true)으로 가정
-      const result = { available: true };
-
-      if (result.available) {
-        alert("사용 가능한 이메일입니다.");
-        setEmailChecked(true);
-      } else {
-        alert("이미 사용 중인 이메일입니다.");
-        setEmailChecked(false);
-      }
-    } catch (error) {
-      alert("이메일 중복 체크 실패");
-      setEmailChecked(false);
-    }
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+    resetEmailCheck(); // 이메일 변경 시 중복 체크 상태 초기화
   };
 
-  const handleSignup = async () => {
+  const handleSignup = (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+    }
+    
     if (!emailChecked) {
       alert("이메일 중복 체크를 먼저 해주세요.");
       return;
     }
-    try {
-      await signup(email, password, name);
-      alert("회원가입 완료!");
-      navigate("/");
-    } catch (e) {
-      alert("회원가입 실패!");
+    if (!address) {
+      alert("주소를 입력해주세요.");
+      return;
     }
+    
+    const fullAddress = detailAddress ? `${address} ${detailAddress}` : address;
+    
+    // 뮤테이션 실행
+    signupMutation.mutate({
+      email,
+      password,
+      name,
+      address: fullAddress,
+      phone,
+      gender,
+      birthday
+    });
   };
 
   return (
-    <>
-      <div className={styles.container}>
-        <h1 className={styles.title}>Sign Up</h1>
-
-        <div style={{ display: "flex", alignItems: "center", maxWidth: 280 }}>
+    <div className={styles.container}>
+      <h1 className={styles.title}>Sign Up</h1>
+      
+      <form onSubmit={handleSignup} className={styles.form}>
+        <div className={styles.emailInputWrapper}>
           <input
-            className={styles.input}
+            className={styles.emailInput}
             placeholder="이메일"
             value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              setEmailChecked(false); // 이메일 변경 시 중복 체크 상태 초기화
-            }}
-            style={{ flex: 1, marginRight: "8px" }}
+            onChange={handleEmailChange}
+            type="email"
+            required
           />
           <button
             type="button"
-            onClick={checkEmailDuplication}
-            style={{
-              padding: "0.75rem 1rem",
-              borderRadius: "6px",
-              border: "none",
-              backgroundColor: "#646cff",
-              color: "white",
-              cursor: "pointer",
-              fontSize: "1rem",
-            }}
+            onClick={() => checkEmailDuplication(email)}
+            className={styles.checkButton}
           >
             중복 체크
           </button>
@@ -96,19 +83,24 @@ const SignupPage = () => {
           placeholder="비밀번호"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          required
         />
         <input
           className={styles.input}
           placeholder="이름"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          required
         />
-        <input
-          className={styles.input}
-          placeholder="주소"
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
+        
+        {/* 주소 입력 컴포넌트 */}
+        <AddressInput
+          address={address}
+          detailAddress={detailAddress}
+          onAddressChange={setAddress}
+          onDetailAddressChange={setDetailAddress}
         />
+
         <input
           className={styles.input}
           placeholder="전화번호"
@@ -135,11 +127,15 @@ const SignupPage = () => {
           onChange={(e) => setBirthday(e.target.value)}
         />
 
-        <button className={styles.button} onClick={handleSignup}>
-          회원가입
+        <button 
+          className={styles.button} 
+          type="submit"
+          disabled={signupMutation.isPending}
+        >
+          {signupMutation.isPending ? '회원가입 중...' : '회원가입'}
         </button>
-      </div>
-    </>
+      </form>
+    </div>
   );
 };
 

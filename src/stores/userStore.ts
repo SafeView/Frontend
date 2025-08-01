@@ -1,10 +1,13 @@
 // src/stores/userStore.ts
 import { create } from 'zustand';
 import { login as loginService, signup as signupService } from '../services/authService';
-
+import { signup as userSignup, checkEmailDuplication } from '../apis/userApi';
+import { login as authLogin } from '../apis/auth';
+import { TokenStorage } from '../utils/tokenStorage';
 interface UserInfo {
     email: string;
     nickname: string;
+    name: string;
     role: 'USER' | 'ADMIN';
 }
 
@@ -14,7 +17,9 @@ interface UserState {
     isDecrypted: boolean;
     decryptionKey: string;
     login: (email: string, password: string) => Promise<void>;
-    signup: (email: string, password: string, nickname: string) => Promise<void>;
+    setUserData: (user: UserInfo, token: string) => void;
+    signup: (email: string, password: string, nickname: string, address?: string, phone?: string, gender?: string, birthday?: string) => Promise<void>;
+    checkEmail: (email: string) => Promise<boolean>;
     logout: () => void;
     setDecryptionKey: (key: string) => void;
     toggleDecryption: () => void;
@@ -38,7 +43,7 @@ export const useUserStore = create<UserState>((set) => ({
             // 백엔드 API 호출 시도
             const { token, email: userEmail, nickname } = await loginService(email, password);
             const role = email === 'admin@example.com' ? 'ADMIN' : 'USER';
-            set({ token, user: { email: userEmail, nickname, role } });
+            set({ token, user: { email: userEmail, nickname, name: nickname, role } });
         } catch (error) {
             // 백엔드 연결 실패 시 임시 로그인 처리
             console.log('백엔드 연결 실패, 임시 로그인 처리 중...');
@@ -54,6 +59,7 @@ export const useUserStore = create<UserState>((set) => ({
                     user: { 
                         email: tempUser.email, 
                         nickname: tempUser.nickname, 
+                        name: tempUser.nickname,
                         role: tempUser.role 
                     } 
                 });
@@ -63,42 +69,59 @@ export const useUserStore = create<UserState>((set) => ({
         }
     },
 
-    signup: async (email, password, nickname) => {
+    setUserData: (user: UserInfo, token: string) => {
+        set({ user, token });
+    },
+
+    signup: async (email, password, nickname, address = '', phone = '', gender = '', birthday = '') => {
         try {
-            // 백엔드 API 호출 시도
-            const form = {
+            // 실제 API 호출
+            const userData = {
                 email,
                 password,
                 name: nickname,
-                address: '',
-                phone: '',
-                gender: '',
-                birthday: ''
+                address,
+                phone,
+                gender,
+                birthday
             };
-            const { token, email: userEmail, nickname: nick } = await signupService(form);
-            const role = email === 'admin@example.com' ? 'ADMIN' : 'USER';
-            set({ token, user: { email: userEmail, nickname: nick, role } });
-        } catch (error) {
-            // 백엔드 연결 실패 시 임시 회원가입 처리
-            console.log('백엔드 연결 실패, 임시 회원가입 처리 중...');
+            const response = await userSignup(userData);
+            console.log('회원가입 성공:', response);
             
-            // 이미 존재하는 사용자인지 확인
-            const existingUser = TEMP_USERS.find(user => user.email === email);
-            if (existingUser) {
-                throw new Error('이미 존재하는 이메일입니다.');
-            }
+            // 회원가입 성공 후 자동 로그인 처리
+            const loginResponse = await authLogin({ email, password });
             
-            // 새 사용자 추가
-            TEMP_USERS.push({ email, password, nickname, role: 'USER' });
-            const token = `temp_token_${Date.now()}`;
+            // 토큰을 쿠키에 저장
+            TokenStorage.setAccessToken(loginResponse.token);
+            
             set({ 
-                token, 
-                user: { email, nickname, role: 'USER' } 
+                token: loginResponse.token, 
+                user: { 
+                    email: loginResponse.email, 
+                    nickname: loginResponse.name, 
+                    name: loginResponse.name,
+                    role: 'USER' // 기본값으로 USER 설정
+                } 
             });
+        } catch (error) {
+            console.error('회원가입 실패:', error);
+            throw error;
+        }
+    },
+
+    checkEmail: async (email: string) => {
+        try {
+            const isAvailable = await checkEmailDuplication(email);
+            return isAvailable;
+        } catch (error) {
+            console.error('이메일 중복 체크 실패:', error);
+            throw error;
         }
     },
 
     logout: () => {
+        // 쿠키에서 토큰 삭제
+        TokenStorage.clearTokens();
         set({ user: null, token: null, isDecrypted: false, decryptionKey: '' });
     },
 

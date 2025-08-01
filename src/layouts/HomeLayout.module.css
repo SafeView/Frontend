@@ -2,6 +2,7 @@
     display: flex;
     height: 100vh;
     background-color: #0e0e0e; /* 배경 전체 어두운 톤 */
+    overflow: hidden;
 }
 
 .main {
@@ -9,6 +10,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    transition: margin-left 0.3s ease;
 }
 
 .content {

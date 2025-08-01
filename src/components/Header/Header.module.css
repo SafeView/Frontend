@@ -6,6 +6,13 @@
     padding: 0.8rem 2rem;
     border-bottom: 1px solid #2e2e2e;
     color: white;
+    z-index: 1000; /* 사이드바보다 높은 z-index */
+    position: relative;
+    transition: margin-left 0.3s ease;
+}
+
+.header.sidebarClosed {
+    margin-left: 60px; /* 닫힌 사이드바 너비만큼 여백 */
 }
 
 .left {
