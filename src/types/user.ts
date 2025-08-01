@@ -37,7 +37,7 @@ export interface EmailCheckResponse {
 
 // 유저 정보 타입 (ex: /api/auth/me)
 export interface UserInfo {
-  id: number;
+  id?: number;
   email: string;
   name: string;
   address?: string;
@@ -45,8 +45,8 @@ export interface UserInfo {
   gender?: Gender;
   birthday?: string;
   role: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // 공통 응답 타입 (제네릭으로 감싸는 wrapper)
