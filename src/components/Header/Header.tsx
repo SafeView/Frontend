@@ -1,9 +1,9 @@
 import React, { useCallback } from 'react';
 import {useNavigate} from "react-router-dom";
 import styles from "./Header.module.css";
-import {useUserStore} from "../../stores/userStore.ts";
+import useUserStore from "../../stores/userStore.ts";
 import {useUIStore} from "../../stores/uiStore.ts";
-import {FaBell, FaBars} from "react-icons/fa";
+import {FaBell} from "react-icons/fa";
 
 
 const Header = React.memo(() => {
