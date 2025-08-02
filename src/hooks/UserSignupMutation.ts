@@ -1,44 +1,59 @@
+// src/hooks/useSignupMutation.ts
+
 import { useMutation } from '@tanstack/react-query';
-import { signup as signupApi } from '../apis/userApi';
-import type { SignupRequest, SignupResponse } from '../types/user';
+import type { SignupRequest } from '../types/user';
 import { useNavigate } from 'react-router-dom';
+import useUserStore from '../stores/userStore';
 
 interface UseSignupMutationOptions {
-  onSuccess?: (data: SignupResponse) => void;
+  onSuccess?: () => void;
   onError?: (error: Error) => void;
 }
 
+
+/**
+ * ✅ 회원가입 Mutation 훅
+ * - Zustand의 userStore.signup() 호출 (자동 로그인까지 포함됨)
+ */
 export const useSignupMutation = (options?: UseSignupMutationOptions) => {
   const navigate = useNavigate();
+  const { signup } = useUserStore(); // 상태 저장소에서 signup 함수 가져옴
 
   return useMutation({
-    mutationFn: async (userData: SignupRequest): Promise<SignupResponse> => {
-      return await signupApi(userData);
+    /**
+     * 📝 회원가입 요청
+     * - 성공 시 자동 로그인 수행
+     */
+    mutationFn: async (form: SignupRequest): Promise<void> => {
+      await signup(form); // 내부에서 login까지 자동 수행됨
     },
-    onSuccess: (data) => {
-      console.log('회원가입 성공:', data);
-      
-      // 기본 성공 처리
-      alert('회원가입이 완료되었습니다! 로그인 페이지로 이동합니다.');
-      navigate('/login');
-      
-      // 커스텀 성공 콜백 실행
+
+    /**
+     * ✅ 성공 시 처리
+     * - 로그인 상태로 홈으로 이동
+     * - 커스텀 콜백 실행
+     */
+    onSuccess: () => {
+      alert('🎉 회원가입 및 자동 로그인 완료!');
+      navigate('/');
+
       if (options?.onSuccess) {
-        options.onSuccess(data);
+        options.onSuccess();
       }
     },
+
+    /**
+     * ❌ 에러 처리
+     * - alert로 메시지 출력
+     * - 콜백 실행
+     */
     onError: (error: Error) => {
-      console.error('회원가입 실패:', error);
-      
-      // 기본 에러 처리
-      alert(error.message || '회원가입에 실패했습니다.');
-      
-      // 커스텀 에러 콜백 실행
+      console.error('❌ 회원가입 실패:', error.message);
+      alert(error.message || '회원가입 중 오류가 발생했습니다.');
+
       if (options?.onError) {
         options.onError(error);
       }
     },
   });
 };
-
- 

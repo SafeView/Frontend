@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useUserStore } from '../stores/userStore';
+import useUserStore from '../stores/userStore';
 import { DecryptService } from '../services/aiService';
 
 interface UseDecryptionReturn {
@@ -24,7 +24,7 @@ export const useDecryption = (): UseDecryptionReturn => {
 
   const handleDecryptSubmit = useCallback(() => {
     const validation = DecryptService.validateKey(decryptKey);
-    
+
     if (!validation.valid) {
       setDecryptError(validation.error || '복호화키 검증 실패');
       return;
@@ -59,4 +59,4 @@ export const useDecryption = (): UseDecryptionReturn => {
     setShowDecryptModal,
     setDecryptKey
   };
-}; 
+};
