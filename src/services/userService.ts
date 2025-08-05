@@ -4,8 +4,9 @@ import {
     type SignupRequest,
     type SignupResponse,
     type EmailCheckResponse,
-    type ApiResponse,
 } from '../types/user.ts';
+import type { ApiResponse } from '../types/common'; // 공통 타입 불러오기
+
 
 /**
  * 📝 회원가입 API

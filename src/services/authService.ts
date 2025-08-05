@@ -3,8 +3,10 @@ import api from "../apis/api.ts";
 import {
   type LoginRequest,
   type LoginResponse,
-  type ApiResponse, type UserInfo
+  type UserInfo,
 } from "../types/user.ts";
+import type { ApiResponse } from '../types/common'; // 공통 타입 불러오기
+
 
 /**
  * 🔐 로그인 API

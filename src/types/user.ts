@@ -48,11 +48,3 @@ export interface UserInfo {
   createdAt?: string;
   updatedAt?: string;
 }
-
-// 공통 응답 타입 (제네릭으로 감싸는 wrapper)
-export interface ApiResponse<T> {
-  isSuccess: boolean;
-  code: string;
-  message: string;
-  data: T;
-}
