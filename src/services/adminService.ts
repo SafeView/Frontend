@@ -66,7 +66,7 @@ export const approveAdminRequest = async (
 ): Promise<AdminRequest> => {
   try {
     const body: AdminDecisionBody = { adminComment };
-    const response = await api.post<AdminDecisionResponse>(
+    const response = await api.put<AdminDecisionResponse>(
       `/admin/requests/${requestId}/approve`,
       body
     );
@@ -96,7 +96,7 @@ export const rejectAdminRequest = async (
 ): Promise<AdminRequest> => {
   try {
     const body: AdminDecisionBody = { adminComment };
-    const response = await api.post<AdminDecisionResponse>(
+    const response = await api.put<AdminDecisionResponse>(
       `/admin/requests/${requestId}/reject`,
       body
     );
