@@ -1,9 +1,9 @@
 import { useState } from "react";
 import styles from "./SignupPage.module.css";
-import { useNavigate } from "react-router-dom";
 import { useSignupMutation } from "../../hooks/UserSignupMutation.ts";
 import { useEmailCheck } from "../../hooks/useEmailCheck.ts";
 import AddressInput from "../../components/AddressInput/AddressInput.tsx";
+import type { Gender } from "../../types/user.ts";
 
 const SignupPage = () => {
   const [email, setEmail] = useState("");
@@ -12,12 +12,11 @@ const SignupPage = () => {
   const [address, setAddress] = useState("");
   const [detailAddress, setDetailAddress] = useState("");
   const [phone, setPhone] = useState("");
-  const [gender, setGender] = useState("");
+  const [gender, setGender] = useState<Gender>("FEMALE");
   const [birthday, setBirthday] = useState("");
 
-  const navigate = useNavigate();
   const { emailChecked, checkEmailDuplication, resetEmailCheck } = useEmailCheck();
-  
+
   // 회원가입 뮤테이션 훅 사용
   const signupMutation = useSignupMutation();
 
@@ -30,7 +29,7 @@ const SignupPage = () => {
     if (e) {
       e.preventDefault();
     }
-    
+
     if (!emailChecked) {
       alert("이메일 중복 체크를 먼저 해주세요.");
       return;
@@ -39,9 +38,9 @@ const SignupPage = () => {
       alert("주소를 입력해주세요.");
       return;
     }
-    
+
     const fullAddress = detailAddress ? `${address} ${detailAddress}` : address;
-    
+
     // 뮤테이션 실행
     signupMutation.mutate({
       email,
@@ -57,7 +56,7 @@ const SignupPage = () => {
   return (
     <div className={styles.container}>
       <h1 className={styles.title}>Sign Up</h1>
-      
+
       <form onSubmit={handleSignup} className={styles.form}>
         <div className={styles.emailInputWrapper}>
           <input
@@ -92,7 +91,7 @@ const SignupPage = () => {
           onChange={(e) => setName(e.target.value)}
           required
         />
-        
+
         {/* 주소 입력 컴포넌트 */}
         <AddressInput
           address={address}
@@ -112,7 +111,7 @@ const SignupPage = () => {
         <select
           className={styles.input}
           value={gender}
-          onChange={(e) => setGender(e.target.value)}
+          onChange={(e) => setGender(e.target.value as Gender)}
         >
           <option value="">성별 선택</option>
           <option value="MALE">남성</option>
@@ -127,8 +126,8 @@ const SignupPage = () => {
           onChange={(e) => setBirthday(e.target.value)}
         />
 
-        <button 
-          className={styles.button} 
+        <button
+          className={styles.button}
           type="submit"
           disabled={signupMutation.isPending}
         >

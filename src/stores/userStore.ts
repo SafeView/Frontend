@@ -1,135 +1,152 @@
 // src/stores/userStore.ts
+
 import { create } from 'zustand';
-import { login as loginService, signup as signupService } from '../services/authService';
-import { signup as userSignup, checkEmailDuplication } from '../apis/userApi';
-import { login as authLogin } from '../apis/auth';
-import { TokenStorage } from '../utils/tokenStorage';
-interface UserInfo {
-    email: string;
-    nickname: string;
-    name: string;
-    role: 'USER' | 'ADMIN';
-}
+import {
+    login as loginService,
+    getUserInfo,
+} from '../services/authService.ts';
+import {
+    signup as signupService,
+    checkEmail,
+} from '../services/userService.ts';
+import type { LoginRequest, SignupRequest, UserInfo } from "../types/user.ts";
+
+// 임시 사용자 데이터 (백엔드 없이 테스트용)
+const TEMP_USERS = [
+    { email: 'admin@example.com', password: 'admin123', name: '관리자', role: 'ADMIN' as const },
+    { email: 'user@example.com', password: 'user123', name: '일반사용자', role: 'USER' as const },
+    { email: 'test@example.com', password: 'test123', name: '테스트사용자', role: 'USER' as const },
+];
+
 
 interface UserState {
     user: UserInfo | null;
-    token: string | null;
+    isLoggedIn: boolean;
     isDecrypted: boolean;
     decryptionKey: string;
-    login: (email: string, password: string) => Promise<void>;
-    setUserData: (user: UserInfo, token: string) => void;
-    signup: (email: string, password: string, nickname: string, address?: string, phone?: string, gender?: string, birthday?: string) => Promise<void>;
-    checkEmail: (email: string) => Promise<boolean>;
+
+    login: (form: LoginRequest) => Promise<void>;
     logout: () => void;
+    signup: (form: SignupRequest) => Promise<void>;
+    checkEmailDuplication: (email: string) => Promise<boolean>;
+    fetchUserInfo: () => Promise<void>;
+
     setDecryptionKey: (key: string) => void;
     toggleDecryption: () => void;
 }
 
-// 임시 사용자 데이터 (백엔드 없이 테스트용)
-const TEMP_USERS = [
-    { email: 'admin@example.com', password: 'admin123', nickname: '관리자', role: 'ADMIN' as const },
-    { email: 'user@example.com', password: 'user123', nickname: '일반사용자', role: 'USER' as const },
-    { email: 'test@example.com', password: 'test123', nickname: '테스트사용자', role: 'USER' as const }
-];
-
-export const useUserStore = create<UserState>((set) => ({
+const useUserStore = create<UserState>((set) => ({
     user: null,
-    token: null,
+    isLoggedIn: false,
     isDecrypted: false,
     decryptionKey: '',
 
-    login: async (email, password) => {
+    /**
+     * 🔐 로그인
+     * - 성공 시: JWT는 HttpOnly 쿠키로 저장되며, 응답 본문에 토큰 없음
+     * - 이후 getUserInfo()를 통해 사용자 정보 조회
+     * - 실패 시: TEMP 유저 fallback (개발 중 디버깅 용도)
+     */
+    login: async (form) => {
         try {
-            // 백엔드 API 호출 시도
-            const { token, email: userEmail, nickname } = await loginService(email, password);
-            const role = email === 'admin@example.com' ? 'ADMIN' : 'USER';
-            set({ token, user: { email: userEmail, nickname, name: nickname, role } });
-        } catch (error) {
-            // 백엔드 연결 실패 시 임시 로그인 처리
-            console.log('백엔드 연결 실패, 임시 로그인 처리 중...');
-            
-            const tempUser = TEMP_USERS.find(user => 
-                user.email === email && user.password === password
-            );
-            
-            if (tempUser) {
-                const token = `temp_token_${Date.now()}`;
-                set({ 
-                    token, 
-                    user: { 
-                        email: tempUser.email, 
-                        nickname: tempUser.nickname, 
-                        name: tempUser.nickname,
-                        role: tempUser.role 
-                    } 
+            await loginService(form); // 쿠키에 저장
+            const user = await getUserInfo(); // 로그인 성공 시 유저 정보 요청
+            set({ user, isLoggedIn: true });
+        } catch (error: any) {
+            console.error('✅ 백엔드 로그인 실패, TEMP 유저 fallback 시도 중...');
+
+            // TEMP 유저로 fallback (백엔드 없을 때 테스트용)
+            const found = TEMP_USERS.find(u => u.email === form.email && u.password === form.password);
+            if (found) {
+                set({
+                    user: {
+                        email: found.email,
+                        name: found.name,
+                        role: found.role,
+                    },
+                    isLoggedIn: true,
                 });
             } else {
-                throw new Error('잘못된 이메일 또는 비밀번호입니다.');
+                throw new Error('이메일 또는 비밀번호가 잘못되었습니다.');
             }
         }
     },
 
-    setUserData: (user: UserInfo, token: string) => {
-        set({ user, token });
-    },
-
-    signup: async (email, password, nickname, address = '', phone = '', gender = '', birthday = '') => {
-        try {
-            // 실제 API 호출
-            const userData = {
-                email,
-                password,
-                name: nickname,
-                address,
-                phone,
-                gender,
-                birthday
-            };
-            const response = await userSignup(userData);
-            console.log('회원가입 성공:', response);
-            
-            // 회원가입 성공 후 자동 로그인 처리
-            const loginResponse = await authLogin({ email, password });
-            
-            // 토큰을 쿠키에 저장
-            TokenStorage.setAccessToken(loginResponse.token);
-            
-            set({ 
-                token: loginResponse.token, 
-                user: { 
-                    email: loginResponse.email, 
-                    nickname: loginResponse.name, 
-                    name: loginResponse.name,
-                    role: 'USER' // 기본값으로 USER 설정
-                } 
-            });
-        } catch (error) {
-            console.error('회원가입 실패:', error);
-            throw error;
-        }
-    },
-
-    checkEmail: async (email: string) => {
-        try {
-            const isAvailable = await checkEmailDuplication(email);
-            return isAvailable;
-        } catch (error) {
-            console.error('이메일 중복 체크 실패:', error);
-            throw error;
-        }
-    },
-
+    /**
+     * 📤 로그아웃
+     * - 현재는 상태만 초기화 (쿠키 삭제는 서버 logout API 구현 필요)
+     */
     logout: () => {
-        // 쿠키에서 토큰 삭제
-        TokenStorage.clearTokens();
-        set({ user: null, token: null, isDecrypted: false, decryptionKey: '' });
+        set({
+            user: null,
+            isLoggedIn: false,
+            isDecrypted: false,
+            decryptionKey: '',
+        });
     },
 
+    /**
+     * 📝 회원가입
+     * - 성공 시: 자동 로그인 처리
+     */
+    signup: async (form) => {
+        try {
+            await signupService(form);
+            // 자동 로그인 처리
+            await useUserStore.getState().login({
+                email: form.email,
+                password: form.password,
+            });
+        } catch (err) {
+            console.error('회원가입 오류:', err);
+            throw err;
+        }
+    },
+
+    /**
+     * 📧 이메일 중복 확인
+     * - 반환값: 사용 가능 여부 (boolean)
+     * - API 응답의 available 값을 추출
+     */
+    checkEmailDuplication: async (email: string) => {
+        try {
+            const response = await checkEmail(email);
+            return response.available;
+        } catch (error: any) {
+            console.error('❌ 이메일 중복 확인 실패:', error.message);
+            throw error;
+        }
+    },
+
+    /**
+     * 🔄 앱 진입 시 사용자 정보 재요청
+     * - 쿠키 기반 세션 유지 시 호출
+     */
+    fetchUserInfo: async () => {
+        try {
+            const user = await getUserInfo();
+            set({ user, isLoggedIn: true });
+        } catch (err) {
+            console.error('사용자 정보 불러오기 실패:', err);
+            set({ user: null, isLoggedIn: false });
+        }
+    },
+
+    /**
+     * 🔐 블록체인 복호화 키 설정
+     */
     setDecryptionKey: (key: string) => {
         set({ decryptionKey: key });
     },
 
+    /**
+     * 🔁 블록체인 복호화 여부 토글
+     */
     toggleDecryption: () => {
         set((state) => ({ isDecrypted: !state.isDecrypted }));
     },
 }));
+
+export default useUserStore;
+
+

@@ -1,56 +1,59 @@
+// src/hooks/useLoginMutation.ts
 import { useMutation } from '@tanstack/react-query';
-import { login as loginApi } from '../apis/auth';
-import type { LoginRequest, LoginResponse } from '../types/user';
+import type { LoginRequest } from '../types/user';
 import { useNavigate } from 'react-router-dom';
-import { TokenStorage } from '../utils/tokenStorage';
-import { useUserStore } from '../stores/userStore';
+import useUserStore from '../stores/userStore';
 
 interface UseLoginMutationOptions {
-  onSuccess?: (data: LoginResponse) => void;
+  onSuccess?: () => void;
   onError?: (error: Error) => void;
 }
 
+/**
+ * ✅ 로그인 Mutation 훅
+ * - 로그인 요청 후 쿠키에 토큰 저장됨 (응답 본문에는 토큰 없음)
+ * - Zustand의 userStore.login() 호출
+ */
 export const useLoginMutation = (options?: UseLoginMutationOptions) => {
   const navigate = useNavigate();
-  const setUserData = useUserStore((state) => state.setUserData);
+  const { login } = useUserStore(); // Zustand에서 로그인 함수 가져옴
 
   return useMutation({
-    mutationFn: async (credentials: LoginRequest): Promise<LoginResponse> => {
-      return await loginApi(credentials);
+    /**
+     * 🔐 로그인 요청
+     * - form: 로그인 폼 데이터 (email, password)
+     * - HttpOnly 쿠키에 자동 저장됨
+     */
+    mutationFn: async (form: LoginRequest): Promise<void> => {
+      await login(form); // 내부에서 user 정보도 가져와 상태에 저장
     },
-    onSuccess: (data) => {
-      console.log('로그인 성공:', data);
-      
-      // 토큰을 쿠키에 저장
-      TokenStorage.setAccessToken(data.token);
-      
-      // userStore에 사용자 데이터 설정
-      setUserData({
-        email: data.email,
-        nickname: data.name,
-        name: data.name,
-        role: 'USER'
-      }, data.token);
-      
-      // 기본 성공 처리
-      alert('로그인되었습니다!');
+
+    /**
+     * ✅ 성공 시 처리
+     * - 메인 화면으로 이동
+     * - 커스텀 콜백 있으면 실행
+     */
+    onSuccess: () => {
+      alert('🎉 로그인에 성공했습니다!');
       navigate('/');
-      
-      // 커스텀 성공 콜백 실행  
+
       if (options?.onSuccess) {
-        options.onSuccess(data);
+        options.onSuccess();
       }
     },
+
+    /**
+     * ❌ 실패 시 처리
+     * - alert로 메시지 표시
+     * - 콘솔에도 로그
+     */
     onError: (error: Error) => {
-      console.error('로그인 실패:', error);
-      
-      // 기본 에러 처리
-      alert(error.message || '로그인에 실패했습니다.');
-      
-      // 커스텀 에러 콜백 실행
+      console.error('❌ 로그인 실패:', error.message);
+      alert(error.message || '로그인 중 오류가 발생했습니다.');
+
       if (options?.onError) {
         options.onError(error);
       }
     },
   });
-}; 
+};
