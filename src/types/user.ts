@@ -35,6 +35,9 @@ export interface EmailCheckResponse {
   available: boolean;
 }
 
+// 역할 Enum 타입 (백엔드 기준: USER, MODERATOR, ADMIN)
+export type Role = 'USER' | 'MODERATOR' | 'ADMIN';
+
 // 유저 정보 타입 (ex: /api/auth/me)
 export interface UserInfo {
   id?: number;
@@ -44,7 +47,7 @@ export interface UserInfo {
   phone?: string;
   gender?: Gender;
   birthday?: string;
-  role: string;
+  role: Role;
   createdAt?: string;
   updatedAt?: string;
 }
