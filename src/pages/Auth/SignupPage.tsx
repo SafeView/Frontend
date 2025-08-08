@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import styles from "./SignupPage.module.css";
 import { useSignupMutation } from "../../hooks/UserSignupMutation.ts";
 import { useEmailCheck } from "../../hooks/useEmailCheck.ts";
@@ -30,14 +30,45 @@ const SignupPage = () => {
       e.preventDefault();
     }
 
-    if (!emailChecked) {
-      alert("이메일 중복 체크를 먼저 해주세요.");
-      return;
-    }
-    if (!address) {
-      alert("주소를 입력해주세요.");
-      return;
-    }
+      if (!emailChecked) {
+          alert("이메일 중복 체크를 먼저 해주세요.");
+          return;
+      }
+
+      if (!email.includes("@")) {
+          alert("유효한 이메일 주소를 입력해주세요.");
+          return;
+      }
+      if (password.length < 8) {
+          alert("비밀번호는 8자 이상이어야 합니다.");
+          return;
+      }
+
+      if (name.trim() === "") {
+          alert("이름은 필수 입력 항목입니다.");
+          return;
+      }
+
+      if (!address.trim()) {
+          alert("주소를 입력해주세요.");
+          return;
+      }
+
+      if (!phone.trim()) {
+          alert("전화번호는 필수 입력 항목입니다.");
+          return;
+      }
+
+      if (!gender) {
+          alert("성별을 선택해주세요.");
+          return;
+      }
+
+      if (!birthday.trim()) {
+          alert("생년월일을 입력해주세요.");
+          return;
+      }
+
 
     const fullAddress = detailAddress ? `${address} ${detailAddress}` : address;
 
@@ -47,6 +78,7 @@ const SignupPage = () => {
       password,
       name,
       address: fullAddress,
+        role: "USER",
       phone,
       gender,
       birthday

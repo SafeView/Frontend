@@ -8,6 +8,7 @@ interface UseDecryptionReturn {
   decryptError: string;
   isDecrypted: boolean;
   isAdmin: boolean;
+    isModerator: boolean;
   handleDecryptSubmit: () => void;
   handleDecryptClick: () => void;
   setShowDecryptModal: (show: boolean) => void;
@@ -21,6 +22,7 @@ export const useDecryption = (): UseDecryptionReturn => {
   const [decryptError, setDecryptError] = useState('');
 
   const isAdmin = user?.role === 'ADMIN';
+  const isModerator = user?.role === 'MODERATOR';
 
   const handleDecryptSubmit = useCallback(() => {
     const validation = DecryptService.validateKey(decryptKey);
@@ -54,6 +56,7 @@ export const useDecryption = (): UseDecryptionReturn => {
     decryptError,
     isDecrypted,
     isAdmin,
+      isModerator,
     handleDecryptSubmit,
     handleDecryptClick,
     setShowDecryptModal,

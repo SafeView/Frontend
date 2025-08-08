@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import styles from './VideoDisplay.module.css';
 
 interface VideoDisplayProps {
@@ -30,15 +30,15 @@ export const VideoDisplay: React.FC<VideoDisplayProps> = ({
     if (videoRef.current && stream) {
       console.log('비디오 엘리먼트에 스트림 설정:', stream);
       videoRef.current.srcObject = stream;
-      
+
       // 이벤트 핸들러 설정
       const videoElement = videoRef.current;
-      
+
       const handleLoadedMetadata = () => {
         console.log('비디오 메타데이터 로드 완료');
         console.log('비디오 크기:', videoElement.videoWidth, 'x', videoElement.videoHeight);
       };
-      
+
       const handleCanPlay = () => {
         console.log('비디오 재생 가능');
         // 자동 재생 시도
@@ -46,21 +46,21 @@ export const VideoDisplay: React.FC<VideoDisplayProps> = ({
           videoElement.play().catch(e => console.error('자동 재생 실패:', e));
         }
       };
-      
+
       const handlePlay = () => {
         console.log('비디오 재생 시작됨');
       };
-      
+
       const handleError = (e: Event) => {
         console.error('비디오 에러:', e);
       };
-      
+
       // 이벤트 리스너 등록
       videoElement.addEventListener('loadedmetadata', handleLoadedMetadata);
       videoElement.addEventListener('canplay', handleCanPlay);
       videoElement.addEventListener('play', handlePlay);
       videoElement.addEventListener('error', handleError);
-      
+
       // 클린업 함수
       return () => {
         videoElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
@@ -118,7 +118,7 @@ export const VideoDisplay: React.FC<VideoDisplayProps> = ({
           onError={(e) => console.error('비디오 오류:', e)}
         />
       </div>
-      
+
       {/* AI 처리된 영상 */}
       {enableAI && (
         <div className={styles.videoItem}>
@@ -147,4 +147,4 @@ export const VideoDisplay: React.FC<VideoDisplayProps> = ({
       )}
     </div>
   );
-}; 
+};

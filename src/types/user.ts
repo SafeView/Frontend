@@ -6,6 +6,7 @@ export interface SignupRequest {
   password: string;
   name: string;
   address: string;
+  role? : Role;
   phone: string;
   gender: Gender; // 'MALE' | 'FEMALE'
   birthday: string;
