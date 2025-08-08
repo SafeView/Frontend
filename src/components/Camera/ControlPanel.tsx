@@ -8,6 +8,7 @@ interface ControlPanelProps {
   isConnected: boolean;
   isDecrypted: boolean;
   isAdmin: boolean;
+  isModerator: boolean;
   status: string;
   aiFrameCount: number;
   onStartAIStreaming: () => void;
@@ -23,6 +24,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   isConnected,
   isDecrypted,
   isAdmin,
+    isModerator,
   status,
   aiFrameCount,
   onStartAIStreaming,
@@ -57,11 +59,11 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
         >
           AI 서버 연결 해제
         </button>
-        
 
-        
-        {/* 어드민 전용 복호화 버튼 */}
-        {isAdmin && (
+
+
+          {/* 복호화 버튼: 관리자 + 모더레이터 모두 허용 */}
+          {(isAdmin || isModerator) && (
           <button
             onClick={onDecryptClick}
             className={`${styles.actionButton} ${isDecrypted ? styles.decryptActive : styles.decryptButton}`}
@@ -78,7 +80,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
         {enableAI && isStreaming && ` | AI 모드 활성화`}
         {enableAI && ` | ${status}`}
         {enableAI && aiFrameCount > 0 && ` | AI 프레임: ${aiFrameCount}개`}
-        {isAdmin && ` | 관리자 권한`}
+          {(isAdmin || isModerator) && ` | ${isAdmin ? '관리자' : '중간관리자'} 권한`} {/* ✅ 표시 */}
         {enableAI && ` | AI 서버: ${isConnected ? '연결됨' : '연결 안됨'}`}
       </div>
 
@@ -91,4 +93,4 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       </div>
     </div>
   );
-}; 
+};

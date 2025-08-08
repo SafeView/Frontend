@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import styles from './CameraFeed.module.css';
 import { useCamera } from '../../hooks/useCamera';
 import { useAIStreaming } from '../../hooks/useAIStreaming';
@@ -14,7 +14,7 @@ interface CameraFeedProps {
 
 const CameraFeed: React.FC<CameraFeedProps> = ({ decrypted = false, enableAI = false }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  
+
   // 커스텀 훅들 사용
   const {
     stream,
@@ -44,6 +44,7 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ decrypted = false, enableAI = f
     decryptError,
     isDecrypted,
     isAdmin,
+      isModerator,
     handleDecryptSubmit,
     handleDecryptClick,
     setShowDecryptModal,
@@ -80,6 +81,7 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ decrypted = false, enableAI = f
         isConnected={isConnected}
         isDecrypted={isDecrypted}
         isAdmin={isAdmin}
+        isModerator={isModerator}
         status={status}
         aiFrameCount={aiFrameCount}
         onStartAIStreaming={handleStartAIStreaming}
