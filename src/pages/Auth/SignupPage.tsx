@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import styles from "./SignupPage.module.css";
 import { useSignupMutation } from "../../hooks/UserSignupMutation.ts";
 import { useEmailCheck } from "../../hooks/useEmailCheck.ts";
