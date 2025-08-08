@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import styles from './SettingsPage.module.css';
 import useAdminStore from '../stores/adminStore';
 import useUserStore from '../stores/userStore.ts';
+import useKeyStore from '../stores/keyStore';
 import PromotionRequestModal from '../components/Setting/PromotionRequestModal';
 
 const tabs = ['계정 정보', '시스템 설정', '알림 설정'];
@@ -13,8 +14,11 @@ const SettingsPage = () => {
 
     // 유저 정보에서 role 확인 (어드민 여부)
     const { user } = useUserStore();
+
     const isAdmin = user?.role === 'ADMIN';
+    const isModerator = user?.role === 'MODERATOR';
     const isUser = user?.role === 'USER';
+
 
     // 어드민 대시보드 관련 상태 및 함수
     const {
@@ -31,6 +35,18 @@ const SettingsPage = () => {
         clearError,
         clearSelected,
     } = useAdminStore();
+
+    // ✅ 키 스토어 상태/함수 가져오기
+    const {
+        keyInfo,
+        loading: keyLoading,
+        error: keyError,
+        fetchKey,
+        verifyKey,
+        verifyResult,
+        clearError: clearKeyError,
+    } = useKeyStore();
+
 
     // 어드민 대시보드 열릴 때 데이터 불러오기
     useEffect(() => {
@@ -90,6 +106,74 @@ const SettingsPage = () => {
                             )}
                             <button className={styles.saveButton}>저장</button>
                         </div>
+                        {/* ✅ 저장 버튼 바로 아래 복호화 키 UI */}
+                        {(isAdmin || isModerator) && (
+                            <div
+                                style={{
+                                    marginTop: '2rem',
+                                    padding: '1rem',
+                                    border: '1px solid #ccc',
+                                    borderRadius: '8px',
+                                    background: '#f9f9f9'
+                                }}
+                            >
+                                <h4>🔑 복호화 키 관리</h4>
+                                <p style={{ fontSize: '0.9rem', color: '#555' }}>
+                                    카메라 데이터 복호화를 위해 키를 발급 및 검증할 수 있습니다.
+                                </p>
+                                <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                                    <button
+                                        className={styles.saveButton}
+                                        style={{ background: '#81c784' }}
+                                        disabled={keyLoading}
+                                        onClick={fetchKey}
+                                    >
+                                        {keyLoading ? '발급 중...' : '키 발급'}
+                                    </button>
+                                    <button
+                                        className={styles.saveButton}
+                                        style={{ background: '#64b5f6' }}
+                                        onClick={() => {
+                                            if (!keyInfo?.accessToken) {
+                                                alert('먼저 키를 발급받으세요.');
+                                                return;
+                                            }
+                                            verifyKey({ accessToken: keyInfo.accessToken, cameraId: 'CAMERA_001' });
+                                            // 우선 카메라아이디는 CAMERA_001로 설정
+                                        }}                                    >
+                                        키 검증
+                                    </button>
+                                </div>
+
+                                {keyInfo && (
+                                    <div style={{ marginTop: 8, fontSize: '0.85rem', color: '#333' }}>
+                                        <strong>발급된 키:</strong> {keyInfo.accessToken}
+                                    </div>
+                                )}
+                                {verifyResult && (
+                                    <div style={{ marginTop: 8, fontSize: '0.85rem', color: 'green' }}>
+                                        ✅ 키 검증 성공
+                                    </div>
+                                )}
+                                {keyError && (
+                                    <div style={{ marginTop: 8, fontSize: '0.85rem', color: 'red' }}>
+                                        ⚠️ {keyError}
+                                        <button
+                                            onClick={clearKeyError}
+                                            style={{
+                                                marginLeft: 8,
+                                                background: 'none',
+                                                color: 'red',
+                                                border: 'none',
+                                                cursor: 'pointer'
+                                            }}
+                                        >
+                                            닫기
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </>
                 )}
 
