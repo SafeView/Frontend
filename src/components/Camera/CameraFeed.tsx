@@ -45,7 +45,6 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ decrypted = false, enableAI = f
     isDecrypted,
     isAdmin,
       isModerator,
-    handleDecryptSubmit,
     handleDecryptClick,
     setShowDecryptModal,
     setDecryptKey
@@ -95,7 +94,7 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ decrypted = false, enableAI = f
         show={showDecryptModal}
         decryptKey={decryptKey}
         decryptError={decryptError}
-        onDecryptSubmit={handleDecryptSubmit}
+        cameraId={stream?.id || 'CAMERA_001'}
         onClose={() => setShowDecryptModal(false)}
         onKeyChange={setDecryptKey}
       />
