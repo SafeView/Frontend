@@ -1,5 +1,5 @@
 // ✅ 추가: 카메라 컨트롤 컴포넌트 분리
-import { FaStop, FaPlay, FaCircle, FaEye, FaEyeSlash } from "react-icons/fa";
+import { FaStop, FaPlay, FaCircle } from "react-icons/fa";
 import styles from "../../pages/CameraPage.module.css"; // 경로 상황에 맞게 조정
 
 export type Mode = "live" | "history";
@@ -10,9 +10,6 @@ interface CameraControlsProps {
 
     mode: Mode;
     onGoLive: () => void;
-
-    isMosaic: boolean;
-    onToggleMosaic: () => void;
 }
 
 const CameraControls = ({
@@ -20,8 +17,6 @@ const CameraControls = ({
                             onToggleRecording,
                             mode,
                             onGoLive,
-                            isMosaic,
-                            onToggleMosaic,
                         }: CameraControlsProps) => {
     return (
         <div className={styles.controls}>
@@ -51,24 +46,6 @@ const CameraControls = ({
             >
                 <FaPlay className={styles.icon} />
                 LIVE
-            </button>
-
-            {/* 🟣 모자이크 토글 */}
-            <button
-                className={`${styles.ctrlBtn} ${isMosaic ? styles.activeBtn : ""}`}
-                onClick={onToggleMosaic}
-            >
-                {isMosaic ? (
-                    <>
-                        <FaEyeSlash className={styles.icon} />
-                        모자이크 OFF
-                    </>
-                ) : (
-                    <>
-                        <FaEye className={styles.icon} />
-                        모자이크 ON
-                    </>
-                )}
             </button>
         </div>
     );
