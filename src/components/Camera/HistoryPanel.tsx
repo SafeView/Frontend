@@ -7,18 +7,21 @@ export interface HistoryRecord {
     type: string;
     description: string;
     videoSrc?: string;
+    filename?: string;
 }
 
 interface HistoryPanelProps {
     title?: string; // 기본 "Recording History"
     records: HistoryRecord[];
     onSelectHistory: (videoSrc?: string) => void;
+    onDownload?: (filename?: string) => void;
 }
 
 const HistoryPanel = ({
                           title = "Recording History",
                           records,
                           onSelectHistory,
+                          onDownload, // ✅ 추가
                       }: HistoryPanelProps) => {
     // ✅ 추가: 필터 로컬 상태(부모에서 가지고 있던 것 이전)
     const [filterKeyword, setFilterKeyword] = useState("");
@@ -100,33 +103,46 @@ const HistoryPanel = ({
                 </div>
             </div>
 
-            {/* ✅ 추가: 히스토리 테이블 */}
+            {/* ✅ 변경: Download 열 추가 */}
             <table className={styles.historyTable}>
                 <thead>
                 <tr>
                     <th>Timestamp</th>
                     <th>Type</th>
                     <th>Description</th>
+                    <th style={{ width: 110 }}>Action</th> {/* ✅ 추가 */}
                 </tr>
                 </thead>
                 <tbody>
                 {filtered.length > 0 ? (
                     filtered.map((record, idx) => (
-                        <tr
-                            key={idx}
-                            className={styles.historyRow}
-                            onClick={() => onSelectHistory(record.videoSrc)}
-                        >
-                            <td>{record.timestamp}</td>
-                            <td>
+                        <tr key={idx} className={styles.historyRow}>
+                            <td onClick={() => onSelectHistory(record.videoSrc)}>{record.timestamp}</td>
+                            <td onClick={() => onSelectHistory(record.videoSrc)}>
                                 <span className={styles.badge}>{record.type}</span>
                             </td>
-                            <td>{record.description}</td>
+                            <td onClick={() => onSelectHistory(record.videoSrc)}>{record.description}</td>
+                            <td>
+                                {/* ✅ 추가: 파일이 있으면 다운로드 버튼 노출 */}
+                                {onDownload && record.filename ? (
+                                    <button
+                                        className={styles.smallBtn}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onDownload(record.filename);
+                                        }}
+                                    >
+                                        Download
+                                    </button>
+                                ) : (
+                                    <span className={styles.dim}>-</span>
+                                )}
+                            </td>
                         </tr>
                     ))
                 ) : (
                     <tr>
-                        <td colSpan={3} className={styles.noRecord}>
+                        <td colSpan={4} className={styles.noRecord}>
                             No history available for this camera.
                         </td>
                     </tr>
