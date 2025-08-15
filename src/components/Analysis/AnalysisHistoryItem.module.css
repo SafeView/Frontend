@@ -1,0 +1,34 @@
+/* src/components/Analysis/AnalysisHistoryItem.module.css */
+
+.item {
+    display: flex;
+    flex-direction: column;
+    padding: 0.75rem 1rem;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    margin-bottom: 0.75rem;
+    transition: background-color 0.2s;
+}
+
+.item:hover {
+    background-color: #f3f4f6;
+}
+
+.filename {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #111827;
+    margin-bottom: 0.25rem;
+}
+
+.details {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.time {
+    font-style: italic;
+}

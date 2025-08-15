@@ -1,7 +1,7 @@
 // src/components/Sidebar/Sidebar.tsx
 import React, { useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { FaHome, FaCamera, FaBell, FaChartBar, FaCog, FaTimes, FaBars } from 'react-icons/fa';
+import {FaHome, FaCamera, FaChartBar, FaCog, FaTimes, FaBars, FaFileVideo} from 'react-icons/fa';
 import styles from './Sidebar.module.css';
 import { useUIStore } from '../../stores/uiStore';
 
@@ -13,8 +13,8 @@ const Sidebar = React.memo(() => {
     const menus = [
         { path: '/', label: 'Overview', icon: <FaHome /> },
         { path: '/cameras', label: 'Cameras', icon: <FaCamera /> },
-        { path: '/alerts', label: 'Alerts', icon: <FaBell /> },
-        { path: '/reports', label: 'Reports', icon: <FaChartBar /> },
+        { path: '/analysis', label: 'Video Analysis', icon: <FaFileVideo /> },
+        { path: '/reports', label: 'Reports', icon: <FaChartBar  /> },
         { path: '/settings', label: 'Settings', icon: <FaCog /> },
     ];
 
@@ -32,7 +32,7 @@ const Sidebar = React.memo(() => {
             <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.open : styles.closed}`}>
                 <div className={styles.sidebarHeader}>
                     <h3 className={styles.sidebarTitle}>Menu</h3>
-                    <button 
+                    <button
                         className={styles.closeButton}
                         onClick={handleCloseSidebar}
                         aria-label="사이드바 닫기"
@@ -40,7 +40,7 @@ const Sidebar = React.memo(() => {
                         <FaTimes />
                     </button>
                 </div>
-                
+
                 <nav className={styles.nav}>
                     {menus.map((menu) => (
                         <Link
@@ -57,7 +57,7 @@ const Sidebar = React.memo(() => {
 
             {/* 닫힌 사이드바 - 열기 버튼만 표시 */}
             <aside className={`${styles.sidebarClosed} ${!isSidebarOpen ? styles.visible : styles.hidden}`}>
-                <button 
+                <button
                     className={styles.openButton}
                     onClick={handleOpenSidebar}
                     aria-label="사이드바 열기"

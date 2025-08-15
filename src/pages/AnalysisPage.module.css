@@ -1,0 +1,24 @@
+/* src/pages/AnalysisPage.module.css */
+
+.container {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.section {
+    background-color: #181b23;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
