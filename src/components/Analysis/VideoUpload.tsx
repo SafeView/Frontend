@@ -1,5 +1,5 @@
 // src/components/Analysis/VideoUpload.tsx
-import React, { type ChangeEvent } from 'react';
+import React, { type ChangeEvent, useState } from 'react';
 import styles from './VideoUpload.module.css';
 
 interface Props {
@@ -7,10 +7,13 @@ interface Props {
 }
 
 const VideoUpload: React.FC<Props> = ({ onUpload }) => {
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             onUpload(file);
+            setPreviewUrl(URL.createObjectURL(file));
         }
     };
 
@@ -31,6 +34,13 @@ const VideoUpload: React.FC<Props> = ({ onUpload }) => {
             >
                 파일 업로드
             </button>
+
+            {previewUrl && (
+                <video className={styles.preview} controls>
+                    <source src={previewUrl} type="video/mp4" />
+                    미리보기를 지원하지 않는 브라우저입니다.
+                </video>
+            )}
         </div>
     );
 };

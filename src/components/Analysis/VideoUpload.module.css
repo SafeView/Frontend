@@ -32,3 +32,11 @@
 .uploadButton:hover {
     background-color: #1e40af;
 }
+
+.preview {
+    margin-top: 1rem;
+    width: 100%;
+    max-width: 720px;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
