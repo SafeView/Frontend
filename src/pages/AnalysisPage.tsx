@@ -6,6 +6,7 @@ import styles from './AnalysisPage.module.css';
 
 const AnalysisPage: React.FC = () => {
     const [videoFile, setVideoFile] = useState<File | null>(null);
+    // @ts-ignore
     const [analysisData, setAnalysisData] = useState<any>(null);
 
     return (

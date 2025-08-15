@@ -17,9 +17,9 @@ const HomePage = () => {
         <h1 className={styles.heading}>Overview</h1>
 
         <div className={styles.cardRow}>
-          <SummaryCard title="Total Cameras" value={12} />
+          <SummaryCard title="Total Cameras" value={3} />
           <SummaryCard title="Active Alerts" value={3} />
-          <SummaryCard title="System Uptime" value="99.8%" />
+          <SummaryCard title="System Uptime" value="87.8%" />
         </div>
 
         <h2 className={styles.sectionTitle}>Live Feeds</h2>

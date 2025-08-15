@@ -1,21 +1,25 @@
-// src/components/Sidebar/Sidebar.tsx
 import React, { useCallback } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import {FaHome, FaCamera, FaChartBar, FaCog, FaTimes, FaBars, FaFileVideo} from 'react-icons/fa';
+import { useLocation, useNavigate } from 'react-router-dom';
+import {
+    FaHome, FaCamera, FaChartBar, FaCog, FaTimes, FaBars, FaFileVideo
+} from 'react-icons/fa';
 import styles from './Sidebar.module.css';
 import { useUIStore } from '../../stores/uiStore';
+import useUserStore from '../../stores/userStore';
 
 const Sidebar = React.memo(() => {
     const location = useLocation();
+    const navigate = useNavigate();
     const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
     const { closeSidebar, openSidebar } = useUIStore();
+    const isLoggedIn = useUserStore((state) => state.isLoggedIn);
 
     const menus = [
-        { path: '/', label: 'Overview', icon: <FaHome /> },
-        { path: '/cameras', label: 'Cameras', icon: <FaCamera /> },
-        { path: '/analysis', label: 'Video Analysis', icon: <FaFileVideo /> },
-        { path: '/reports', label: 'Reports', icon: <FaChartBar  /> },
-        { path: '/settings', label: 'Settings', icon: <FaCog /> },
+        { path: '/', label: 'Overview', icon: <FaHome />, authRequired: false },
+        { path: '/cameras', label: 'Cameras', icon: <FaCamera />, authRequired: true },
+        { path: '/analysis', label: 'Video Analysis', icon: <FaFileVideo />, authRequired: true },
+        { path: '/reports', label: 'Reports', icon: <FaChartBar />, authRequired: true },
+        { path: '/settings', label: 'Settings', icon: <FaCog />, authRequired: true },
     ];
 
     const handleCloseSidebar = useCallback(() => {
@@ -25,6 +29,16 @@ const Sidebar = React.memo(() => {
     const handleOpenSidebar = useCallback(() => {
         openSidebar();
     }, [openSidebar]);
+
+    const handleNavigation = (path: string, authRequired: boolean) => {
+        if (authRequired && !isLoggedIn) {
+            alert('로그인이 필요합니다.');
+            navigate('/login');
+            return;
+        }
+        navigate(path);
+        closeSidebar();
+    };
 
     return (
         <>
@@ -43,14 +57,14 @@ const Sidebar = React.memo(() => {
 
                 <nav className={styles.nav}>
                     {menus.map((menu) => (
-                        <Link
+                        <button
                             key={menu.path}
-                            to={menu.path}
                             className={`${styles.link} ${location.pathname === menu.path ? styles.active : ''}`}
+                            onClick={() => handleNavigation(menu.path, menu.authRequired)}
                         >
                             <span className={styles.icon}>{menu.icon}</span>
                             {menu.label}
-                        </Link>
+                        </button>
                     ))}
                 </nav>
             </aside>
