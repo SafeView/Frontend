@@ -37,7 +37,7 @@ const CameraPage = () => {
         videos,
         recording,
         lastRecordResult,
-        downloadUrl,
+        //downloadUrl,
         loading,
         error,
         fetchVideos,
