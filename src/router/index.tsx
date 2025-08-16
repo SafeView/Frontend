@@ -8,6 +8,7 @@ import CameraPage from "../pages/CameraPage.tsx";
 import ReportsPage from "../pages/ReportsPage";
 import SettingsPage from "../pages/SettingsPage";
 import AnalysisPage from "../pages/AnalysisPage.tsx";
+import VerificationPage from "../pages/VerificationPage.tsx";
 
 export const router = createBrowserRouter([
     {
@@ -37,6 +38,10 @@ export const router = createBrowserRouter([
             {
                 path: "/settings",
                 element: <SettingsPage/>, // Placeholder for Settings Page
+            },
+            {
+                path: "/verification",
+                element: <VerificationPage/>, // Placeholder for Verification Page
             },
         ],
     },

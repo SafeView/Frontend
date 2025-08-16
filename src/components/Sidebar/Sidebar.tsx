@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
-    FaHome, FaCamera, FaChartBar, FaCog, FaTimes, FaBars, FaFileVideo
+    FaHome, FaCamera, FaChartBar, FaTimes, FaBars, FaFileVideo, FaKey
 } from 'react-icons/fa';
 import styles from './Sidebar.module.css';
 import { useUIStore } from '../../stores/uiStore';
@@ -16,10 +16,11 @@ const Sidebar = React.memo(() => {
 
     const menus = [
         { path: '/', label: 'Overview', icon: <FaHome />, authRequired: false },
-        { path: '/cameras', label: 'Cameras', icon: <FaCamera />, authRequired: true },
-        { path: '/analysis', label: 'Video Analysis', icon: <FaFileVideo />, authRequired: true },
-        { path: '/reports', label: 'Reports', icon: <FaChartBar />, authRequired: true },
-        { path: '/settings', label: 'Settings', icon: <FaCog />, authRequired: true },
+        { path: '/cameras', label: 'Cameras', icon: <FaCamera />, authRequired: false }, //true로 바꾸기
+        { path: '/analysis', label: 'Video Analysis', icon: <FaFileVideo />, authRequired: false },
+        { path: '/reports', label: 'Reports', icon: <FaChartBar />, authRequired: false },
+        //{ path: '/settings', label: 'Settings', icon: <FaCog />, authRequired: false },
+        { path: '/verification', label: 'Verification', icon: <FaKey />, authRequired: false },
     ];
 
     const handleCloseSidebar = useCallback(() => {
