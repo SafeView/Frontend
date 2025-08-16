@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import type { AutoRecordingStarted, AutoRecordingFinalized } from '../types/autorecording.ts'; // 또는 너가 정의한 위치
+import type { AutoRecordingStarted, AutoRecordingFinalized } from '../types/autorecording.ts';
+import { useSnackbarStore } from './snackbarStore'; // ✅ 스낵바 store 임포트
 
 interface AutoRecordingState {
     isRecording: boolean;
@@ -23,37 +24,36 @@ export const useAIStore = create<AutoRecordingState>((set) => ({
     maxDetected: null,
     duration: null,
 
+    startAutoRecording: ({ filename, started_at, initial_persons }) => {
+        // ✅ 스낵바 메시지 등록
+        useSnackbarStore.getState().enqueueSnackbar({
+            message: `🎥 자동 녹화 시작: ${filename}`,
+            type: 'info',
+        });
 
-    // ✅ 타입 명시만 AutoRecordingStarted 사용
-    // type: 'auto_recording_started';
-    // filename: string;
-    // started_at: string;
-    // initial_persons: number;
-    // storage: 'S3';
-    startAutoRecording: ({ filename, started_at, initial_persons }) =>
         set({
             isRecording: true,
             recordingFilename: filename,
             recordingStartedAt: started_at,
-            personsDetected: initial_persons
-        }),
+            personsDetected: initial_persons,
+        });
+    },
 
-    // ✅ 타입 명시만 AutoRecordingFinalized 사용
-    // type: 'auto_recording_finalized';
-    // filename: string;
-    // segment_max_persons: number;
-    // duration_sec: number;
-    // storage: 'S3';
-    // s3_url: string;
-    stopAutoRecording: ({ filename, s3_url, segment_max_persons, duration_sec }) =>
+    stopAutoRecording: ({ filename, s3_url, segment_max_persons, duration_sec }) => {
+        // ✅ 스낵바 메시지 등록
+        useSnackbarStore.getState().enqueueSnackbar({
+            message: `✅ 녹화 저장 완료: ${filename}`,
+            type: 'success',
+        });
+
         set({
             isRecording: false,
             recordingFilename: filename,
             recordingUrl: s3_url,
             maxDetected: segment_max_persons,
-            duration: duration_sec
-
-        }),
+            duration: duration_sec,
+        });
+    },
 
     reset: () =>
         set({
@@ -61,6 +61,8 @@ export const useAIStore = create<AutoRecordingState>((set) => ({
             recordingFilename: null,
             recordingStartedAt: null,
             recordingUrl: null,
-            personsDetected: 0
-        })
+            personsDetected: 0,
+            maxDetected: null,
+            duration: null,
+        }),
 }));

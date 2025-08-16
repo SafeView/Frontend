@@ -3,6 +3,7 @@ import { RouterProvider } from 'react-router-dom';
 import { router } from './router';
 import {useEffect, useState} from "react";
 import useUserStore from "./stores/userStore.ts";
+import SnackbarContainer from "./components/Snackbar/SnackbarContainer.tsx";
 
 const App = () => {
     const { isLoggedIn, user, fetchUserInfo } = useUserStore();
@@ -27,6 +28,7 @@ const App = () => {
 
     return (
         <>
+            <SnackbarContainer />
             <RouterProvider router={router} />
         </>
     );
