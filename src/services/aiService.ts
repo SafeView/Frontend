@@ -1,4 +1,7 @@
 // AI 관련 API 서비스
+import {useAIStore} from "../stores/aiStore.ts";
+import type {AutoRecordingFinalized, AutoRecordingStarted} from "../types/autorecording.ts";
+
 type WSMessageIn =
     | {
     type: "verification_result";
@@ -129,13 +132,13 @@ export class AIService {
                             // 🎥 자동 녹화 시작 메시지 수신 시 로그 출력
                             if (parsed.type === "auto_recording_started") {
                                 console.log("[🎥 자동 녹화 시작]:", parsed);
-                                // 👉 추후 UI 상태 반영 또는 알림 연동 가능
+                                useAIStore.getState().startAutoRecording(parsed as AutoRecordingStarted); // ✅ 명시적 캐스팅
                             }
 
                             // 📁 자동 녹화 종료 메시지 수신 시 로그 출력
                             if (parsed.type === "auto_recording_finalized") {
                                 console.log("[📁 자동 녹화 종료]:", parsed);
-                                // 👉 영상 다운로드 링크나 저장 위치를 UI에 반영 가능
+                                useAIStore.getState().stopAutoRecording(parsed as AutoRecordingFinalized); // ✅ 명시적 캐스팅
                             }
 
                             return; // 메시지 처리 종료
@@ -303,10 +306,10 @@ export class AIService {
         onFrameReceived?: (data: ArrayBuffer) => void
     ): { success: boolean; error?: string } {
         if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-            return { success: false, error: "WebSocket이 연결되지 않았습니다" };
+            return {success: false, error: "WebSocket이 연결되지 않았습니다"};
         }
         if (this.isStreaming) {
-            return { success: false, error: "이미 스트리밍 중입니다" };
+            return {success: false, error: "이미 스트리밍 중입니다"};
         }
 
         // ✅ 외부에서 바이너리 콜백을 넘기면 등록
@@ -318,7 +321,7 @@ export class AIService {
         // 캔버스 생성
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
-        if (!ctx) return { success: false, error: "캔버스 컨텍스트 생성 실패" };
+        if (!ctx) return {success: false, error: "캔버스 컨텍스트 생성 실패"};
 
         const sendFrame = () => {
             if (!this.ws || this.ws.readyState !== WebSocket.OPEN || !videoElement) return;
@@ -351,7 +354,7 @@ export class AIService {
         this.frameInterval = window.setInterval(sendFrame, 1000 / this.config.frameRate);
         this.isStreaming = true;
 
-        return { success: true };
+        return {success: true};
     }
 
     // 프레임 전송 중단
@@ -371,7 +374,8 @@ export class AIService {
         // 먼저 서버에 disconnect 알림
         try {
             await this.requestDisconnect(1000);
-        } catch { /* 무시 */ }
+        } catch { /* 무시 */
+        }
 
         if (this.ws) {
             this.ws.close();
@@ -390,7 +394,7 @@ export class AIService {
 
     // 상태 확인
     getStatus(): { isConnected: boolean; isStreaming: boolean } {
-        return { isConnected: this.isConnected, isStreaming: this.isStreaming };
+        return {isConnected: this.isConnected, isStreaming: this.isStreaming};
     }
 }
 
