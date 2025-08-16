@@ -4,6 +4,8 @@ import CameraFeed from "../components/Camera/CameraFeed.tsx";
 import CameraControls, { type Mode } from "../components/Camera/CameraControls";
 import HistoryPanel, {type HistoryRecord } from "../components/Camera/HistoryPanel";
 import useVideoStore from "../stores/videoStore";
+import { useUIStore } from '../stores/uiStore';
+
 
 
 /** -------------------------------
@@ -19,6 +21,8 @@ const dummyCameras = [
 ];
 
 const CameraPage = () => {
+    const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
+
     // 현재 선택된 카메라
     const [selectedCamera, setSelectedCamera] = useState(dummyCameras[0]); // Web Cam이 첫 번째
 
@@ -143,7 +147,10 @@ const CameraPage = () => {
 
 
     return (
-        <div className={styles.container}>
+        <div className={styles.container}
+             style={{
+                 marginLeft: isSidebarOpen ? "0px" : "50px",  // ✅ 사이드바 상태에 따라 여백 조정
+             }}>
             {/* 왼쪽 카메라 선택 목록 */}
             <aside className={styles.sidebar}>
                 <h2 className={styles.title}>Cameras</h2>
