@@ -4,8 +4,10 @@ import useKeyStore from '../stores/keyStore';
 import useUserStore from '../stores/userStore';
 import useAdminStore from '../stores/adminStore';
 import PromotionRequestModal from '../components/Setting/PromotionRequestModal';
+import {useUIStore} from "../stores/uiStore.ts";
 
 const VerificationPage = () => {
+    const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
     const { user } = useUserStore();
     const isAdmin = user?.role === 'ADMIN';
     const isModerator = user?.role === 'MODERATOR';
@@ -46,7 +48,9 @@ const VerificationPage = () => {
     }, [isAdmin]);
 
     return (
-        <div className={styles.container}>
+        <div className={styles.container}
+             style={{ marginLeft: isSidebarOpen ? "0px" : "50px" }}
+        >
             <h1 className={styles.title}>🔐 인증 및 권한 검증</h1>
 
             {/* 🔑 어드민 / 모더레이터만 키 발급 가능 */}
