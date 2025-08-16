@@ -1,19 +1,21 @@
-import { useState, useEffect } from 'react';
+import {useState, useEffect} from 'react';
 import styles from './SettingsPage.module.css';
 import useAdminStore from '../stores/adminStore';
 import useUserStore from '../stores/userStore.ts';
 import useKeyStore from '../stores/keyStore';
 import PromotionRequestModal from '../components/Setting/PromotionRequestModal';
+import {useUIStore} from "../stores/uiStore.ts";
 
 const tabs = ['계정 정보', '시스템 설정', '알림 설정'];
 
 const SettingsPage = () => {
+    const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
     const [activeTab, setActiveTab] = useState(tabs[0]);
     const [showAdminDashboard, setShowAdminDashboard] = useState(false);
     const [showRequestModal, setShowRequestModal] = useState(false);
 
     // 유저 정보에서 role 확인 (어드민 여부)
-    const { user } = useUserStore();
+    const {user} = useUserStore();
 
     const isAdmin = user?.role === 'ADMIN';
     const isModerator = user?.role === 'MODERATOR';
@@ -58,7 +60,7 @@ const SettingsPage = () => {
     }, [showAdminDashboard]);
 
     return (
-        <div className={styles.container} style={{ height: '100vh', overflow: 'auto' }}>
+        <div className={styles.container} style={{height: '100vh', overflow: 'auto', marginLeft: isSidebarOpen ? "0px" : "50px"}}>
             <h1 className={styles.title}>⚙️ Settings</h1>
             <p className={styles.subtitle}>시스템 및 계정 관련 설정을 수정할 수 있습니다.</p>
 
@@ -75,7 +77,11 @@ const SettingsPage = () => {
                 {isAdmin && (
                     <button
                         className={styles.tabButton}
-                        style={{ marginLeft: 'auto', background: showAdminDashboard ? '#2a2e39' : undefined, color: showAdminDashboard ? 'white' : undefined }}
+                        style={{
+                            marginLeft: 'auto',
+                            background: showAdminDashboard ? '#2a2e39' : undefined,
+                            color: showAdminDashboard ? 'white' : undefined
+                        }}
                         onClick={() => setShowAdminDashboard((v) => !v)}
                     >
                         관리자 설정
@@ -88,16 +94,16 @@ const SettingsPage = () => {
                     <>
                         <h3>🙋‍♂️ 계정 정보</h3>
                         <label>이름</label>
-                        <input type="text" placeholder="홍길동" />
+                        <input type="text" placeholder="홍길동"/>
                         <label>이메일</label>
-                        <input type="email" placeholder="user@example.com" />
+                        <input type="email" placeholder="user@example.com"/>
                         <label>비밀번호 변경</label>
-                        <input type="password" placeholder="새 비밀번호" />
-                        <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                        <input type="password" placeholder="새 비밀번호"/>
+                        <div style={{display: 'flex', gap: 8, marginTop: 8}}>
                             {isUser && (
                                 <button
                                     className={styles.saveButton}
-                                    style={{ background: '#4fc3f7', color: '#000', marginRight: 8 }}
+                                    style={{background: '#4fc3f7', color: '#000', marginRight: 8}}
                                     type="button"
                                     onClick={() => setShowRequestModal(true)}
                                 >
@@ -118,13 +124,13 @@ const SettingsPage = () => {
                                 }}
                             >
                                 <h4>🔑 복호화 키 관리</h4>
-                                <p style={{ fontSize: '0.9rem', color: '#555' }}>
+                                <p style={{fontSize: '0.9rem', color: '#555'}}>
                                     카메라 데이터 복호화를 위해 키를 발급 및 검증할 수 있습니다.
                                 </p>
-                                <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                                <div style={{display: 'flex', gap: 8, marginTop: 8}}>
                                     <button
                                         className={styles.saveButton}
-                                        style={{ background: '#81c784' }}
+                                        style={{background: '#81c784'}}
                                         disabled={keyLoading}
                                         onClick={fetchKey}
                                     >
@@ -132,31 +138,31 @@ const SettingsPage = () => {
                                     </button>
                                     <button
                                         className={styles.saveButton}
-                                        style={{ background: '#64b5f6' }}
+                                        style={{background: '#64b5f6'}}
                                         onClick={() => {
                                             if (!keyInfo?.accessToken) {
                                                 alert('먼저 키를 발급받으세요.');
                                                 return;
                                             }
-                                            verifyKey({ accessToken: keyInfo.accessToken, cameraId: 'CAMERA_001' });
+                                            verifyKey({accessToken: keyInfo.accessToken, cameraId: 'CAMERA_001'});
                                             // 우선 카메라아이디는 CAMERA_001로 설정
-                                        }}                                    >
+                                        }}>
                                         키 검증
                                     </button>
                                 </div>
 
                                 {keyInfo && (
-                                    <div style={{ marginTop: 8, fontSize: '0.85rem', color: '#333' }}>
+                                    <div style={{marginTop: 8, fontSize: '0.85rem', color: '#333'}}>
                                         <strong>발급된 키:</strong> {keyInfo.accessToken}
                                     </div>
                                 )}
                                 {verifyResult && (
-                                    <div style={{ marginTop: 8, fontSize: '0.85rem', color: 'green' }}>
+                                    <div style={{marginTop: 8, fontSize: '0.85rem', color: 'green'}}>
                                         ✅ 키 검증 성공
                                     </div>
                                 )}
                                 {keyError && (
-                                    <div style={{ marginTop: 8, fontSize: '0.85rem', color: 'red' }}>
+                                    <div style={{marginTop: 8, fontSize: '0.85rem', color: 'red'}}>
                                         ⚠️ {keyError}
                                         <button
                                             onClick={clearKeyError}
@@ -198,12 +204,12 @@ const SettingsPage = () => {
                     <>
                         <h3>🔔 알림 설정</h3>
                         <label>
-                            <input type="checkbox" checked readOnly />
+                            <input type="checkbox" checked readOnly/>
                             실시간 알림 받기
                         </label>
                         <label>
                             알림 민감도
-                            <input type="range" min="1" max="10" defaultValue="5" />
+                            <input type="range" min="1" max="10" defaultValue="5"/>
                         </label>
                         <button className={styles.saveButton}>저장</button>
                     </>
@@ -212,9 +218,9 @@ const SettingsPage = () => {
 
             {/* 어드민 대시보드: 버튼 클릭 시만 표시 */}
             {isAdmin && showAdminDashboard && (
-                <div className={styles.adminDashboard} style={{ maxHeight: '60vh', minHeight: 300, overflowY: 'auto' }}>
-                    <h2 style={{ marginBottom: '1rem' }}>어드민 권한 요청 대시보드</h2>
-                    <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '2rem' }}>
+                <div className={styles.adminDashboard} style={{maxHeight: '60vh', minHeight: 300, overflowY: 'auto'}}>
+                    <h2 style={{marginBottom: '1rem'}}>어드민 권한 요청 대시보드</h2>
+                    <div style={{marginBottom: '1.5rem', display: 'flex', gap: '2rem'}}>
                         <div>
                             <b>전체 요청 수:</b> {requests.length}
                         </div>
@@ -223,52 +229,59 @@ const SettingsPage = () => {
                         </div>
                     </div>
                     {error && (
-                        <div style={{ color: '#ff5252', marginBottom: '1rem' }}>
+                        <div style={{color: '#ff5252', marginBottom: '1rem'}}>
                             {error}
-                            <button onClick={clearError} style={{ marginLeft: 8, background: 'none', color: '#ff5252', border: 'none', cursor: 'pointer' }}>닫기</button>
+                            <button onClick={clearError} style={{
+                                marginLeft: 8,
+                                background: 'none',
+                                color: '#ff5252',
+                                border: 'none',
+                                cursor: 'pointer'
+                            }}>닫기
+                            </button>
                         </div>
                     )}
                     <div className={styles.adminDashboardTableWrapper}>
                         <table className={styles.adminDashboardTable}>
                             <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>유저ID</th>
-                                    <th>제목</th>
-                                    <th>상태</th>
-                                    <th>생성일</th>
-                                    <th>상세</th>
-                                </tr>
+                            <tr>
+                                <th>ID</th>
+                                <th>유저ID</th>
+                                <th>제목</th>
+                                <th>상태</th>
+                                <th>생성일</th>
+                                <th>상세</th>
+                            </tr>
                             </thead>
                             <tbody>
-                                {requests.map((req) => (
-                                    <tr
-                                        key={req.id}
-                                        className={selectedRequest?.id === req.id ? styles.adminDashboardRowSelected : undefined}
-                                    >
-                                        <td>{req.id}</td>
-                                        <td>{req.userId}</td>
-                                        <td>{req.title}</td>
-                                        <td className={
-                                            req.status === 'PENDING'
-                                                ? styles.adminDashboardStatusPending
-                                                : req.status === 'APPROVED'
-                                                    ? styles.adminDashboardStatusApproved
-                                                    : styles.adminDashboardStatusRejected
-                                        }>
-                                            {req.status}
-                                        </td>
-                                        <td>{new Date(req.createdAt).toLocaleString()}</td>
-                                        <td>
-                                            <button
-                                                className={styles.adminDashboardButton}
-                                                onClick={() => fetchRequestById(req.id)}
-                                            >
-                                                보기
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
+                            {requests.map((req) => (
+                                <tr
+                                    key={req.id}
+                                    className={selectedRequest?.id === req.id ? styles.adminDashboardRowSelected : undefined}
+                                >
+                                    <td>{req.id}</td>
+                                    <td>{req.userId}</td>
+                                    <td>{req.title}</td>
+                                    <td className={
+                                        req.status === 'PENDING'
+                                            ? styles.adminDashboardStatusPending
+                                            : req.status === 'APPROVED'
+                                                ? styles.adminDashboardStatusApproved
+                                                : styles.adminDashboardStatusRejected
+                                    }>
+                                        {req.status}
+                                    </td>
+                                    <td>{new Date(req.createdAt).toLocaleString()}</td>
+                                    <td>
+                                        <button
+                                            className={styles.adminDashboardButton}
+                                            onClick={() => fetchRequestById(req.id)}
+                                        >
+                                            보기
+                                        </button>
+                                    </td>
+                                </tr>
+                            ))}
                             </tbody>
                         </table>
                     </div>
@@ -276,14 +289,15 @@ const SettingsPage = () => {
                     {selectedRequest && (
                         <div className={styles.adminDashboardDetail}>
                             <h4>요청 상세</h4>
-                            <div style={{ marginBottom: 8 }}>ID: {selectedRequest.id}</div>
-                            <div style={{ marginBottom: 8 }}>유저 ID: {selectedRequest.userId}</div>
-                            <div style={{ marginBottom: 8 }}>제목: {selectedRequest.title}</div>
-                            <div style={{ marginBottom: 8 }}>상태: {selectedRequest.status}</div>
-                            <div style={{ marginBottom: 8 }}>설명: {selectedRequest.description ?? '-'}</div>
-                            <div style={{ marginBottom: 8 }}>생성일: {new Date(selectedRequest.createdAt).toLocaleString()}</div>
-                            <div style={{ marginBottom: 8 }}>관리자 코멘트: {selectedRequest.adminComment ?? '-'}</div>
-                            <div style={{ marginTop: 16, display: 'flex', gap: 12 }}>
+                            <div style={{marginBottom: 8}}>ID: {selectedRequest.id}</div>
+                            <div style={{marginBottom: 8}}>유저 ID: {selectedRequest.userId}</div>
+                            <div style={{marginBottom: 8}}>제목: {selectedRequest.title}</div>
+                            <div style={{marginBottom: 8}}>상태: {selectedRequest.status}</div>
+                            <div style={{marginBottom: 8}}>설명: {selectedRequest.description ?? '-'}</div>
+                            <div
+                                style={{marginBottom: 8}}>생성일: {new Date(selectedRequest.createdAt).toLocaleString()}</div>
+                            <div style={{marginBottom: 8}}>관리자 코멘트: {selectedRequest.adminComment ?? '-'}</div>
+                            <div style={{marginTop: 16, display: 'flex', gap: 12}}>
                                 <button
                                     className={`${styles.adminDashboardButton} ${styles.adminDashboardButtonApprove}`}
                                     disabled={selectedRequest.status !== 'PENDING' || loading}
@@ -322,10 +336,11 @@ const SettingsPage = () => {
 
             {/* 일반유저 승격 요청 모달 */}
             {isUser && showRequestModal && (
-                <PromotionRequestModal open={showRequestModal} onClose={() => setShowRequestModal(false)} />
+                <PromotionRequestModal open={showRequestModal} onClose={() => setShowRequestModal(false)}/>
             )}
         </div>
     );
 };
 
+// @ts-ignore
 export default SettingsPage;

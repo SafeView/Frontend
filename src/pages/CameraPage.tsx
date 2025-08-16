@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import styles from "./CameraPage.module.css";
 import CameraFeed from "../components/Camera/CameraFeed.tsx";
+//@ts-ignore
 import CameraControls, { type Mode } from "../components/Camera/CameraControls";
 import HistoryPanel, {type HistoryRecord } from "../components/Camera/HistoryPanel";
 import useVideoStore from "../stores/videoStore";
+import { useUIStore } from '../stores/uiStore';
+
 
 
 /** -------------------------------
@@ -19,6 +22,8 @@ const dummyCameras = [
 ];
 
 const CameraPage = () => {
+    const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
+
     // 현재 선택된 카메라
     const [selectedCamera, setSelectedCamera] = useState(dummyCameras[0]); // Web Cam이 첫 번째
 
@@ -31,16 +36,16 @@ const CameraPage = () => {
     // ✅ zustand에서 필요한 상태/메서드 가져오기
     const {
         videos,
-        recording,
+        //recording,
         lastRecordResult,
-        downloadUrl,
-        loading,
-        error,
+        //downloadUrl,
+        //loading,
+        //error,
         fetchVideos,
-        startRecording,
-        stopRecording,
+        //startRecording,
+        //stopRecording,
         fetchDownloadUrl,
-        clearError,
+        //clearError,
         clearDownloadUrl,
     } = useVideoStore();
 
@@ -98,17 +103,17 @@ const CameraPage = () => {
 
 
     // ✅ 추가: 녹화 토글 (스토어 메서드 호출)
-    const handleToggleRecording = async () => {
-        try {
-            if (recording) {
-                await stopRecording(); // 저장까지 포함
-            } else {
-                await startRecording();
-            }
-        } catch (e) {
-            // 에러는 스토어에서 관리하므로 여기선 무시 가능
-        }
-    };
+    // const handleToggleRecording = async () => {
+    //     try {
+    //         if (recording) {
+    //             await stopRecording(); // 저장까지 포함
+    //         } else {
+    //             await startRecording();
+    //         }
+    //     } catch (e) {
+    //         // 에러는 스토어에서 관리하므로 여기선 무시 가능
+    //     }
+    // };
 
     // 히스토리 클릭 시 해당 녹화 재생
     const handleSelectHistory = (videoSrc?: string) => {
@@ -118,10 +123,10 @@ const CameraPage = () => {
     };
 
     // 라이브 모드 복귀
-    const handleGoLive = () => {
-        setMode("live");
-        setCurrentVideoSrc(selectedCamera.videoSrc);
-    };
+    // const handleGoLive = () => {
+    //     setMode("live");
+    //     setCurrentVideoSrc(selectedCamera.videoSrc);
+    // };
 
     // ✅ 다운로드: presigned URL 받아서 새 탭 오픈
     const handleDownload = async (filename?: string) => {
@@ -143,7 +148,10 @@ const CameraPage = () => {
 
 
     return (
-        <div className={styles.container}>
+        <div className={styles.container}
+             style={{
+                 marginLeft: isSidebarOpen ? "0px" : "50px",  // ✅ 사이드바 상태에 따라 여백 조정
+             }}>
             {/* 왼쪽 카메라 선택 목록 */}
             <aside className={styles.sidebar}>
                 <h2 className={styles.title}>Cameras</h2>
@@ -159,13 +167,13 @@ const CameraPage = () => {
                         </li>
                     ))}
                 </ul>
-                {/* ✅ 추가: 로딩/에러 간단 표기 (원하면 Toast로 대체) */}
-                {loading && <div className={styles.info}>로딩 중...</div>}
-                {error && (
-                    <div className={styles.error} onClick={clearError}>
-                        {error} (클릭하여 닫기)
-                    </div>
-                )}
+                {/*/!* ✅ 추가: 로딩/에러 간단 표기 (원하면 Toast로 대체) *!/*/}
+                {/*{loading && <div className={styles.info}>로딩 중...</div>}*/}
+                {/*{error && (*/}
+                {/*    <div className={styles.error} onClick={clearError}>*/}
+                {/*        {error} (클릭하여 닫기)*/}
+                {/*    </div>*/}
+                {/*)}*/}
             </aside>
 
             {/* 우측 영상 + 컨트롤 + 히스토리 */}
@@ -190,12 +198,12 @@ const CameraPage = () => {
                 </div>
 
                 {/* ✅ 변경: 스토어 연동된 컨트롤 */}
-                <CameraControls
-                    isRecording={recording}                // ✅ 수정: 로컬 → 스토어
-                    onToggleRecording={handleToggleRecording}
-                    mode={mode}
-                    onGoLive={handleGoLive}
-                />
+                {/*<CameraControls*/}
+                {/*    isRecording={recording}                // ✅ 수정: 로컬 → 스토어*/}
+                {/*    onToggleRecording={handleToggleRecording}*/}
+                {/*    mode={mode}*/}
+                {/*    onGoLive={handleGoLive}*/}
+                {/*/>*/}
 
                 {/* ✅ 변경: 스토어에서 가져온 히스토리 전달 + 다운로드 핸들러 */}
                 <HistoryPanel

@@ -2,11 +2,11 @@
 
 .sidebar {
     width: 200px;
-    background-color: #0e0e0e; /* 진한 블랙 */
+    background-color: #0e0e0e;
     padding: 0;
     display: flex;
     flex-direction: column;
-    border-right: 1px solid #ffffff30; /* 흰색 구분선 */
+    border-right: 1px solid #ffffff30;
     transition: transform 0.3s ease, width 0.3s ease;
     overflow: hidden;
 }
@@ -74,8 +74,8 @@
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    padding-top: 5rem; /* 헤더 높이 + 여백 */
-    z-index: 999; /* 헤더보다 낮은 z-index */
+    padding-top: 5rem;
+    z-index: 999;
     transition: transform 0.3s ease;
 }
 
@@ -108,7 +108,10 @@
 
 .link {
     color: #aaa;
-    text-decoration: none;
+    background: none;
+    border: none;
+    text-align: left;
+    width: 100%;
     display: flex;
     align-items: center;
     gap: 0.8rem;
@@ -116,6 +119,8 @@
     border-radius: 8px;
     transition: background 0.2s ease, color 0.2s ease;
     font-weight: 500;
+    font-size: 1rem;
+    cursor: pointer;
 }
 
 .link:hover {

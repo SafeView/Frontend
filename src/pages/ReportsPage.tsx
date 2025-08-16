@@ -13,6 +13,7 @@ import {
     Cell,
     ResponsiveContainer,
 } from 'recharts';
+import {useUIStore} from "../stores/uiStore.ts";
 
 const summaryStats = [
     { label: '오늘 알림 수', value: 12 },
@@ -46,8 +47,14 @@ const alertTypeData = [
 const COLORS = ['#8884d8', '#82ca9d', '#ffc658'];
 
 const ReportsPage = () => {
+    const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
+
+
     return (
-        <div className={styles.container}>
+        <div className={styles.container}
+             style={{
+                 marginLeft: isSidebarOpen ? "0px" : "50px",  // ✅ 사이드바 상태에 따라 여백 조정
+             }}>
             <h1 className={styles.title}>📊 Reports</h1>
             <p className={styles.subtitle}>일일 / 주간 / 월간 감시 보고서를 확인하세요.</p>
 

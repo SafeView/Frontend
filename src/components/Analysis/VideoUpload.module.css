@@ -1,0 +1,42 @@
+/* src/components/Analysis/VideoUpload.module.css */
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem;
+}
+
+.label {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #ffffff;
+}
+
+.input {
+    display: none;
+}
+
+.uploadButton {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 0.375rem;
+    padding: 0.5rem 1rem;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.uploadButton:hover {
+    background-color: #1e40af;
+}
+
+.preview {
+    margin-top: 1rem;
+    width: 100%;
+    max-width: 720px;
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}

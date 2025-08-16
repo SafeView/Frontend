@@ -4,6 +4,8 @@ import { create } from 'zustand';
 import {
     login as loginService,
     getUserInfo,
+    logout as logoutService, // 💡 로그아웃 API import
+    refreshToken as refreshTokenService,
 } from '../services/authService.ts';
 import {
     signup as signupService,
@@ -26,10 +28,12 @@ interface UserState {
     decryptionKey: string;
 
     login: (form: LoginRequest) => Promise<void>;
-    logout: () => void;
+    logout: () => Promise<void>;
     signup: (form: SignupRequest) => Promise<void>;
     checkEmailDuplication: (email: string) => Promise<boolean>;
     fetchUserInfo: () => Promise<void>;
+    refreshToken: () => Promise<void>;
+
 
     setDecryptionKey: (key: string) => void;
     toggleDecryption: () => void;
@@ -74,15 +78,22 @@ const useUserStore = create<UserState>((set) => ({
 
     /**
      * 📤 로그아웃
-     * - 현재는 상태만 초기화 (쿠키 삭제는 서버 logout API 구현 필요)
+     * - 서버 로그아웃 API 호출 및 상태 초기화
      */
-    logout: () => {
-        set({
-            user: null,
-            isLoggedIn: false,
-            isDecrypted: false,
-            decryptionKey: '',
-        });
+    logout: async () => {
+        try {
+            await logoutService(); // 💡 서버에 쿠키 삭제 요청
+        } catch (err) {
+            console.warn('로그아웃 요청 실패:', err);
+        } finally {
+            // 클라이언트 상태 초기화
+            set({
+                user: null,
+                isLoggedIn: false,
+                isDecrypted: false,
+                decryptionKey: '',
+            });
+        }
     },
 
     /**
@@ -129,6 +140,19 @@ const useUserStore = create<UserState>((set) => ({
         } catch (err) {
             console.error('사용자 정보 불러오기 실패:', err);
             set({ user: null, isLoggedIn: false });
+        }
+    },
+
+    /**
+     * 🔄 토큰 재발급 요청
+     */
+    refreshToken: async () => {
+        try {
+            const message = await refreshTokenService(); // 💡 메시지 반환됨
+            console.log('🔄 토큰 재발급 성공:', message);
+        } catch (err) {
+            console.error('🔄 토큰 재발급 실패:', err);
+            throw err;
         }
     },
 

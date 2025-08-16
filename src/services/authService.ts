@@ -49,3 +49,48 @@ export const getUserInfo = async (): Promise<UserInfo> => {
     throw new Error(res.data.message || '사용자 정보를 불러오지 못했습니다.');
   }
 };
+
+
+
+/**
+ * 🚪 로그아웃 API
+ * - 서버에 요청하여 세션/쿠키를 제거
+ * - 성공 시 별도의 응답 데이터 없음
+ */
+export const logout = async (): Promise<void> => {
+    try {
+        const response = await api.post<ApiResponse<null>>('/auth/logout');
+
+        if (!response.data.isSuccess) {
+            throw new Error(response.data.message || '로그아웃에 실패했습니다.');
+        }
+    } catch (error: any) {
+        if (error.response?.data) {
+            throw new Error(error.response.data.message || '로그아웃 요청 중 오류가 발생했습니다.');
+        }
+        throw new Error('네트워크 오류로 로그아웃에 실패했습니다.');
+    }
+};
+
+/**
+ * 🔄 토큰 재발급 API
+ * - Access Token이 만료된 경우, 서버에서 새로 발급
+ * - 성공 시: 메시지 응답
+ * - 실패 시: 에러 메시지 발생
+ */
+export const refreshToken = async (): Promise<string> => {
+    try {
+        const response = await api.post<ApiResponse<string>>('/auth/refresh');
+
+        if (response.data.isSuccess) {
+            return response.data.data; // "Access Token이 재발급되었습니다." 등의 메시지
+        } else {
+            throw new Error(response.data.message || '토큰 재발급에 실패했습니다.');
+        }
+    } catch (error: any) {
+        if (error.response?.data) {
+            throw new Error(error.response.data.message || '토큰 재발급 요청 중 오류가 발생했습니다.');
+        }
+        throw new Error('네트워크 오류로 토큰 재발급에 실패했습니다.');
+    }
+};

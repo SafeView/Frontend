@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import SummaryCard from "../components/SummaryCard/SummaryCard";
+//@ts-ignore
 import AlertTable from "../components/AlertTable/AlertTable";
 import { useAlertStore } from "../stores/alertStore";
 import styles from "./HomePage.module.css";
@@ -17,13 +18,13 @@ const HomePage = () => {
         <h1 className={styles.heading}>Overview</h1>
 
         <div className={styles.cardRow}>
-          <SummaryCard title="Total Cameras" value={12} />
+          <SummaryCard title="Total Cameras" value={3} />
           <SummaryCard title="Active Alerts" value={3} />
-          <SummaryCard title="System Uptime" value="99.8%" />
+          <SummaryCard title="System Uptime" value="87.8%" />
         </div>
 
-        <h2 className={styles.sectionTitle}>Live Feeds</h2>
-        <AlertTable />
+        {/*<h2 className={styles.sectionTitle}>Live Feeds</h2>*/}
+        {/*<AlertTable />*/}
       </div>
     </>
   );

@@ -8,14 +8,19 @@ import {FaBell} from "react-icons/fa";
 
 const Header = React.memo(() => {
     const user = useUserStore((state) => state.user);
-    const logout = useUserStore((state) => state.logout);
+    const performLogout = useUserStore((state) => state.logout);
     const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
     const navigate = useNavigate();
 
-    const handleLogout = useCallback(() => {
-        logout(); // 상태 초기화
-        navigate("/"); // 홈으로 이동
-    }, [logout, navigate]);
+    const handleLogout = useCallback(async () => {
+        try {
+            await performLogout(); // 서버 로그아웃 + 상태 초기화
+            navigate("/"); // 홈으로 리디렉션
+        } catch (error) {
+            console.error('로그아웃 실패:', error);
+            alert('로그아웃에 실패했습니다. 다시 시도해주세요.');
+        }
+    }, [performLogout, navigate]);
 
     return (
         <header className={`${styles.header} ${isSidebarOpen ? styles.sidebarOpen : styles.sidebarClosed}`}>
