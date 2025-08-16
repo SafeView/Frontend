@@ -12,6 +12,7 @@ interface CameraFeedProps {
     enableAI?: boolean;
 }
 
+//@ts-ignore
 const CameraFeed: React.FC<CameraFeedProps> = ({ decrypted = false, enableAI = false }) => {
     const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -21,8 +22,8 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ decrypted = false, enableAI = f
         error,
         isLoading,
         startCamera,
-        stopCamera,
-        checkPermission,
+        //stopCamera,
+        //checkPermission,
         retryCamera,
     } = useCamera();
 
@@ -35,7 +36,7 @@ const CameraFeed: React.FC<CameraFeedProps> = ({ decrypted = false, enableAI = f
         startAIStreaming,
         stopStreaming,
         testAIConnection,
-        updateStatus,
+        //updateStatus,
         aiImageRef,
         aiSvc, // ✅ 추가: Decryption 훅에 주입할 서비스 인스턴스
     } = useAIStreaming();
