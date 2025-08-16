@@ -57,8 +57,11 @@ export const useAIStreaming = (): UseAIStreamingReturn => {
     }, []);
 
     const updateStatus = useCallback((message: string) => {
-        setStatus(message);
-        console.log("Status:", message);
+        setStatus(prev => {
+            if (prev === message) return prev; // 동일 메시지는 무시
+            //console.log("Status:", message);
+            return message;
+        });
     }, []);
 
     const testAIConnection = useCallback(async () => {
@@ -118,7 +121,14 @@ export const useAIStreaming = (): UseAIStreamingReturn => {
                                 // ✅ 수정: 함수형 업데이트로 정확한 카운트 유지 (stale 방지)
                                 setAiFrameCount(prev => {
                                     const next = prev + 1;
-                                    updateStatus(`AI 처리된 프레임 수신 중... (${next}개)`);
+
+                                    // ✅ 콘솔 출력은 50프레임마다만
+                                    if (next % 50 === 0) {
+                                        console.log(`🎥 ${next}번째 프레임 수신됨`);
+                                        updateStatus(`AI 처리된 프레임 수신 중... (${next}개)`); // 이건 UI 상태용
+
+                                    }
+
                                     return next;
                                 });
                             };
@@ -143,7 +153,8 @@ export const useAIStreaming = (): UseAIStreamingReturn => {
                 // ✅ 수정: 인스턴스 메서드 사용
                 const frameResult = aiSvc.startFrameTransmission(
                     videoElement,
-                    (size) => console.log('프레임 전송:', size, 'bytes'),
+                    // (size) => console.log('프레임 전송:', size, 'bytes'),
+                    () => {}, // 로그 제거
                     handleFrameReceived
                 );
 
