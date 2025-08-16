@@ -107,35 +107,55 @@ export class AIService {
                 // ✅ 단일 onmessage에서 바이너리/텍스트 모두 처리
                 this.ws.onmessage = (event: MessageEvent) => {
                     try {
-                        // 텍스트(JSON) 메시지
+                        // 🎯 1. 텍스트(JSON) 메시지인 경우
                         if (typeof event.data === "string") {
                             const parsed: WSMessageIn = JSON.parse(event.data);
-                            // 외부 구독자 먼저
+
+                            // ✅ 외부 JSON 수신 핸들러 먼저 전달
                             if (this.jsonHandler) this.jsonHandler(parsed);
-                            // 대기중인 verification promise가 있으면 resolve
+
+                            // 🔐 키 검증 응답 처리 (Promise 방식)
                             if (parsed.type === "verification_result" && this.pendingVerifyResolve) {
                                 this.pendingVerifyResolve(parsed);
                                 this.pendingVerifyResolve = null;
                                 this.pendingVerifyReject = null;
                             }
+
+                            // 🧹 disconnect 응답 처리
                             if (parsed.type === "disconnect_result") {
-                                // 필요 시 추가 처리
+                                console.info("[🔌 DISCONNECT 결과]:", parsed);
                             }
-                            return;
+
+                            // 🎥 자동 녹화 시작 메시지 수신 시 로그 출력
+                            if (parsed.type === "auto_recording_started") {
+                                console.log("[🎥 자동 녹화 시작]:", parsed);
+                                // 👉 추후 UI 상태 반영 또는 알림 연동 가능
+                            }
+
+                            // 📁 자동 녹화 종료 메시지 수신 시 로그 출력
+                            if (parsed.type === "auto_recording_finalized") {
+                                console.log("[📁 자동 녹화 종료]:", parsed);
+                                // 👉 영상 다운로드 링크나 저장 위치를 UI에 반영 가능
+                            }
+
+                            return; // 메시지 처리 종료
                         }
-                        // 바이너리(프레임) 메시지
+
+                        // 🎯 2. 바이너리 프레임 (ArrayBuffer)
                         if (event.data instanceof ArrayBuffer) {
-                            if (this.binaryHandler) this.binaryHandler(event.data as ArrayBuffer);
+                            if (this.binaryHandler) this.binaryHandler(event.data);
                             return;
                         }
-                        // Blob인 경우 ArrayBuffer로 변환
+
+                        // 🎯 3. Blob 형태일 경우 ArrayBuffer로 변환 후 전달
                         if (event.data instanceof Blob) {
                             (event.data as Blob).arrayBuffer().then((buf) => {
                                 if (this.binaryHandler) this.binaryHandler(buf);
                             });
                         }
+
                     } catch (e) {
-                        console.error("WS onmessage parse error:", e);
+                        console.error("📛 WS 메시지 파싱 오류:", e);
                     }
                 };
 
