@@ -129,6 +129,7 @@ const useVideoStore = create<VideoState>((set) => ({
         try {
             const data = await getAllVideosForAdmin();
             set({ adminVideos: data, loading: false });
+            console.log('[Admin Videos]', data); // ✅ 관리자 비디오 목록 로그
         } catch (err: any) {
             set({
                 error: err.message || '전체 비디오 목록 조회 중 오류가 발생했습니다.',

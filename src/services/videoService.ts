@@ -104,7 +104,7 @@ export const getVideoDownloadUrl = async (
  */
 export const getAllVideosForAdmin = async (): Promise<AdminVideoItem[]> => {
     try {
-        const response = await api.get<VideoListForAdminResponse>('/videos/all/videos'); // ✅ 관리자용 endpoint
+        const response = await api.get<VideoListForAdminResponse>('/videos/all/admin'); // ✅ 관리자용 endpoint
         if (response.data.isSuccess) {
             return response.data.data;
         } else {
