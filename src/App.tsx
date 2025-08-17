@@ -6,6 +6,7 @@ import useUserStore from "./stores/userStore.ts";
 import SnackbarContainer from "./components/Snackbar/SnackbarContainer.tsx";
 
 const App = () => {
+    //@ts-ignore
     const { isLoggedIn, user, fetchUserInfo } = useUserStore();
     const [loading, setLoading] = useState(true);
 
