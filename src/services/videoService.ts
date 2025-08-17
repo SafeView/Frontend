@@ -12,6 +12,7 @@ import type {
     VideoListForAdminResponse,
     AdminVideoItem,
 } from '../types/video';
+import axios from "axios";
 
 /**
  * 녹화 시작 요청
@@ -117,18 +118,28 @@ export const getAllVideosForAdmin = async (): Promise<AdminVideoItem[]> => {
 };
 
 /**
- * 📡 웹소켓 연결 전에 AI 서버에 사용자 ID 전송
+ * 📡 웹소켓 연결 전에 AI 서버에 사용자 ID 전송 (쿠키 기반 인증 포함)
  * @param userId 현재 로그인된 사용자 ID (숫자)
- * @returns 메시지 및 저장 시간
  * @throws Error - 요청 실패 또는 네트워크 오류
  */
 export const sendUserIdToAIServer = async (userId: number): Promise<void> => {
     try {
-        const response = await api.post('/client/user', { userId });
+        const response = await axios.post(
+            'http://localhost:8000/client/user',
+            { userId: String(userId) }, // ✅ 문자열로 전송
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                withCredentials: true, // ✅ 쿠키 포함
+            }
+        );
+
         const { success, message } = response.data;
         if (!success) {
             throw new Error(message || 'AI 서버에 사용자 ID 전송에 실패했습니다.');
         }
+
         console.log('[AI 서버 응답]', response.data);
     } catch (error: any) {
         throw new Error(
