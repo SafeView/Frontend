@@ -8,9 +8,12 @@ import {useUIStore} from "../stores/uiStore.ts";
 const AnalysisPage: React.FC = () => {
     const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
 
-    const [videoFile, setVideoFile] = useState<File | null>(null);
+    // const [videoFile, setVideoFile] = useState<File | null>(null);
     // @ts-ignore
     const [analysisData, setAnalysisData] = useState<any>(null);
+
+    const [faceUrls, setFaceUrls] = useState<string[] | null>(null);
+
 
     return (
         <div className={styles.container}
@@ -19,12 +22,12 @@ const AnalysisPage: React.FC = () => {
              }}>
             <h1 className={styles.title}>🎥 영상 분석</h1>
             <div className={styles.section}>
-                <VideoUpload onUpload={setVideoFile} />
+                <VideoUpload onUpload={setFaceUrls} />
             </div>
 
-            {videoFile && (
+            {faceUrls && (
                 <div className={styles.section}>
-                    <AnalysisResult videoFile={videoFile} onAnalyzed={setAnalysisData} />
+                    <AnalysisResult faceUrls={faceUrls} />
                 </div>
             )}
         </div>

@@ -6,7 +6,7 @@ import CameraControls, { type Mode } from "../components/Camera/CameraControls";
 import HistoryPanel, {type HistoryRecord } from "../components/Camera/HistoryPanel";
 import useVideoStore from "../stores/videoStore";
 import { useUIStore } from '../stores/uiStore';
-
+import useUserStore from "../stores/userStore.ts";
 
 
 /** -------------------------------
@@ -22,6 +22,9 @@ const dummyCameras = [
 ];
 
 const CameraPage = () => {
+    const { user } = useUserStore();
+    const isPrivileged = user?.role === "ADMIN" || user?.role === "MODERATOR";
+
     const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
 
     // 현재 선택된 카메라
@@ -47,6 +50,10 @@ const CameraPage = () => {
         fetchDownloadUrl,
         //clearError,
         clearDownloadUrl,
+        adminVideos, // ✅ 관리자용 비디오 목록
+        fetchAdminVideos, // ✅ 관리자용 비디오 목록 불러오기
+        sendUserId, // ✅ AI 서버에 userId 전송
+        hasSentUserId, // ✅ AI 서버에 userId 전송 여부
     } = useVideoStore();
 
     // ✅ 파일명에서 "YYYYMMDD_HHMMSS" → "YYYY-MM-DD HH:mm" 파싱
@@ -62,6 +69,25 @@ const CameraPage = () => {
         const mm = hms.slice(2, 4);
         return `${y}-${mo}-${d} ${hh}:${mm}`;
     };
+
+    // ✅ 관리자/중간관리자일 때 비디오 목록 불러오기
+    useEffect(() => {
+        if (!user || !user.id) return;
+
+        if (!hasSentUserId) {
+            sendUserId(user.id).catch((e) => {
+                console.error("[userId 전송 실패]", e);
+            });
+        }
+
+        if (isPrivileged) {
+            fetchAdminVideos().catch((e) => {
+                console.error("[fetchAdminVideos error]", e);
+            });
+        }
+
+
+    }, [user, fetchAdminVideos]);
 
     // ✅ 수정: fetchVideos 비동기 완료 후 로그 (직후에 찍으면 빈 배열 나옴)
     useEffect(() => {
@@ -86,20 +112,41 @@ const CameraPage = () => {
     // ✅ 수정: 백엔드에 cameraId가 없으므로 "카메라별 필터" 제거 → 전체 목록 사용
     //  (나중에 cameraId가 생기면 여기서 selectedCamera와 매칭하도록 복구)
     const historyRecords: HistoryRecord[] = useMemo(() => {
-        return (videos || [])
-            .map((v: any) => ({
-                // ✅ 수정: 파일명 기반으로 표시용 timestamp 생성
-                timestamp: tsFromFilename(v.filename) || "",
-                type: "Recording", // ✅ 기본값
-                description: v.filename || `id:${v.id}`,
-                // ✅ 수정: 재생 가능한 URL은 s3Url 사용
-                videoSrc: v.s3Url,
-                // ✅ 다운로드 키는 filename 사용
-                filename: v.filename,
-            }))
-            // ✅ 최신순 정렬
-            .sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1));
-    }, [videos]);
+        if (!user) return [];
+
+        // ✅ 일반 사용자용
+        if (user.role === "USER") {
+            return videos
+                .map((v) => ({
+                    timestamp: tsFromFilename(v.filename),
+                    type: "모자이크",
+                    description: v.filename,
+                    videoSrc: v.s3Url,
+                    filename: v.filename,
+                }))
+                .sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1));
+        }
+
+        console.log("[adminVideo shistoryRecords] ", adminVideos);
+
+        // ✅ 관리자/중간관리자용
+        return adminVideos.flatMap((video) => {
+            return video.filenames.map((filename, idx) => {
+                const s3Url = video.s3Urls[idx];
+                const isRaw = filename.includes("_raw");
+
+                return {
+                    timestamp: tsFromFilename(filename),
+                    type: isRaw ? "원본" : "모자이크",
+                    description: filename,
+                    videoSrc: s3Url,
+                    filename,
+                    // 🔽 촬영자 표시용 필드 추가
+                    userId: video.userId,
+                };
+            });
+        }).sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1));
+    }, [user, videos, adminVideos]);
 
 
     // ✅ 추가: 녹화 토글 (스토어 메서드 호출)
@@ -210,7 +257,7 @@ const CameraPage = () => {
                     title="Recording History"
                     records={historyRecords}
                     onSelectHistory={handleSelectHistory}
-                    onDownload={handleDownload}            // ✅ 추가
+                    onDownload={handleDownload}
                 />
             </main>
         </div>
