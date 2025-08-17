@@ -1,6 +1,8 @@
 // ✅ 추가: 히스토리(필터 + 테이블) 컴포넌트 분리
 import { useMemo, useState } from "react";
 import styles from "../../pages/CameraPage.module.css"; // 경로 상황에 맞게 조정
+import useKeyStore from "../../stores/keyStore"; // ✅ 키 검증 스토어 import
+
 
 export interface HistoryRecord {
     timestamp: string; // "YYYY-MM-DD HH:mm"
@@ -9,6 +11,7 @@ export interface HistoryRecord {
     videoSrc?: string;
     filename?: string;
     userId?: string;
+    isRaw?: boolean;
 
 }
 
@@ -32,6 +35,18 @@ const HistoryPanel = ({
     const [filterStartTime, setFilterStartTime] = useState("");
     const [filterEndTime, setFilterEndTime] = useState("");
 
+    const [pendingDownload, setPendingDownload] = useState<string | null>(null);
+    const [showDecryptModal, setShowDecryptModal] = useState(false);
+    const [decryptKey, setDecryptKey] = useState("");
+
+    const {
+        verifyKey,
+        verifyResult,
+        loading: keyLoading,
+        error: keyError,
+        clearError: clearKeyError,
+    } = useKeyStore();
+
     // ✅ 추가: 필터링 로직
     const filtered = useMemo(() => {
         return records.filter((record) => {
@@ -52,6 +67,18 @@ const HistoryPanel = ({
             return keywordMatch && dateMatch && timeMatch;
         });
     }, [records, filterKeyword, filterStartDate, filterEndDate, filterStartTime, filterEndTime]);
+
+    const handleSubmitKey = async () => {
+        if (!decryptKey || !pendingDownload) return;
+        await verifyKey({ accessToken: decryptKey, cameraId: "CAMERA_001" });
+    };
+
+    // ✅ 키 검증 성공 시 자동 다운로드
+    if (verifyResult && pendingDownload) {
+        onDownload?.(pendingDownload);
+        setPendingDownload(null);
+        setShowDecryptModal(false);
+    }
 
     return (
         <>
@@ -139,7 +166,12 @@ const HistoryPanel = ({
                                         className={styles.smallBtn}
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            onDownload(record.filename);
+                                            if (record.isRaw) {
+                                                setPendingDownload(record.filename || null);
+                                                setShowDecryptModal(true); // ✅ 모달 먼저 띄움
+                                            } else {
+                                                onDownload?.(record.filename);
+                                            }
                                         }}
                                     >
                                         Download
@@ -159,6 +191,41 @@ const HistoryPanel = ({
                 )}
                 </tbody>
             </table>
+            {/* ✅ 키 입력 모달 */}
+            {showDecryptModal && (
+                <div className={styles.modalBackdrop}>
+                    <div className={styles.modalContent}>
+                        <h4>🔐 원본 영상 다운로드</h4>
+                        <p>키를 입력해주세요:</p>
+                        <input
+                            type="text"
+                            value={decryptKey}
+                            onChange={(e) => setDecryptKey(e.target.value)}
+                            className={styles.input}
+                            placeholder="Access Token"
+                        />
+                        <div className={styles.modalActions}>
+                            <button onClick={handleSubmitKey} disabled={keyLoading}>
+                                {keyLoading ? "검증 중..." : "검증하기"}
+                            </button>
+                            <button onClick={() => {
+                                setShowDecryptModal(false);
+                                setPendingDownload(null);
+                            }}>취소</button>
+                        </div>
+
+                        {keyError && (
+                            <div className={styles.errorMsg}>
+                                ⚠️ {keyError}
+                                <button onClick={clearKeyError}>닫기</button>
+                            </div>
+                        )}
+                        {verifyResult && (
+                            <p className={styles.successMsg}>✅ 키 검증 성공! 다운로드 중...</p>
+                        )}
+                    </div>
+                </div>
+            )}
         </>
     );
 };

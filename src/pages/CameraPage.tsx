@@ -136,6 +136,7 @@ const CameraPage = () => {
                     filename,
                     // 🔽 촬영자 표시용 필드 추가
                     userId: video.userId,
+                    isRaw,
                 };
             });
         }).sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1));
