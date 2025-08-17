@@ -52,8 +52,6 @@ const CameraPage = () => {
         clearDownloadUrl,
         adminVideos, // ✅ 관리자용 비디오 목록
         fetchAdminVideos, // ✅ 관리자용 비디오 목록 불러오기
-        sendUserId, // ✅ AI 서버에 userId 전송
-        hasSentUserId, // ✅ AI 서버에 userId 전송 여부
     } = useVideoStore();
 
     // ✅ 파일명에서 "YYYYMMDD_HHMMSS" → "YYYY-MM-DD HH:mm" 파싱
@@ -73,12 +71,6 @@ const CameraPage = () => {
     // ✅ 관리자/중간관리자일 때 비디오 목록 불러오기
     useEffect(() => {
         if (!user || !user.id) return;
-
-        if (!hasSentUserId) {
-            sendUserId(user.id).catch((e) => {
-                console.error("[userId 전송 실패]", e);
-            });
-        }
 
         if (isPrivileged) {
             fetchAdminVideos().catch((e) => {
@@ -127,7 +119,7 @@ const CameraPage = () => {
                 .sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1));
         }
 
-        console.log("[adminVideo shistoryRecords] ", adminVideos);
+        console.log("[adminVideos historyRecords] ", adminVideos);
 
         // ✅ 관리자/중간관리자용
         return adminVideos.flatMap((video) => {

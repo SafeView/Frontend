@@ -1,5 +1,9 @@
 import React, {useState, useCallback, useRef, useEffect} from 'react';
 import {AIService, DEFAULT_AI_CONFIG} from '../services/aiService';
+import useVideoStore from "../stores/videoStore.ts";
+import useUserStore from "../stores/userStore.ts";
+
+
 
 
 interface UseAIStreamingReturn {
@@ -16,6 +20,14 @@ interface UseAIStreamingReturn {
 }
 
 export const useAIStreaming = (): UseAIStreamingReturn => {
+    const {
+        sendUserId, // ✅ AI 서버에 userId 전송
+        //hasSentUserId, // ✅ AI 서버에 userId 전송 여부
+         } = useVideoStore();
+
+    // ✅ 유저 정보 가져오기
+    const { user } = useUserStore();
+
     const [isConnected, setIsConnected] = useState(false);
     const [isStreaming, setIsStreaming] = useState(false);
     const [aiFrameCount, setAiFrameCount] = useState(0);
@@ -95,6 +107,14 @@ export const useAIStreaming = (): UseAIStreamingReturn => {
             if (result.success) {
                 updateStatus("AI 서버 연결 성공! 프레임 전송 준비 중...");
                 setIsConnected(true);
+
+                // ✅ user와 user.id 둘 다 존재할 때만 전송
+                if (user && typeof user.id === 'number') {
+                    await sendUserId(user.id).catch((e) => {
+                        console.error("[userId 전송 실패]", e);
+                    });
+                }
+
 
                 // 프레임 수신 핸들러 설정
                 const handleFrameReceived = (data: ArrayBuffer) => {
