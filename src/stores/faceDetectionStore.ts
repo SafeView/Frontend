@@ -1,5 +1,6 @@
+// src/stores/faceDetectionStore.ts
 import { create } from 'zustand';
-import type {FaceImage} from '../types/faceDetection.ts';
+import type { FaceImage } from '../types/faceDetection.ts';
 import { detectFacesAtTime } from '../services/faceDetectionService';
 
 interface FaceDetectionState {
