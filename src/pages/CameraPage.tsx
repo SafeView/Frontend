@@ -109,6 +109,7 @@ const CameraPage = () => {
         // ✅ 일반 사용자용
         if (user.role === "USER") {
             return videos
+                .filter((v) => !v.filename.includes('_raw')) // 🔒 원본 영상 제거
                 .map((v) => ({
                     timestamp: tsFromFilename(v.filename),
                     type: "모자이크",

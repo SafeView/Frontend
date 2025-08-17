@@ -8,6 +8,8 @@ export interface HistoryRecord {
     description: string;
     videoSrc?: string;
     filename?: string;
+    userId?: string;
+
 }
 
 interface HistoryPanelProps {
@@ -110,6 +112,7 @@ const HistoryPanel = ({
                     <th>Timestamp</th>
                     <th>Type</th>
                     <th>Description</th>
+                    {records.some(r => r.userId) && <th>User</th>} {/* ✅ userId 존재 시 표시 */}
                     <th style={{ width: 110 }}>Action</th> {/* ✅ 추가 */}
                 </tr>
                 </thead>
@@ -122,6 +125,13 @@ const HistoryPanel = ({
                                 <span className={styles.badge}>{record.type}</span>
                             </td>
                             <td onClick={() => onSelectHistory(record.videoSrc)}>{record.description}</td>
+                            {/* ✅ 관리자일 경우에만 userId 열 노출 */}
+                            {records.some(r => r.userId) && (
+                                <td onClick={() => onSelectHistory(record.videoSrc)}>
+                                    <span className={styles.userId}>{record.userId}</span>
+                                </td>
+                            )}
+
                             <td>
                                 {/* ✅ 추가: 파일이 있으면 다운로드 버튼 노출 */}
                                 {onDownload && record.filename ? (
