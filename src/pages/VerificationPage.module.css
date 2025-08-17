@@ -83,10 +83,10 @@ table td {
 }
 
 table th {
-    background-color: #f0f0f0;
+    background-color: #181b23;
     font-weight: bold;
 }
 
 table tr:nth-child(even) {
-    background-color: #fafafa;
+    background-color: #181b23;
 }
