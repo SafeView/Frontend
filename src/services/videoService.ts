@@ -3,12 +3,14 @@
 
 import api from '../apis/api';
 import type {
-  VideoRecordResponse,
-  VideoRecordResponseData,
-  VideoListResponse,
-  VideoItem,
-  VideoDownloadResponse,
-  VideoDownloadResponseData,
+    VideoRecordResponse,
+    VideoRecordResponseData,
+    VideoListResponse,
+    VideoItem,
+    VideoDownloadResponse,
+    VideoDownloadResponseData,
+    VideoListForAdminResponse,
+    AdminVideoItem,
 } from '../types/video';
 
 /**
@@ -92,4 +94,45 @@ export const getVideoDownloadUrl = async (
       error.response?.data?.message || '비디오 다운로드 링크 요청 중 네트워크 오류가 발생했습니다.'
     );
   }
+};
+
+/**
+ * 🔐 관리자/중간관리자 전용 전체 비디오 리스트 조회
+ * @returns 모든 유저의 비디오 목록
+ * @throws Error - API 실패 또는 네트워크 오류
+ */
+export const getAllVideosForAdmin = async (): Promise<AdminVideoItem[]> => {
+    try {
+        const response = await api.get<VideoListForAdminResponse>('/videos/all/videos'); // ✅ 관리자용 endpoint
+        if (response.data.isSuccess) {
+            return response.data.data;
+        } else {
+            throw new Error(response.data.message || '전체 비디오 목록 조회에 실패했습니다.');
+        }
+    } catch (error: any) {
+        throw new Error(
+            error.response?.data?.message || '전체 비디오 목록 조회 중 네트워크 오류가 발생했습니다.'
+        );
+    }
+};
+
+/**
+ * 📡 웹소켓 연결 전에 AI 서버에 사용자 ID 전송
+ * @param userId 현재 로그인된 사용자 ID (숫자)
+ * @returns 메시지 및 저장 시간
+ * @throws Error - 요청 실패 또는 네트워크 오류
+ */
+export const sendUserIdToAIServer = async (userId: number): Promise<void> => {
+    try {
+        const response = await api.post('/client/user', { userId });
+        const { success, message } = response.data;
+        if (!success) {
+            throw new Error(message || 'AI 서버에 사용자 ID 전송에 실패했습니다.');
+        }
+        console.log('[AI 서버 응답]', response.data);
+    } catch (error: any) {
+        throw new Error(
+            error.response?.data?.message || 'AI 서버에 사용자 ID 전송 중 네트워크 오류가 발생했습니다.'
+        );
+    }
 };
