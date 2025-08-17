@@ -48,7 +48,7 @@ const useVideoStore = create<VideoState>((set) => ({
     hasSentUserId: false,         // ✅ AI 서버 전송 여부 상태
 
     /**
-     * 전체 비디오 목록을 불러옵니다.
+     * 사용자별 전체 비디오 목록을 불러옵니다.
      */
     fetchVideos: async () => {
         set({loading: true, error: null});
