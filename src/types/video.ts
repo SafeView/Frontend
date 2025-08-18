@@ -13,7 +13,7 @@ export interface VideoRecordResponseData {
 // 녹화 시작/중단 응답 타입
 export type VideoRecordResponse = ApiResponse<VideoRecordResponseData>;
 
-// 비디오 엔티티(목록 조회용)
+// 비디오 엔티티( 사용자별 목록 조회용 )
 export interface VideoItem {
   id: number;           // 비디오 ID
   userId: number;       // 사용자 ID
@@ -21,7 +21,7 @@ export interface VideoItem {
   s3Url: string;        // S3 저장 URL
 }
 
-// 비디오 전체 리스트 응답 타입
+// 사용자별 비디오 전체 리스트 응답 타입
 export type VideoListResponse = ApiResponse<VideoItem[]>;
 
 // 다운로드 링크 응답 데이터 타입
@@ -33,3 +33,12 @@ export interface VideoDownloadResponseData {
 
 // 다운로드 링크 응답 타입
 export type VideoDownloadResponse = ApiResponse<VideoDownloadResponseData>;
+
+// 관리자, 중간 관리자용 전체 비디오 리스트 조회 응답용 타입 추가
+export interface AdminVideoItem {
+    userId: number;
+    filenames: string[];
+    s3Urls: string[];
+}
+
+export type VideoListForAdminResponse = ApiResponse<AdminVideoItem[]>;

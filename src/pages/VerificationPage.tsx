@@ -68,7 +68,20 @@ const VerificationPage = () => {
                     >
                         키 검증
                     </button>
-                    {keyInfo && <p>발급된 키: {keyInfo.accessToken}</p>}
+                    {keyInfo && (
+                        <div className={styles.keyBox}>
+                            <p>발급된 키: {keyInfo.accessToken}</p>
+                            <button
+                                onClick={() => {
+                                    navigator.clipboard.writeText(keyInfo.accessToken)
+                                        .then(() => alert('키가 복사되었습니다!'))
+                                        .catch(() => alert('복사에 실패했습니다.'));
+                                }}
+                            >
+                                복사
+                            </button>
+                        </div>
+                    )}
                     {verifyResult && <p style={{ color: 'green' }}>✅ 키 검증 성공</p>}
                     {keyError && (
                         <div style={{ color: 'red' }}>
