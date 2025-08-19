@@ -14,9 +14,11 @@ const VideoUpload: React.FC<Props> = ({ onUpload }) => {
     const [file, setFile] = useState<File | null>(null);
     const [minute, setMinute] = useState('');
     const [second, setSecond] = useState('');
+    const [uploading, setUploading] = useState(false);
+    const [localError, setLocalError] = useState<string | null>(null);
 
     // ✅ zustand 스토어 훅
-    const { faces, loading, error, detect, clear } = useFaceDetectionStore();
+    const { faces, loading, error, detect, detectFromFile, clear } = useFaceDetectionStore();
 
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -26,15 +28,32 @@ const VideoUpload: React.FC<Props> = ({ onUpload }) => {
             const url = URL.createObjectURL(selected);
             setPreviewUrl(url);
             clear(); // 새로운 파일 업로드 시 상태 초기화
+            setLocalError(null);
         }
     };
 
 
     const handleAnalyze = async () => {
-        if (!previewUrl || !minute || !second) return;
-        const time_input = `${minute} ${second}`;
+        setLocalError(null);
+        if (!file) {
+            setLocalError('파일을 선택하세요.');
+            return;
+        }
+        if (!minute || !second) {
+            setLocalError('분/초를 입력하세요.');
+            return;
+        }
 
-        await detect(previewUrl, time_input);
+        const time_input = `${minute} ${second}`;
+        try {
+            setUploading(true);
+            // FastAPI가 파일 업로드를 직접 받으므로, 바로 전송해 처리
+            await detectFromFile(file, time_input);
+        } catch (e: any) {
+            setLocalError(e.message || '업로드 또는 분석 중 오류가 발생했습니다.');
+        } finally {
+            setUploading(false);
+        }
     };
 
     // ✅ 얼굴 검출 완료 후 상위 컴포넌트로 전달
@@ -88,12 +107,13 @@ const VideoUpload: React.FC<Props> = ({ onUpload }) => {
                         <button
                             className={styles.analyzeButton}
                             onClick={handleAnalyze}
-                            disabled={loading}
+                            disabled={loading || uploading}
                         >
-                            {loading ? '분석 중...' : '분석 시작'}
+                            {uploading || loading ? '분석 중...' : '분석 시작'}
                         </button>
                     </div>
 
+                    {localError && <p className={styles.error}>⚠️ {localError}</p>}
                     {error && <p className={styles.error}>⚠️ {error}</p>}
                 </>
             )}
