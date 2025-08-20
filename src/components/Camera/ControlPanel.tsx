@@ -76,7 +76,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       {/* 상태 표시 */}
       <div className={styles.statusText}>
         {isDecrypted ? '복호화된 영상' : '원본 영상'}
-        {stream && ` | 카메라 연결됨`}
+  {stream && ` | 카메라 연결됨`}
         {enableAI && isStreaming && ` | AI 모드 활성화`}
         {enableAI && ` | ${status}`}
         {enableAI && aiFrameCount > 0 && ` | AI 프레임: ${aiFrameCount}개`}

@@ -101,50 +101,27 @@ export const VideoDisplay: React.FC<VideoDisplayProps> = ({
 
   return (
     <div className={styles.videoContainer}>
-      {/* 원본 카메라 영상 */}
-      <div className={styles.videoItem}>
-        <h3>원본 영상</h3>
-        <video
-          ref={videoRef}
-          className={`${styles.video} ${styles.originalVideo}`}
-          autoPlay
-          playsInline
-          muted
-          // onLoadStart={() => console.log('비디오 로드 시작')}
-          // onLoadedMetadata={() => console.log('비디오 메타데이터 로드됨')}
-          // onCanPlay={() => console.log('비디오 재생 가능')}
-          // onPlay={() => console.log('비디오 재생 시작')}
-          // onPause={() => console.log('비디오 일시정지')}
-          // onError={(e) => console.error('비디오 오류:', e)}
-          onLoadStart={() => {}}
-          onLoadedMetadata={() => {}}
-          onCanPlay={() => {}}
-          onPlay={() => {}}
-          onPause={() => {}}
-          onError={(e) => console.error('비디오 오류:', e)}
-        />
-      </div>
+      {/* 화면에는 보이지 않지만, 프레임 캡처를 위해 재생 유지 */}
+      <video
+        ref={videoRef}
+        className={styles.hiddenCaptureVideo}
+        autoPlay
+        playsInline
+        muted
+      />
 
-      {/* AI 처리된 영상 */}
+      {/* AI 처리된 영상만 표시 */}
       {enableAI && (
         <div className={styles.videoItem}>
-          <h3>AI 처리된 영상</h3>
           <div className={styles.aiVideoWrapper}>
             <img
               ref={aiImageRef}
               className={styles.aiVideo}
               alt="AI 처리 영상"
               src={isStreaming ? undefined : ""}
-              // onLoad={(e) => {
-              //   console.log('이미지 onLoad 이벤트 발생:', e.target);
-              //   console.log('이미지 크기:', (e.target as HTMLImageElement).width, 'x', (e.target as HTMLImageElement).height);
-              // }}
-              // onError={(e) => {
-              //   console.error('이미지 onError 이벤트 발생:', e);
-              // }}
               onLoad={() => {}}
               onError={(e) => {
-                  console.error('AI 처리 영상 로딩 오류:', e);
+                console.error('AI 처리 영상 로딩 오류:', e);
               }}
             />
             {!isStreaming && (
