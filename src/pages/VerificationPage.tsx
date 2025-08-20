@@ -1,45 +1,52 @@
+// src/pages/VerificationPage.tsx
+
 import { useEffect, useState } from 'react';
 import styles from './VerificationPage.module.css';
-import useKeyStore from '../stores/keyStore';
-import useUserStore from '../stores/userStore';
-import useAdminStore from '../stores/adminStore';
-import PromotionRequestModal from '../components/Setting/PromotionRequestModal';
-import {useUIStore} from "../stores/uiStore.ts";
+
+// ✅ 상태 관리 훅 (zustand 기반)
+import useKeyStore from '../stores/keyStore';       // 키 발급/검증 관련 상태
+import useUserStore from '../stores/userStore';     // 현재 로그인 사용자 정보
+import useAdminStore from '../stores/adminStore';   // 어드민 권한 요청 관리 상태
+import PromotionRequestModal from '../components/Setting/PromotionRequestModal'; // 일반 유저용 승격 요청 모달
+import { useUIStore } from "../stores/uiStore.ts"; // 사이드바 열림 여부
 
 const VerificationPage = () => {
     const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
+
+    // 현재 로그인한 사용자 정보
     const { user } = useUserStore();
     const isAdmin = user?.role === 'ADMIN';
     const isModerator = user?.role === 'MODERATOR';
     const isUser = user?.role === 'USER';
 
+    // 모달 열림 상태
     const [showRequestModal, setShowRequestModal] = useState(false);
 
+    // ✅ 키 관련 store 훅
     const {
-        keyInfo,
-        loading: keyLoading,
-        error: keyError,
-        fetchKey,
-        verifyKey,
-        verifyResult,
-        clearError: clearKeyError,
+        keyInfo,            // 발급된 키 정보
+        loading: keyLoading, // 키 발급 요청 중 여부
+        error: keyError,    // 키 발급/검증 중 오류
+        fetchKey,           // 키 발급 함수
+        verifyKey,          // 키 검증 함수
+        verifyResult,       // 키 검증 성공 여부
+        clearError: clearKeyError, // 오류 초기화 함수
     } = useKeyStore();
 
+    // ✅ 관리자 권한 요청 관리 store 훅
     const {
-        requests,
-        pendingRequests,
-        selectedRequest,
-        //loading,
-        //error,
-        fetchRequests,
-        fetchPendingRequests,
-        fetchRequestById,
-        approveRequest,
-        rejectRequest,
-        //clearError,
-        clearSelected,
+        requests,           // 모든 요청 목록
+        pendingRequests,    // 대기 상태 요청 목록
+        selectedRequest,    // 상세보기 중인 요청
+        fetchRequests,      // 전체 요청 불러오기
+        fetchPendingRequests, // 대기중 요청 불러오기
+        fetchRequestById,   // 특정 요청 상세 가져오기
+        approveRequest,     // 승인 처리
+        rejectRequest,      // 거절 처리
+        clearSelected,      // 상세보기 초기화
     } = useAdminStore();
 
+    // ✅ 관리자 접근 시, 최초 요청 목록 불러오기
     useEffect(() => {
         if (isAdmin) {
             fetchRequests();
@@ -48,26 +55,33 @@ const VerificationPage = () => {
     }, [isAdmin]);
 
     return (
-        <div className={styles.container}
-             style={{ marginLeft: isSidebarOpen ? "0px" : "50px" }}
+        <div
+            className={styles.container}
+            style={{ marginLeft: isSidebarOpen ? "0px" : "50px" }} // 사이드바 닫힘 시 여백 확보
         >
             <h1 className={styles.title}>🔐 인증 및 권한 검증</h1>
 
-            {/* 🔑 어드민 / 모더레이터만 키 발급 가능 */}
+            {/* 🔐 키 발급/검증 : 관리자 또는 중간관리자만 접근 가능 */}
             {(isAdmin || isModerator) && (
                 <section className={styles.section}>
                     <h3>🔑 복호화 키 관리</h3>
+
+                    {/* 키 발급 버튼 */}
                     <button onClick={fetchKey} disabled={keyLoading}>
                         {keyLoading ? '키 발급 중...' : '키 발급'}
                     </button>
+
+                    {/* 키 검증 버튼 */}
                     <button
                         onClick={() => {
                             if (!keyInfo?.accessToken) return alert('먼저 키를 발급받으세요.');
-                            verifyKey({ accessToken: keyInfo.accessToken, cameraId: 'CAMERA_001' });
+                            verifyKey({ accessToken: keyInfo.accessToken, cameraId: 'CAMERA_001' }); // 예시 cameraId
                         }}
                     >
                         키 검증
                     </button>
+
+                    {/* 발급된 키 정보 표시 */}
                     {keyInfo && (
                         <div className={styles.keyBox}>
                             <p>발급된 키: {keyInfo.accessToken}</p>
@@ -82,7 +96,11 @@ const VerificationPage = () => {
                             </button>
                         </div>
                     )}
+
+                    {/* 검증 성공 결과 */}
                     {verifyResult && <p style={{ color: 'green' }}>✅ 키 검증 성공</p>}
+
+                    {/* 오류 발생 시 메시지 */}
                     {keyError && (
                         <div style={{ color: 'red' }}>
                             ⚠️ {keyError}
@@ -92,7 +110,7 @@ const VerificationPage = () => {
                 </section>
             )}
 
-            {/* 🙋‍♂️ 일반 유저는 승격 요청만 가능 */}
+            {/* 🙋 일반 유저: 승격 요청만 가능 */}
             {isUser && (
                 <section className={styles.section}>
                     <h3>🙋 승격 요청</h3>
@@ -100,12 +118,14 @@ const VerificationPage = () => {
                 </section>
             )}
 
-            {/* 📋 어드민만 요청 관리 */}
+            {/* 📋 관리자: 권한 요청 관리 기능 */}
             {isAdmin && (
                 <section className={styles.section}>
                     <h3>📋 권한 요청 관리</h3>
                     <p>전체 요청 수: {requests.length}</p>
                     <p>대기중 요청 수: {pendingRequests.length}</p>
+
+                    {/* 요청 목록 테이블 */}
                     <table>
                         <thead>
                         <tr>
@@ -133,6 +153,7 @@ const VerificationPage = () => {
                         </tbody>
                     </table>
 
+                    {/* 상세 보기 시 나타나는 패널 */}
                     {selectedRequest && (
                         <div className={styles.requestDetail}>
                             <p>제목: {selectedRequest.title}</p>
@@ -148,8 +169,12 @@ const VerificationPage = () => {
                 </section>
             )}
 
+            {/* 🙋 승격 요청 모달 */}
             {isUser && showRequestModal && (
-                <PromotionRequestModal open={showRequestModal} onClose={() => setShowRequestModal(false)} />
+                <PromotionRequestModal
+                    open={showRequestModal}
+                    onClose={() => setShowRequestModal(false)}
+                />
             )}
         </div>
     );

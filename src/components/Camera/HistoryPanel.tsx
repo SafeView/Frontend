@@ -1,65 +1,77 @@
-// ✅ 추가: 히스토리(필터 + 테이블) 컴포넌트 분리
+// ✅ React 훅 import
 import { useMemo, useState } from "react";
-import styles from "../../pages/CameraPage.module.css"; // 경로 상황에 맞게 조정
-import useKeyStore from "../../stores/keyStore"; // ✅ 키 검증 스토어 import
 
+// ✅ 스타일 모듈 import (페이지 단위 CSS 사용 중)
+import styles from "../../pages/CameraPage.module.css";
 
+// ✅ 복호화 키 검증 Zustand 스토어
+import useKeyStore from "../../stores/keyStore";
+
+// 🔹 히스토리 레코드 데이터 타입 정의
 export interface HistoryRecord {
     timestamp: string; // "YYYY-MM-DD HH:mm"
     type: string;
     description: string;
-    videoSrc?: string;
-    filename?: string;
-    userId?: string;
-    isRaw?: boolean;
-
+    videoSrc?: string;    // 영상 URL (재생용)
+    filename?: string;    // 다운로드 파일명
+    userId?: string;      // 관리자용 정보
+    isRaw?: boolean;      // 복호화가 필요한 원본 여부
 }
 
+// 🔹 컴포넌트 Props 타입 정의
 interface HistoryPanelProps {
-    title?: string; // 기본 "Recording History"
-    records: HistoryRecord[];
-    onSelectHistory: (videoSrc?: string) => void;
-    onDownload?: (filename?: string) => void;
+    title?: string; // 섹션 타이틀 (기본값: "Recording History")
+    records: HistoryRecord[]; // 기록 데이터 배열
+    onSelectHistory: (videoSrc?: string) => void; // 테이블 클릭 시 영상 선택 처리
+    onDownload?: (filename?: string) => void;     // 다운로드 함수 (옵션)
 }
 
+// 🔹 히스토리 패널 컴포넌트 정의
 const HistoryPanel = ({
                           title = "Recording History",
                           records,
                           onSelectHistory,
-                          onDownload, // ✅ 추가
+                          onDownload,
                       }: HistoryPanelProps) => {
-    // ✅ 추가: 필터 로컬 상태(부모에서 가지고 있던 것 이전)
+
+    // ✅ 필터 관련 로컬 상태
     const [filterKeyword, setFilterKeyword] = useState("");
     const [filterStartDate, setFilterStartDate] = useState("");
     const [filterEndDate, setFilterEndDate] = useState("");
     const [filterStartTime, setFilterStartTime] = useState("");
     const [filterEndTime, setFilterEndTime] = useState("");
 
-    const [pendingDownload, setPendingDownload] = useState<string | null>(null);
-    const [showDecryptModal, setShowDecryptModal] = useState(false);
-    const [decryptKey, setDecryptKey] = useState("");
+    // ✅ 복호화 키 입력 및 모달 상태
+    const [pendingDownload, setPendingDownload] = useState<string | null>(null); // 검증 후 다운로드할 파일
+    const [showDecryptModal, setShowDecryptModal] = useState(false);             // 모달 표시 여부
+    const [decryptKey, setDecryptKey] = useState("");                            // 입력 중인 키
 
+    // ✅ 키 검증 스토어 훅 (Zustand)
     const {
-        verifyKey,
-        verifyResult,
+        verifyKey,         // 키 검증 함수
+        verifyResult,      // 성공 여부
         loading: keyLoading,
         error: keyError,
         clearError: clearKeyError,
     } = useKeyStore();
 
-    // ✅ 추가: 필터링 로직
+    // ✅ 필터링 로직 (useMemo로 성능 최적화)
     const filtered = useMemo(() => {
         return records.filter((record) => {
             const [date, time] = record.timestamp.split(" ");
+
+            // 검색어 필터: type, description 포함 여부
             const keywordMatch =
                 !filterKeyword ||
                 record.type.toLowerCase().includes(filterKeyword.toLowerCase()) ||
                 record.description.toLowerCase().includes(filterKeyword.toLowerCase());
 
+            // 날짜 필터
             const dateMatch =
                 (!filterStartDate || date >= filterStartDate) &&
                 (!filterEndDate || date <= filterEndDate);
 
+            // 시간 필터
             const timeMatch =
                 (!filterStartTime || time >= filterStartTime) &&
                 (!filterEndTime || time <= filterEndTime);
@@ -68,12 +80,13 @@ const HistoryPanel = ({
         });
     }, [records, filterKeyword, filterStartDate, filterEndDate, filterStartTime, filterEndTime]);
 
+    // ✅ 키 입력 제출 핸들러
     const handleSubmitKey = async () => {
         if (!decryptKey || !pendingDownload) return;
         await verifyKey({ accessToken: decryptKey, cameraId: "CAMERA_001" });
     };
 
-    // ✅ 키 검증 성공 시 자동 다운로드
+    // ✅ 검증 성공 → 자동 다운로드
     if (verifyResult && pendingDownload) {
         onDownload?.(pendingDownload);
         setPendingDownload(null);
@@ -82,11 +95,12 @@ const HistoryPanel = ({
 
     return (
         <>
+            {/* 🔹 섹션 타이틀 */}
             <h3 className={styles.historyTitle}>{title}</h3>
 
-            {/* ✅ 추가: 필터 UI */}
+            {/* 🔹 필터 영역 */}
             <div className={styles.filterWrapper}>
-                {/* 검색어 */}
+                {/* 검색어 필터 */}
                 <input
                     type="text"
                     placeholder="검색어를 입력하세요 (Type 또는 Description)"
@@ -132,43 +146,44 @@ const HistoryPanel = ({
                 </div>
             </div>
 
-            {/* ✅ 변경: Download 열 추가 */}
+            {/* 🔹 테이블 출력 */}
             <table className={styles.historyTable}>
                 <thead>
                 <tr>
                     <th>Timestamp</th>
                     <th>Type</th>
                     <th>Description</th>
-                    {records.some(r => r.userId) && <th>User</th>} {/* ✅ userId 존재 시 표시 */}
-                    <th style={{ width: 110 }}>Action</th> {/* ✅ 추가 */}
+                    {records.some(r => r.userId) && <th>User</th>} {/* 관리자 화면인 경우만 노출 */}
+                    <th style={{ width: 110 }}>Action</th>
                 </tr>
                 </thead>
                 <tbody>
                 {filtered.length > 0 ? (
                     filtered.map((record, idx) => (
                         <tr key={idx} className={styles.historyRow}>
+                            {/* 테이블 클릭 시 영상 선택 */}
                             <td onClick={() => onSelectHistory(record.videoSrc)}>{record.timestamp}</td>
                             <td onClick={() => onSelectHistory(record.videoSrc)}>
                                 <span className={styles.badge}>{record.type}</span>
                             </td>
                             <td onClick={() => onSelectHistory(record.videoSrc)}>{record.description}</td>
-                            {/* ✅ 관리자일 경우에만 userId 열 노출 */}
+
                             {records.some(r => r.userId) && (
                                 <td onClick={() => onSelectHistory(record.videoSrc)}>
                                     <span className={styles.userId}>{record.userId}</span>
                                 </td>
                             )}
 
+                            {/* 🔹 다운로드 버튼 */}
                             <td>
-                                {/* ✅ 추가: 파일이 있으면 다운로드 버튼 노출 */}
                                 {onDownload && record.filename ? (
                                     <button
                                         className={styles.smallBtn}
                                         onClick={(e) => {
-                                            e.stopPropagation();
+                                            e.stopPropagation(); // 행 클릭 방지
                                             if (record.isRaw) {
                                                 setPendingDownload(record.filename || null);
-                                                setShowDecryptModal(true); // ✅ 모달 먼저 띄움
+                                                setShowDecryptModal(true);
                                             } else {
                                                 onDownload?.(record.filename);
                                             }
@@ -191,7 +206,8 @@ const HistoryPanel = ({
                 )}
                 </tbody>
             </table>
-            {/* ✅ 키 입력 모달 */}
+
+            {/* 🔹 복호화 키 입력 모달 */}
             {showDecryptModal && (
                 <div className={styles.modalBackdrop}>
                     <div className={styles.modalContent}>
@@ -214,12 +230,15 @@ const HistoryPanel = ({
                             }}>취소</button>
                         </div>
 
+                        {/* 에러 메시지 */}
                         {keyError && (
                             <div className={styles.errorMsg}>
                                 ⚠️ {keyError}
                                 <button onClick={clearKeyError}>닫기</button>
                             </div>
                         )}
+
+                        {/* 성공 메시지 */}
                         {verifyResult && (
                             <p className={styles.successMsg}>✅ 키 검증 성공! 다운로드 중...</p>
                         )}
