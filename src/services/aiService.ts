@@ -2,6 +2,8 @@
 import {useAIStore} from "../stores/aiStore.ts";
 import type {AutoRecordingFinalized, AutoRecordingStarted} from "../types/autorecording.ts";
 
+// WebSocket 수신 메시지 타입
+// 클라이언트가 받을 수 있는 다양한 메시지 구조 정의
 type WSMessageIn =
     | {
     type: "verification_result";
@@ -10,38 +12,42 @@ type WSMessageIn =
     canDecrypt?: boolean;
     isValid?: boolean;
     decryptionToken?: string;
-    [k: string]: any
+    [k: string]: any;
 }
     | { type: "disconnect_result"; success: boolean; message?: string }
-    | { type: string; [k: string]: any }; // 기타 안전망
+    | { type: string; [k: string]: any }; // 기타 메시지용 백업 구조
 
+// WebSocket 송신 메시지 타입
+// 클라이언트가 서버로 보낼 수 있는 메시지 정의
 type WSMessageOut =
     | { type: "key_verification"; accessToken: string; cameraId: string }
     | { type: "disconnect" };
 
+// AI 서버 연결 설정 인터페이스
 export interface AIConnectionConfig {
     wsUrl: string;
     frameRate: number;
     quality: number;
 }
 
+// 모자이크 복호화 키 관련 설정 인터페이스
 export interface DecryptConfig {
     key: string;
     algorithm: string;
 }
 
 export class AIService {
-    private ws: WebSocket | null = null;
-    private frameInterval: number | null = null;
-    private isConnected: boolean = false;
-    private isStreaming: boolean = false;
-    private config: AIConnectionConfig;
+    private ws: WebSocket | null = null;                     // WebSocket 인스턴스
+    private frameInterval: number | null = null;            // 프레임 전송 setInterval ID
+    private isConnected: boolean = false;                   // 연결 상태
+    private isStreaming: boolean = false;                   // 스트리밍 상태
+    private config: AIConnectionConfig;                     // 연결 구성 정보
 
-    // ✅ 외부에서 텍스트/바이너리 모두 구독할 수 있게 콜백 보관
-    private binaryHandler: ((data: ArrayBuffer) => void) | null = null;   // 프레임 수신
-    private jsonHandler: ((data: WSMessageIn) => void) | null = null;     // JSON 수신
+    // 수신 핸들러 (텍스트, 바이너리)
+    private binaryHandler: ((data: ArrayBuffer) => void) | null = null;
+    private jsonHandler: ((data: WSMessageIn) => void) | null = null;
 
-    // ✅ 검증 응답을 기다리는 pending Promise 리졸버(단일 사용 가정)
+    // 키 검증 응답을 기다리는 Promise의 resolve/reject 저장
     private pendingVerifyResolve: ((v: WSMessageIn) => void) | null = null;
     private pendingVerifyReject: ((e: any) => void) | null = null;
 
@@ -49,7 +55,7 @@ export class AIService {
         this.config = config;
     }
 
-    // AI 서버 연결 테스트
+    // 여러 후보 URL을 통해 서버 연결 가능 여부 테스트
     async testConnection(): Promise<{ success: boolean; url?: string; error?: string }> {
         const testUrls = [
             this.config.wsUrl,
@@ -57,106 +63,94 @@ export class AIService {
             "ws://127.0.0.1:8000/ws",
             "ws://localhost:8000/ws",
             "ws://127.0.0.1:8000/video",
-            "ws://localhost:8000/video"
+            "ws://localhost:8000/video",
         ];
 
         for (const url of testUrls) {
             try {
                 const result = await this.testSingleUrl(url);
-                if (result.success) {
-                    return {success: true, url};
-                }
+                if (result.success) return { success: true, url };
             } catch (error) {
                 console.error(`Failed to test ${url}:`, error);
             }
         }
 
-        return {success: false, error: "모든 AI 서버 URL 테스트 실패"};
+        return { success: false, error: "모든 AI 서버 URL 테스트 실패" };
     }
 
+    // 단일 URL 테스트 함수
     private testSingleUrl(url: string): Promise<{ success: boolean }> {
         return new Promise((resolve) => {
             const testWs = new WebSocket(url);
 
             testWs.onopen = () => {
                 testWs.close();
-                resolve({success: true});
+                resolve({ success: true });
             };
 
-            testWs.onerror = () => {
-                resolve({success: false});
-            };
+            testWs.onerror = () => resolve({ success: false });
 
-            // 3초 타임아웃
             setTimeout(() => {
                 testWs.close();
-                resolve({success: false});
+                resolve({ success: false });
             }, 3000);
         });
     }
 
-    // AI 서버 연결
+    // 실제 연결을 수행하는 메서드
     async connect(): Promise<{ success: boolean; error?: string }> {
         try {
             this.ws = new WebSocket(this.config.wsUrl);
             this.ws.binaryType = "arraybuffer";
 
             return new Promise((resolve) => {
-                if (!this.ws) {
-                    resolve({success: false, error: "WebSocket 생성 실패"});
-                    return;
-                }
+                if (!this.ws) return resolve({ success: false, error: "WebSocket 생성 실패" });
 
-                // ✅ 단일 onmessage에서 바이너리/텍스트 모두 처리
                 this.ws.onmessage = (event: MessageEvent) => {
                     try {
-                        // 🎯 1. 텍스트(JSON) 메시지인 경우
                         if (typeof event.data === "string") {
                             const parsed: WSMessageIn = JSON.parse(event.data);
-
-                            // ✅ 외부 JSON 수신 핸들러 먼저 전달
                             if (this.jsonHandler) this.jsonHandler(parsed);
 
-                            // 🔐 키 검증 응답 처리 (Promise 방식)
+                            // 키 검증 응답 처리
                             if (parsed.type === "verification_result" && this.pendingVerifyResolve) {
                                 this.pendingVerifyResolve(parsed);
                                 this.pendingVerifyResolve = null;
                                 this.pendingVerifyReject = null;
                             }
 
-                            // 🧹 disconnect 응답 처리
+                            // disconnect 결과
                             if (parsed.type === "disconnect_result") {
                                 console.info("[🔌 DISCONNECT 결과]:", parsed);
                             }
 
-                            // 🎥 자동 녹화 시작 메시지 수신 시 로그 출력
+                            // 자동 녹화 시작
                             if (parsed.type === "auto_recording_started") {
                                 console.log("[🎥 자동 녹화 시작]:", parsed);
-                                useAIStore.getState().startAutoRecording(parsed as AutoRecordingStarted); // ✅ 명시적 캐스팅
+                                useAIStore.getState().startAutoRecording(parsed as AutoRecordingStarted);
                             }
 
-                            // 📁 자동 녹화 종료 메시지 수신 시 로그 출력
+                            // 자동 녹화 종료
                             if (parsed.type === "auto_recording_finalized") {
                                 console.log("[📁 자동 녹화 종료]:", parsed);
-                                useAIStore.getState().stopAutoRecording(parsed as AutoRecordingFinalized); // ✅ 명시적 캐스팅
+                                useAIStore.getState().stopAutoRecording(parsed as AutoRecordingFinalized);
                             }
 
-                            return; // 메시지 처리 종료
-                        }
-
-                        // 🎯 2. 바이너리 프레임 (ArrayBuffer)
-                        if (event.data instanceof ArrayBuffer) {
-                            if (this.binaryHandler) this.binaryHandler(event.data);
                             return;
                         }
 
-                        // 🎯 3. Blob 형태일 경우 ArrayBuffer로 변환 후 전달
+                        // 바이너리 프레임 처리
+                        if (event.data instanceof ArrayBuffer && this.binaryHandler) {
+                            this.binaryHandler(event.data);
+                            return;
+                        }
+
+                        // Blob 처리
                         if (event.data instanceof Blob) {
-                            (event.data as Blob).arrayBuffer().then((buf) => {
+                            event.data.arrayBuffer().then((buf) => {
                                 if (this.binaryHandler) this.binaryHandler(buf);
                             });
                         }
-
                     } catch (e) {
                         console.error("📛 WS 메시지 파싱 오류:", e);
                     }
@@ -164,26 +158,23 @@ export class AIService {
 
                 this.ws.onopen = () => {
                     this.isConnected = true;
-                    resolve({success: true});
+                    resolve({ success: true });
                 };
 
                 this.ws.onerror = (error) => {
                     console.error("AI server WebSocket error:", error);
                     this.isConnected = false;
-                    // ✅ 보류 중인 verification이 있으면 reject
                     if (this.pendingVerifyReject) {
                         this.pendingVerifyReject(error);
                         this.pendingVerifyResolve = null;
                         this.pendingVerifyReject = null;
                     }
-                    resolve({success: false, error: "AI 서버 연결 오류"});
+                    resolve({ success: false, error: "AI 서버 연결 오류" });
                 };
-
 
                 this.ws.onclose = () => {
                     this.isConnected = false;
                     this.isStreaming = false;
-                    // ✅ 보류 중인 verification이 있으면 reject
                     if (this.pendingVerifyReject) {
                         this.pendingVerifyReject(new Error("WebSocket closed"));
                         this.pendingVerifyResolve = null;
@@ -191,13 +182,12 @@ export class AIService {
                     }
                 };
             });
-
         } catch (error) {
-            return {success: false, error: "연결 시도 중 오류 발생"};
+            return { success: false, error: "연결 시도 중 오류 발생" };
         }
     }
 
-    // ✅ 외부에서 수신 콜백 등록 (선택)
+    // 외부에서 메시지 수신 핸들러 설정
     onBinaryMessage(handler: (data: ArrayBuffer) => void) {
         this.binaryHandler = handler;
     }
@@ -206,48 +196,38 @@ export class AIService {
         this.jsonHandler = handler;
     }
 
-    // ✅ 안전한 JSON 전송 헬퍼
+    // 안전한 JSON 송신 유틸
     private sendJSON(payload: WSMessageOut): { success: boolean; error?: string } {
         if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-            return {success: false, error: "WebSocket이 연결되지 않았습니다"};
+            return { success: false, error: "WebSocket이 연결되지 않았습니다" };
         }
         try {
             this.ws.send(JSON.stringify(payload));
-            return {success: true};
+            return { success: true };
         } catch (e: any) {
-            return {success: false, error: e?.message || "메시지 전송 실패"};
+            return { success: false, error: e?.message || "메시지 전송 실패" };
         }
     }
 
-    // ✅ 명세에 따른 모자이크 해제(키 검증) 요청
-    requestDecryption(
-        accessToken: string,
-        cameraId: string,
-        timeoutMs: number = 5000
-    ): Promise<WSMessageIn> {
+    // 모자이크 복호화 요청 처리 (키 검증)
+    requestDecryption(accessToken: string, cameraId: string, timeoutMs: number = 5000): Promise<WSMessageIn> {
         if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
             return Promise.reject(new Error("WebSocket이 연결되지 않았습니다"));
         }
 
-        // 기존 대기자 있으면 정리
         if (this.pendingVerifyReject) {
             this.pendingVerifyReject(new Error("새로운 검증 요청으로 이전 요청 취소"));
             this.pendingVerifyResolve = null;
             this.pendingVerifyReject = null;
         }
 
-        // 전송
-        const sendRes = this.sendJSON({type: "key_verification", accessToken, cameraId});
-        if (!sendRes.success) {
-            return Promise.reject(new Error(sendRes.error || "전송 실패"));
-        }
+        const sendRes = this.sendJSON({ type: "key_verification", accessToken, cameraId });
+        if (!sendRes.success) return Promise.reject(new Error(sendRes.error || "전송 실패"));
 
-        // 응답 대기
         return new Promise<WSMessageIn>((resolve, reject) => {
             this.pendingVerifyResolve = resolve;
             this.pendingVerifyReject = reject;
 
-            // 타임아웃
             const to = setTimeout(() => {
                 if (this.pendingVerifyReject) {
                     this.pendingVerifyReject(new Error("검증 응답 타임아웃"));
@@ -256,7 +236,6 @@ export class AIService {
                 this.pendingVerifyReject = null;
             }, timeoutMs);
 
-            // 응답을 받으면 위 onmessage에서 resolve 후 여기 타임아웃 해제
             const origResolve = this.pendingVerifyResolve;
             this.pendingVerifyResolve = (msg) => {
                 clearTimeout(to);
@@ -265,18 +244,14 @@ export class AIService {
         });
     }
 
-    // ✅ 명세에 따른 개별 연결 중단 요청
+    // 서버에 disconnect 메시지를 보낸 후 연결 종료
     async requestDisconnect(timeoutMs: number = 3000): Promise<WSMessageIn | null> {
-        if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-            return null;
-        }
+        if (!this.ws || this.ws.readyState !== WebSocket.OPEN) return null;
 
-        // disconnect는 응답이 오지만 대기 필수는 아님. 필요하면 promise로 대기.
         try {
-            const sendRes = this.sendJSON({type: "disconnect"});
+            const sendRes = this.sendJSON({ type: "disconnect" });
             if (!sendRes.success) throw new Error(sendRes.error || "disconnect 전송 실패");
 
-            // 원한다면 간단히 일정 시간 대기하며 마지막 응답을 한 번만 캡처
             return new Promise<WSMessageIn | null>((resolve) => {
                 let captured: WSMessageIn | null = null;
                 const handler = (msg: WSMessageIn) => {
@@ -288,7 +263,6 @@ export class AIService {
                     handler(msg);
                 };
                 setTimeout(() => {
-                    // 핸들러 원복
                     this.jsonHandler = prevHandler || null;
                     resolve(captured);
                 }, timeoutMs);
@@ -299,38 +273,31 @@ export class AIService {
         }
     }
 
-    // 프레임 전송 시작
+    // 영상 요소로부터 프레임을 캡처해 전송 시작
     startFrameTransmission(
         videoElement: HTMLVideoElement,
         onFrameSent?: (size: number) => void,
         onFrameReceived?: (data: ArrayBuffer) => void
     ): { success: boolean; error?: string } {
         if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
-            return {success: false, error: "WebSocket이 연결되지 않았습니다"};
+            return { success: false, error: "WebSocket이 연결되지 않았습니다" };
         }
         if (this.isStreaming) {
-            return {success: false, error: "이미 스트리밍 중입니다"};
+            return { success: false, error: "이미 스트리밍 중입니다" };
         }
 
-        // ✅ 외부에서 바이너리 콜백을 넘기면 등록
         if (onFrameReceived) {
             this.onBinaryMessage(onFrameReceived);
         }
 
-
-        // 캔버스 생성
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
-        if (!ctx) return {success: false, error: "캔버스 컨텍스트 생성 실패"};
+        if (!ctx) return { success: false, error: "캔버스 컨텍스트 생성 실패" };
 
         const sendFrame = () => {
             if (!this.ws || this.ws.readyState !== WebSocket.OPEN || !videoElement) return;
 
-            if (
-                videoElement.videoWidth > 0 &&
-                videoElement.videoHeight > 0 &&
-                videoElement.readyState >= 2 // HAVE_CURRENT_DATA
-            ) {
+            if (videoElement.videoWidth > 0 && videoElement.videoHeight > 0 && videoElement.readyState >= 2) {
                 try {
                     canvas.width = videoElement.videoWidth;
                     canvas.height = videoElement.videoHeight;
@@ -354,10 +321,10 @@ export class AIService {
         this.frameInterval = window.setInterval(sendFrame, 1000 / this.config.frameRate);
         this.isStreaming = true;
 
-        return {success: true};
+        return { success: true };
     }
 
-    // 프레임 전송 중단
+    // 프레임 전송 종료
     stopFrameTransmission(): void {
         if (this.frameInterval) {
             clearInterval(this.frameInterval);
@@ -366,16 +333,13 @@ export class AIService {
         this.isStreaming = false;
     }
 
-    // 연결 종료
-    // ✅ 소프트 디스커넥트 → 서버에 disconnect 요청 후 닫기
+    // 전체 WebSocket 연결 종료
     async disconnect(): Promise<void> {
         this.stopFrameTransmission();
 
-        // 먼저 서버에 disconnect 알림
         try {
             await this.requestDisconnect(1000);
-        } catch { /* 무시 */
-        }
+        } catch {}
 
         if (this.ws) {
             this.ws.close();
@@ -384,7 +348,6 @@ export class AIService {
         this.isConnected = false;
         this.isStreaming = false;
 
-        // pending 정리
         if (this.pendingVerifyReject) {
             this.pendingVerifyReject(new Error("Disconnected"));
             this.pendingVerifyResolve = null;
@@ -392,12 +355,13 @@ export class AIService {
         }
     }
 
-    // 상태 확인
+    // 현재 연결 및 스트리밍 상태 반환
     getStatus(): { isConnected: boolean; isStreaming: boolean } {
-        return {isConnected: this.isConnected, isStreaming: this.isStreaming};
+        return { isConnected: this.isConnected, isStreaming: this.isStreaming };
     }
 }
 
+// 기본 설정값 (개발용)
 export const DEFAULT_AI_CONFIG: AIConnectionConfig = {
     wsUrl: 'ws://localhost:8000/ws/video',
     frameRate: 10,
