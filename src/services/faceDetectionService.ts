@@ -19,6 +19,7 @@ export const detectFacesAtTime = async (
     });
 
     const { data } = await axios.post<FaceDetectionResponse>(`${baseUrl}?${params.toString()}`);
+    console.log('Face detection response:', data);
     return data;
 };
 
