@@ -1,4 +1,5 @@
 // src/stores/userStore.ts
+// ✅ 사용자 인증, 회원가입, 로그아웃, 토큰 갱신, 복호화 키 관리 등 사용자 관련 상태를 zustand로 관리하는 스토어입니다.
 
 import { create } from 'zustand';
 import {
@@ -13,32 +14,32 @@ import {
 } from '../services/userService.ts';
 import type { LoginRequest, SignupRequest, UserInfo } from "../types/user.ts";
 
-// 임시 사용자 데이터 (백엔드 없이 테스트용)
+// ✅ 백엔드 없이 테스트할 수 있는 임시 사용자 목록
 const TEMP_USERS = [
     { email: 'admin@example.com', password: 'admin123', name: '관리자', role: 'ADMIN' as const },
     { email: 'user@example.com', password: 'user123', name: '일반사용자', role: 'USER' as const },
     { email: 'test@example.com', password: 'test123', name: '테스트사용자', role: 'USER' as const },
 ];
 
-
+// ✅ zustand에서 관리할 상태 정의
 interface UserState {
-    user: UserInfo | null;
-    isLoggedIn: boolean;
-    isDecrypted: boolean;
-    decryptionKey: string;
+    user: UserInfo | null;            // 로그인한 사용자 정보
+    isLoggedIn: boolean;              // 로그인 여부
+    isDecrypted: boolean;            // 복호화 여부 (토글용)
+    decryptionKey: string;           // 복호화 키
 
-    login: (form: LoginRequest) => Promise<void>;
-    logout: () => Promise<void>;
-    signup: (form: SignupRequest) => Promise<void>;
-    checkEmailDuplication: (email: string) => Promise<boolean>;
-    fetchUserInfo: () => Promise<void>;
-    refreshToken: () => Promise<void>;
+    login: (form: LoginRequest) => Promise<void>;         // 로그인
+    logout: () => Promise<void>;                          // 로그아웃
+    signup: (form: SignupRequest) => Promise<void>;       // 회원가입
+    checkEmailDuplication: (email: string) => Promise<boolean>; // 이메일 중복 확인
+    fetchUserInfo: () => Promise<void>;                   // 사용자 정보 조회
+    refreshToken: () => Promise<void>;                    // 토큰 재발급
 
-
-    setDecryptionKey: (key: string) => void;
-    toggleDecryption: () => void;
+    setDecryptionKey: (key: string) => void;              // 복호화 키 저장
+    toggleDecryption: () => void;                         // 복호화 토글
 }
 
+// ✅ zustand 스토어 정의
 const useUserStore = create<UserState>((set) => ({
     user: null,
     isLoggedIn: false,
@@ -46,20 +47,19 @@ const useUserStore = create<UserState>((set) => ({
     decryptionKey: '',
 
     /**
-     * 🔐 로그인
-     * - 성공 시: JWT는 HttpOnly 쿠키로 저장되며, 응답 본문에 토큰 없음
-     * - 이후 getUserInfo()를 통해 사용자 정보 조회
-     * - 실패 시: TEMP 유저 fallback (개발 중 디버깅 용도)
+     * 🔐 로그인 처리
+     * - 로그인 성공 시: 쿠키 저장 + 사용자 정보 조회
+     * - 실패 시: TEMP_USERS에서 fallback (백엔드 개발 전용)
      */
     login: async (form) => {
         try {
-            await loginService(form); // 쿠키에 저장
-            const user = await getUserInfo(); // 로그인 성공 시 유저 정보 요청
+            await loginService(form); // 로그인 요청 → 쿠키에 저장됨
+            const user = await getUserInfo(); // 사용자 정보 조회
             set({ user, isLoggedIn: true });
         } catch (error: any) {
             console.error('✅ 백엔드 로그인 실패, TEMP 유저 fallback 시도 중...');
 
-            // TEMP 유저로 fallback (백엔드 없을 때 테스트용)
+            // TEMP 유저 fallback (디버깅/로컬 테스트용)
             const found = TEMP_USERS.find(u => u.email === form.email && u.password === form.password);
             if (found) {
                 set({
@@ -77,16 +77,17 @@ const useUserStore = create<UserState>((set) => ({
     },
 
     /**
-     * 📤 로그아웃
-     * - 서버 로그아웃 API 호출 및 상태 초기화
+     * 📤 로그아웃 처리
+     * - 서버에 쿠키 삭제 요청
+     * - 클라이언트 상태 초기화
      */
     logout: async () => {
         try {
-            await logoutService(); // 💡 서버에 쿠키 삭제 요청
+            await logoutService(); // 서버 쿠키 제거
         } catch (err) {
             console.warn('로그아웃 요청 실패:', err);
         } finally {
-            // 클라이언트 상태 초기화
+            // 상태 초기화
             set({
                 user: null,
                 isLoggedIn: false,
@@ -97,13 +98,13 @@ const useUserStore = create<UserState>((set) => ({
     },
 
     /**
-     * 📝 회원가입
-     * - 성공 시: 자동 로그인 처리
+     * 📝 회원가입 처리
+     * - 가입 후 자동 로그인
      */
     signup: async (form) => {
         try {
-            await signupService(form);
-            // 자동 로그인 처리
+            await signupService(form); // 회원가입 요청
+            // 자동 로그인
             await useUserStore.getState().login({
                 email: form.email,
                 password: form.password,
@@ -116,8 +117,7 @@ const useUserStore = create<UserState>((set) => ({
 
     /**
      * 📧 이메일 중복 확인
-     * - 반환값: 사용 가능 여부 (boolean)
-     * - API 응답의 available 값을 추출
+     * - API 응답 중 available 여부 반환
      */
     checkEmailDuplication: async (email: string) => {
         try {
@@ -130,8 +130,8 @@ const useUserStore = create<UserState>((set) => ({
     },
 
     /**
-     * 🔄 앱 진입 시 사용자 정보 재요청
-     * - 쿠키 기반 세션 유지 시 호출
+     * 🔄 사용자 정보 조회
+     * - 앱 진입 시 세션 유지 확인용
      */
     fetchUserInfo: async () => {
         try {
@@ -144,11 +144,12 @@ const useUserStore = create<UserState>((set) => ({
     },
 
     /**
-     * 🔄 토큰 재발급 요청
+     * ♻️ JWT 토큰 재발급
+     * - 쿠키 기반 자동 연장
      */
     refreshToken: async () => {
         try {
-            const message = await refreshTokenService(); // 💡 메시지 반환됨
+            const message = await refreshTokenService();
             console.log('🔄 토큰 재발급 성공:', message);
         } catch (err) {
             console.error('🔄 토큰 재발급 실패:', err);
@@ -157,14 +158,14 @@ const useUserStore = create<UserState>((set) => ({
     },
 
     /**
-     * 🔐 블록체인 복호화 키 설정
+     * 🧪 복호화 키 설정 (ex. 블록체인 영상용)
      */
     setDecryptionKey: (key: string) => {
         set({ decryptionKey: key });
     },
 
     /**
-     * 🔁 블록체인 복호화 여부 토글
+     * 🔁 복호화 토글 (ON/OFF)
      */
     toggleDecryption: () => {
         set((state) => ({ isDecrypted: !state.isDecrypted }));
@@ -172,5 +173,3 @@ const useUserStore = create<UserState>((set) => ({
 }));
 
 export default useUserStore;
-
-
