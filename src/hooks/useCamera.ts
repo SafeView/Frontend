@@ -98,6 +98,7 @@ export const useCamera = (): UseCameraReturn => {
     }
   }, [stream]);
 
+
   const checkPermission = useCallback(async () => {
     try {
       if ('permissions' in navigator) {
@@ -155,6 +156,6 @@ export const useCamera = (): UseCameraReturn => {
     startCamera,
     stopCamera,
     checkPermission,
-    retryCamera
+  retryCamera
   };
 }; 
