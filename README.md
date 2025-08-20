@@ -98,3 +98,4 @@ npm run build
 ├── vite.config.ts       # Vite 설정
 └── README.md            # 프로젝트 설명서
 
+![오소스구조도.png](../../Downloads/%EC%98%A4%EC%86%8C%EC%8A%A4%EA%B5%AC%EC%A1%B0%EB%8F%84.png)
