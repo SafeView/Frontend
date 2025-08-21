@@ -1,177 +1,166 @@
-import { useState } from "react";
+// src/pages/CameraPage.tsx
+
+import { useEffect, useMemo, useState } from "react";
 import styles from "./CameraPage.module.css";
-import { FaStop, FaPlay, FaCircle, FaEye, FaEyeSlash } from "react-icons/fa";
 import CameraFeed from "../components/Camera/CameraFeed.tsx";
+import { type Mode } from "../components/Camera/CameraControls"; // 녹화 컨트롤 (현재 미사용)
+import HistoryPanel, { type HistoryRecord } from "../components/Camera/HistoryPanel"; // 영상 히스토리 리스트
+import useVideoStore from "../stores/videoStore"; // 영상 관련 zustand 스토어
+import { useUIStore } from '../stores/uiStore'; // UI 관련 스토어 (예: 사이드바 열림 여부)
+import useUserStore from "../stores/userStore.ts"; // 유저 정보 스토어
 
 /** -------------------------------
- * 더미 카메라 목록
- * 실제 구현 시 백엔드에서 받아올 예정
+ * 📹 더미 카메라 목록 (향후 백엔드에서 받아올 예정)
  * -------------------------------- */
 const dummyCameras = [
-    { id: 1, name: "Web Cam", location: "Office", videoSrc: "/videos/cam4.mp5" }, // 실제 웹캠
+    { id: 1, name: "Web Cam", location: "Office", videoSrc: "/videos/cam4.mp5" },
     { id: 2, name: "Entrance 1", location: "Main Gate", videoSrc: "/videos/cam1.mp4" },
-    { id: 3, name: "Parking Lot", location: "Lot A", videoSrc: "/videos/cam2.mp4" },
-    { id: 4, name: "Back Door", location: "Rear Exit", videoSrc: "/videos/cam3.mp4" },
-    { id: 5, name: "Front Desk", location: "Lobby", videoSrc: "/videos/cam4.mp4" },
+    // 비활성 카메라: 개발 시 확장 가능
 ];
 
-/** -------------------------------
- * 카메라별 녹화 히스토리 (최신순)
- * videoSrc: 녹화 파일 경로 (없으면 null)
- * -------------------------------- */
-const dummyHistory: Record<
-    number,
-    { timestamp: string; type: string; description: string; videoSrc?: string }[]
-> = {
-    1: [
-        {
-            timestamp: "2025-07-17 14:30",
-            type: "AI Detection",
-            description: "Person detected with AI",
-            videoSrc: "/recordings/webcam_ai_20250717.mp4",
-        },
-        {
-            timestamp: "2025-07-16 09:15",
-            type: "Motion",
-            description: "Motion detected",
-            videoSrc: "/recordings/webcam_motion_20250716.mp4",
-        },
-    ],
-    2: [
-        {
-            timestamp: "2025-07-17 14:30",
-            type: "Intrusion",
-            description: "Person detected",
-            videoSrc: "/recordings/cam1_intrusion_20250717.mp4",
-        },
-        {
-            timestamp: "2025-07-16 09:15",
-            type: "Motion",
-            description: "Motion near gate",
-            videoSrc: "/recordings/cam1_motion_20250716.mp4",
-        },
-    ],
-    3: [
-        {
-            timestamp: "2025-07-17 09:00",
-            type: "Suspicious Activity",
-            description: "Car loitering",
-            videoSrc: "/recordings/cam2_susp_20250717.mp4",
-        },
-    ],
-    4: [],
-    5: [
-        {
-            timestamp: "2025-07-15 11:00",
-            type: "Crowd",
-            description: "Multiple people detected",
-            videoSrc: "/recordings/cam4_crowd_20250715.mp4",
-        },
-    ],
-};
-
-type Mode = "live" | "history";
-
+/**
+ * 📺 CameraPage 컴포넌트
+ * - 카메라 실시간 뷰 + 히스토리 영상 조회 + 관리자/일반 유저 분기
+ */
 const CameraPage = () => {
-    // 현재 선택된 카메라
-    const [selectedCamera, setSelectedCamera] = useState(dummyCameras[0]); // Web Cam이 첫 번째
+    // 현재 유저 정보
+    const { user } = useUserStore();
 
-    // 현재 재생 모드 (라이브 / 히스토리)
+    // 관리자 또는 중간관리자인지 여부
+    const isPrivileged = user?.role === "ADMIN" || user?.role === "MODERATOR";
+
+    // 사이드바 열림 여부
+    const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
+
+    // 현재 선택된 카메라 (기본: Web Cam)
+    const [selectedCamera, setSelectedCamera] = useState(dummyCameras[0]);
+
+    // 현재 모드 (live | history)
     const [mode, setMode] = useState<Mode>("live");
 
-    // 현재 재생할 영상 소스 (라이브면 selectedCamera.videoSrc, 히스토리면 해당 기록 videoSrc)
-    const [currentVideoSrc, setCurrentVideoSrc] = useState<string>(
-        dummyCameras[0].videoSrc // Web Cam이 첫 번째
-    );
+    // 현재 재생 중인 영상 경로
+    const [currentVideoSrc, setCurrentVideoSrc] = useState<string>(dummyCameras[0].videoSrc);
 
-    // 녹화 토글 상태
-    const [isRecording, setIsRecording] = useState(false);
+    // 🎥 zustand 스토어에서 필요한 상태/함수 추출
+    const {
+        videos,             // 일반 유저용 영상 목록
+        lastRecordResult,  // 녹화 완료 후 결과
+        fetchVideos,       // 영상 목록 불러오기
+        fetchDownloadUrl,  // 다운로드 presigned URL 요청
+        clearDownloadUrl,  // 다운로드 URL 초기화
+        adminVideos,       // 관리자용 영상 목록
+        fetchAdminVideos,  // 관리자 영상 목록 불러오기
+    } = useVideoStore();
 
-    // 모자이크 토글 상태
-    const [isMosaic, setIsMosaic] = useState(false);
-
-    // 필터링 상태
-    const [filterKeyword, setFilterKeyword] = useState("");
-
-    // 날짜/시간 필터링 상태
-    const [filterStartDate, setFilterStartDate] = useState("");
-    const [filterEndDate, setFilterEndDate] = useState("");
-    const [filterStartTime, setFilterStartTime] = useState("");
-    const [filterEndTime, setFilterEndTime] = useState("");
-
-    // 선택 카메라 변경 시 라이브로 전환
-    const handleSelectCamera = (cam: (typeof dummyCameras)[number]) => {
-        setSelectedCamera(cam);
-        setMode("live");
-        setCurrentVideoSrc(cam.videoSrc);
+    // 🔍 파일 이름 → 시간 정보 파싱 (예: 20250810_162329 → 2025-08-10 16:23)
+    const tsFromFilename = (fn?: string) => {
+        if (!fn) return "";
+        const m = fn.match(/(\d{8})_(\d{6})/);
+        if (!m) return "";
+        const [_, ymd, hms] = m;
+        return `${ymd.slice(0, 4)}-${ymd.slice(4, 6)}-${ymd.slice(6, 8)} ${hms.slice(0, 2)}:${hms.slice(2, 4)}`;
     };
 
-    // 히스토리 클릭 시 해당 녹화 재생
+    /** ✅ 관리자일 경우 전체 유저 영상 목록 불러오기 */
+    useEffect(() => {
+        if (!user?.id || !isPrivileged) return;
+        fetchAdminVideos().catch((e) => console.error("[fetchAdminVideos error]", e));
+    }, [user, fetchAdminVideos]);
+
+    /** ✅ 선택된 카메라가 변경될 때 영상 목록 갱신 */
+    useEffect(() => {
+        (async () => {
+            try {
+                await fetchVideos(); // 영상 목록 받아오기
+                console.log("[videos after fetch]", useVideoStore.getState().videos);
+            } catch (e) {
+                console.error("[fetchVideos error]", e);
+            }
+        })();
+    }, [selectedCamera.id]);
+
+    /** ✅ 녹화 저장 결과 발생 시 영상 목록 새로고침 */
+    useEffect(() => {
+        if (lastRecordResult) {
+            fetchVideos().catch(() => {});
+        }
+    }, [lastRecordResult, fetchVideos]);
+
+    /** ✅ 히스토리 패널에 넘길 기록 목록 구성 */
+    const historyRecords: HistoryRecord[] = useMemo(() => {
+        if (!user) return [];
+
+        // 일반 유저: 모자이크 영상만
+        if (user.role === "USER") {
+            return videos
+                .filter((v) => !v.filename.includes('_raw'))
+                .map((v) => ({
+                    timestamp: tsFromFilename(v.filename),
+                    type: "모자이크",
+                    description: v.filename,
+                    videoSrc: v.s3Url,
+                    filename: v.filename,
+                }))
+                .sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1));
+        }
+
+        // 관리자/중간관리자: 유저 아이디, 원본/모자이크 구분 포함
+        return adminVideos.flatMap((video) => {
+            return video.filenames.map((filename, idx) => {
+                const s3Url = video.s3Urls[idx];
+                const isRaw = filename.includes("_raw");
+                return {
+                    timestamp: tsFromFilename(filename),
+                    type: isRaw ? "원본" : "모자이크",
+                    description: filename,
+                    videoSrc: s3Url,
+                    filename,
+                    userId: video.userId,
+                    isRaw,
+                };
+            });
+        }).sort((a, b) => (a.timestamp > b.timestamp ? -1 : 1));
+    }, [user, videos, adminVideos]);
+
+    /** 🔁 히스토리 항목 선택 → 녹화 영상 재생 */
     const handleSelectHistory = (videoSrc?: string) => {
         if (!videoSrc) return;
         setMode("history");
         setCurrentVideoSrc(videoSrc);
     };
 
-    // 라이브 모드 복귀
-    const handleGoLive = () => {
+    /** 📥 영상 다운로드 요청 → presigned URL 새 탭 오픈 */
+    const handleDownload = async (filename?: string) => {
+        if (!filename) return;
+        await fetchDownloadUrl(filename);
+        const url = useVideoStore.getState().downloadUrl;
+        if (url) {
+            window.open(url, "_blank");
+            clearDownloadUrl();
+        }
+    };
+
+    /** 📷 카메라 변경 시 라이브 모드로 복귀 */
+    const handleSelectCamera = (cam: (typeof dummyCameras)[number]) => {
+        setSelectedCamera(cam);
         setMode("live");
-        setCurrentVideoSrc(selectedCamera.videoSrc);
+        setCurrentVideoSrc(cam.videoSrc);
     };
 
-    // 녹화 토글 (실제 구현 시 API 연동)
-    const handleToggleRecording = () => {
-        const next = !isRecording;
-        setIsRecording(next);
-        console.log(
-            next ? "녹화 시작 API 호출" : "녹화 중지 API 호출",
-            "cameraId=",
-            selectedCamera.id
-        );
-    };
-
-    // 모자이크 토글
-    const handleToggleMosaic = () => {
-        const next = !isMosaic;
-        setIsMosaic(next);
-        console.log("모자이크 토글:", next);
-    };
-
-    const history = dummyHistory[selectedCamera.id] || [];
-
-
-    // 필터링된 히스토리
-    const filteredHistory = history.filter((record) => {
-        const [date, time] = record.timestamp.split(" ");
-        const keywordMatch =
-            !filterKeyword ||
-            record.type.toLowerCase().includes(filterKeyword.toLowerCase()) ||
-            record.description.toLowerCase().includes(filterKeyword.toLowerCase());
-
-        const dateMatch =
-            (!filterStartDate || date >= filterStartDate) &&
-            (!filterEndDate || date <= filterEndDate);
-
-        const timeMatch =
-            (!filterStartTime || time >= filterStartTime) &&
-            (!filterEndTime || time <= filterEndTime);
-
-        return keywordMatch && dateMatch && timeMatch;
-    });
-
-
+    /** ✅ 렌더링 시작 */
     return (
-        <div className={styles.container}>
-            {/* 왼쪽 카메라 선택 목록 */}
+        <div className={styles.container}
+             style={{
+                 marginLeft: isSidebarOpen ? "0px" : "50px",  // 사이드바 상태에 따른 여백 조정
+             }}>
+            {/* 왼쪽 카메라 목록 */}
             <aside className={styles.sidebar}>
                 <h2 className={styles.title}>Cameras</h2>
                 <ul className={styles.cameraList}>
                     {dummyCameras.map((cam) => (
                         <li
                             key={cam.id}
-                            className={`${styles.cameraItem} ${
-                                cam.id === selectedCamera.id ? styles.active : ""
-                            }`}
+                            className={`${styles.cameraItem} ${cam.id === selectedCamera.id ? styles.active : ""}`}
                             onClick={() => handleSelectCamera(cam)}
                         >
                             <span className={styles.cameraName}>{cam.name}</span>
@@ -181,12 +170,13 @@ const CameraPage = () => {
                 </ul>
             </aside>
 
-            {/* 우측 영상 + 컨트롤 + 히스토리 */}
+            {/* 오른쪽: 영상 영역 + 기록 */}
             <main className={styles.videoPanel}>
                 <h2 className={styles.videoTitle}>
                     {selectedCamera.name} - {mode === "live" ? "Live View" : "Recorded"}
                 </h2>
 
+                {/* 📹 실시간 웹캠 or 녹화영상 */}
                 <div className={styles.videoWrapper}>
                     {selectedCamera.name === "Web Cam" ? (
                         <CameraFeed enableAI={true} decrypted={false} />
@@ -194,7 +184,7 @@ const CameraPage = () => {
                         <video
                             key={currentVideoSrc}
                             src={currentVideoSrc}
-                            className={`${styles.videoPlayer} ${isMosaic ? styles.mosaic : ""}`}
+                            className={styles.videoPlayer}
                             controls
                             autoPlay
                             muted
@@ -202,139 +192,21 @@ const CameraPage = () => {
                     )}
                 </div>
 
-                {/* 영상 컨트롤 버튼들 */}
-                <div className={styles.controls}>
-                    {/* 🎥 녹화 버튼 */}
-                    <button
-                        className={`${styles.ctrlBtn} ${isRecording ? styles.activeBtn : ""}`}
-                        onClick={handleToggleRecording}
-                    >
-                        {isRecording ? (
-                            <>
-                                <FaStop className={styles.icon} />
-                                녹화 중지
-                            </>
-                        ) : (
-                            <>
-                                <FaCircle className={styles.icon} />
-                                녹화 시작
-                            </>
-                        )}
-                    </button>
+                {/* 🎛️ 컨트롤 바 (현재 미사용) */}
+                {/* <CameraControls
+                    isRecording={recording}
+                    onToggleRecording={handleToggleRecording}
+                    mode={mode}
+                    onGoLive={handleGoLive}
+                /> */}
 
-                    {/* 🔴 라이브 복귀 버튼 */}
-                    <button
-                        className={`${styles.ctrlBtn} ${mode === "live" ? styles.disabledBtn : ""}`}
-                        onClick={handleGoLive}
-                        disabled={mode === "live"}
-                    >
-                        <FaPlay className={styles.icon} />
-                        LIVE
-                    </button>
-
-                    {/* 🟣 모자이크 토글 */}
-                    <button
-                        className={`${styles.ctrlBtn} ${isMosaic ? styles.activeBtn : ""}`}
-                        onClick={handleToggleMosaic}
-                    >
-                        {isMosaic ? (
-                            <>
-                                <FaEyeSlash className={styles.icon} />
-                                모자이크 OFF
-                            </>
-                        ) : (
-                            <>
-                                <FaEye className={styles.icon} />
-                                모자이크 ON
-                            </>
-                        )}
-                    </button>
-                </div>
-
-                <h3 className={styles.historyTitle}>Recording History</h3>
-
-
-                {/* 필터 UI 추가 */}
-                <div className={styles.filterWrapper}>
-                    {/* 검색어 */}
-                    <input
-                        type="text"
-                        placeholder="검색어를 입력하세요 (Type 또는 Description)"
-                        value={filterKeyword}
-                        onChange={(e) => setFilterKeyword(e.target.value)}
-                        className={styles.searchInput}
-                    />
-
-                    {/* 날짜 필터 */}
-                    <div className={styles.rowFilterGroup}>
-                        <label className={styles.filterLabel}>📅 날짜:</label>
-                        <input
-                            type="date"
-                            value={filterStartDate}
-                            onChange={(e) => setFilterStartDate(e.target.value)}
-                            className={styles.filterInput}
-                        />
-                        <span className={styles.tilde}>~</span>
-                        <input
-                            type="date"
-                            value={filterEndDate}
-                            onChange={(e) => setFilterEndDate(e.target.value)}
-                            className={styles.filterInput}
-                        />
-                    </div>
-
-                    {/* 시간 필터 */}
-                    <div className={styles.rowFilterGroup}>
-                        <label className={styles.filterLabel}>⏰ 시간:</label>
-                        <input
-                            type="time"
-                            value={filterStartTime}
-                            onChange={(e) => setFilterStartTime(e.target.value)}
-                            className={styles.filterInput}
-                        />
-                        <span className={styles.tilde}>~</span>
-                        <input
-                            type="time"
-                            value={filterEndTime}
-                            onChange={(e) => setFilterEndTime(e.target.value)}
-                            className={styles.filterInput}
-                        />
-                    </div>
-                </div>
-
-                {/* 히스토리 테이블 */}
-                <table className={styles.historyTable}>
-                    <thead>
-                    <tr>
-                        <th>Timestamp</th>
-                        <th>Type</th>
-                        <th>Description</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {filteredHistory.length > 0 ? (
-                        filteredHistory.map((record, idx) => (
-                            <tr
-                                key={idx}
-                                className={styles.historyRow}
-                                onClick={() => handleSelectHistory(record.videoSrc)}
-                            >
-                                <td>{record.timestamp}</td>
-                                <td>
-                                    <span className={styles.badge}>{record.type}</span>
-                                </td>
-                                <td>{record.description}</td>
-                            </tr>
-                        ))
-                    ) : (
-                        <tr>
-                            <td colSpan={3} className={styles.noRecord}>
-                                No history available for this camera.
-                            </td>
-                        </tr>
-                    )}
-                    </tbody>
-                </table>
+                {/* 🕒 영상 히스토리 패널 */}
+                <HistoryPanel
+                    title="Recording History"
+                    records={historyRecords}
+                    onSelectHistory={handleSelectHistory}
+                    onDownload={handleDownload}
+                />
             </main>
         </div>
     );

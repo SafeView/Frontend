@@ -1,135 +1,175 @@
 // src/stores/userStore.ts
+// ✅ 사용자 인증, 회원가입, 로그아웃, 토큰 갱신, 복호화 키 관리 등 사용자 관련 상태를 zustand로 관리하는 스토어입니다.
+
 import { create } from 'zustand';
-import { login as loginService, signup as signupService } from '../services/authService';
-import { signup as userSignup, checkEmailDuplication } from '../apis/userApi';
-import { login as authLogin } from '../apis/auth';
-import { TokenStorage } from '../utils/tokenStorage';
-interface UserInfo {
-    email: string;
-    nickname: string;
-    name: string;
-    role: 'USER' | 'ADMIN';
-}
+import {
+    login as loginService,
+    getUserInfo,
+    logout as logoutService, // 💡 로그아웃 API import
+    refreshToken as refreshTokenService,
+} from '../services/authService.ts';
+import {
+    signup as signupService,
+    checkEmail,
+} from '../services/userService.ts';
+import type { LoginRequest, SignupRequest, UserInfo } from "../types/user.ts";
 
-interface UserState {
-    user: UserInfo | null;
-    token: string | null;
-    isDecrypted: boolean;
-    decryptionKey: string;
-    login: (email: string, password: string) => Promise<void>;
-    setUserData: (user: UserInfo, token: string) => void;
-    signup: (email: string, password: string, nickname: string, address?: string, phone?: string, gender?: string, birthday?: string) => Promise<void>;
-    checkEmail: (email: string) => Promise<boolean>;
-    logout: () => void;
-    setDecryptionKey: (key: string) => void;
-    toggleDecryption: () => void;
-}
-
-// 임시 사용자 데이터 (백엔드 없이 테스트용)
+// ✅ 백엔드 없이 테스트할 수 있는 임시 사용자 목록
 const TEMP_USERS = [
-    { email: 'admin@example.com', password: 'admin123', nickname: '관리자', role: 'ADMIN' as const },
-    { email: 'user@example.com', password: 'user123', nickname: '일반사용자', role: 'USER' as const },
-    { email: 'test@example.com', password: 'test123', nickname: '테스트사용자', role: 'USER' as const }
+    { email: 'admin@example.com', password: 'admin123', name: '관리자', role: 'ADMIN' as const },
+    { email: 'user@example.com', password: 'user123', name: '일반사용자', role: 'USER' as const },
+    { email: 'test@example.com', password: 'test123', name: '테스트사용자', role: 'USER' as const },
 ];
 
-export const useUserStore = create<UserState>((set) => ({
+// ✅ zustand에서 관리할 상태 정의
+interface UserState {
+    user: UserInfo | null;            // 로그인한 사용자 정보
+    isLoggedIn: boolean;              // 로그인 여부
+    isDecrypted: boolean;            // 복호화 여부 (토글용)
+    decryptionKey: string;           // 복호화 키
+
+    login: (form: LoginRequest) => Promise<void>;         // 로그인
+    logout: () => Promise<void>;                          // 로그아웃
+    signup: (form: SignupRequest) => Promise<void>;       // 회원가입
+    checkEmailDuplication: (email: string) => Promise<boolean>; // 이메일 중복 확인
+    fetchUserInfo: () => Promise<void>;                   // 사용자 정보 조회
+    refreshToken: () => Promise<void>;                    // 토큰 재발급
+
+    setDecryptionKey: (key: string) => void;              // 복호화 키 저장
+    toggleDecryption: () => void;                         // 복호화 토글
+}
+
+// ✅ zustand 스토어 정의
+const useUserStore = create<UserState>((set) => ({
     user: null,
-    token: null,
+    isLoggedIn: false,
     isDecrypted: false,
     decryptionKey: '',
 
-    login: async (email, password) => {
+    /**
+     * 🔐 로그인 처리
+     * - 로그인 성공 시: 쿠키 저장 + 사용자 정보 조회
+     * - 실패 시: TEMP_USERS에서 fallback (백엔드 개발 전용)
+     */
+    login: async (form) => {
         try {
-            // 백엔드 API 호출 시도
-            const { token, email: userEmail, nickname } = await loginService(email, password);
-            const role = email === 'admin@example.com' ? 'ADMIN' : 'USER';
-            set({ token, user: { email: userEmail, nickname, name: nickname, role } });
-        } catch (error) {
-            // 백엔드 연결 실패 시 임시 로그인 처리
-            console.log('백엔드 연결 실패, 임시 로그인 처리 중...');
-            
-            const tempUser = TEMP_USERS.find(user => 
-                user.email === email && user.password === password
-            );
-            
-            if (tempUser) {
-                const token = `temp_token_${Date.now()}`;
-                set({ 
-                    token, 
-                    user: { 
-                        email: tempUser.email, 
-                        nickname: tempUser.nickname, 
-                        name: tempUser.nickname,
-                        role: tempUser.role 
-                    } 
+            await loginService(form); // 로그인 요청 → 쿠키에 저장됨
+            const user = await getUserInfo(); // 사용자 정보 조회
+            set({ user, isLoggedIn: true });
+        } catch (error: any) {
+            console.error('✅ 백엔드 로그인 실패, TEMP 유저 fallback 시도 중...');
+
+            // TEMP 유저 fallback (디버깅/로컬 테스트용)
+            const found = TEMP_USERS.find(u => u.email === form.email && u.password === form.password);
+            if (found) {
+                set({
+                    user: {
+                        email: found.email,
+                        name: found.name,
+                        role: found.role,
+                    },
+                    isLoggedIn: true,
                 });
             } else {
-                throw new Error('잘못된 이메일 또는 비밀번호입니다.');
+                throw new Error('이메일 또는 비밀번호가 잘못되었습니다.');
             }
         }
     },
 
-    setUserData: (user: UserInfo, token: string) => {
-        set({ user, token });
-    },
-
-    signup: async (email, password, nickname, address = '', phone = '', gender = '', birthday = '') => {
+    /**
+     * 📤 로그아웃 처리
+     * - 서버에 쿠키 삭제 요청
+     * - 클라이언트 상태 초기화
+     */
+    logout: async () => {
         try {
-            // 실제 API 호출
-            const userData = {
-                email,
-                password,
-                name: nickname,
-                address,
-                phone,
-                gender,
-                birthday
-            };
-            const response = await userSignup(userData);
-            console.log('회원가입 성공:', response);
-            
-            // 회원가입 성공 후 자동 로그인 처리
-            const loginResponse = await authLogin({ email, password });
-            
-            // 토큰을 쿠키에 저장
-            TokenStorage.setAccessToken(loginResponse.token);
-            
-            set({ 
-                token: loginResponse.token, 
-                user: { 
-                    email: loginResponse.email, 
-                    nickname: loginResponse.name, 
-                    name: loginResponse.name,
-                    role: 'USER' // 기본값으로 USER 설정
-                } 
+            await logoutService(); // 서버 쿠키 제거
+        } catch (err) {
+            console.warn('로그아웃 요청 실패:', err);
+        } finally {
+            // 상태 초기화
+            set({
+                user: null,
+                isLoggedIn: false,
+                isDecrypted: false,
+                decryptionKey: '',
             });
-        } catch (error) {
-            console.error('회원가입 실패:', error);
-            throw error;
         }
     },
 
-    checkEmail: async (email: string) => {
+    /**
+     * 📝 회원가입 처리
+     * - 가입 후 자동 로그인
+     */
+    signup: async (form) => {
         try {
-            const isAvailable = await checkEmailDuplication(email);
-            return isAvailable;
-        } catch (error) {
-            console.error('이메일 중복 체크 실패:', error);
+            await signupService(form); // 회원가입 요청
+            // 자동 로그인
+            await useUserStore.getState().login({
+                email: form.email,
+                password: form.password,
+            });
+        } catch (err) {
+            console.error('회원가입 오류:', err);
+            throw err;
+        }
+    },
+
+    /**
+     * 📧 이메일 중복 확인
+     * - API 응답 중 available 여부 반환
+     */
+    checkEmailDuplication: async (email: string) => {
+        try {
+            const response = await checkEmail(email);
+            return response.available;
+        } catch (error: any) {
+            console.error('❌ 이메일 중복 확인 실패:', error.message);
             throw error;
         }
     },
 
-    logout: () => {
-        // 쿠키에서 토큰 삭제
-        TokenStorage.clearTokens();
-        set({ user: null, token: null, isDecrypted: false, decryptionKey: '' });
+    /**
+     * 🔄 사용자 정보 조회
+     * - 앱 진입 시 세션 유지 확인용
+     */
+    fetchUserInfo: async () => {
+        try {
+            const user = await getUserInfo();
+            set({ user, isLoggedIn: true });
+        } catch (err) {
+            console.error('사용자 정보 불러오기 실패:', err);
+            set({ user: null, isLoggedIn: false });
+        }
     },
 
+    /**
+     * ♻️ JWT 토큰 재발급
+     * - 쿠키 기반 자동 연장
+     */
+    refreshToken: async () => {
+        try {
+            const message = await refreshTokenService();
+            console.log('🔄 토큰 재발급 성공:', message);
+        } catch (err) {
+            console.error('🔄 토큰 재발급 실패:', err);
+            throw err;
+        }
+    },
+
+    /**
+     * 🧪 복호화 키 설정 (ex. 블록체인 영상용)
+     */
     setDecryptionKey: (key: string) => {
         set({ decryptionKey: key });
     },
 
+    /**
+     * 🔁 복호화 토글 (ON/OFF)
+     */
     toggleDecryption: () => {
         set((state) => ({ isDecrypted: !state.isDecrypted }));
     },
 }));
+
+export default useUserStore;

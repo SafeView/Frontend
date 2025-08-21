@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import styles from './VideoDisplay.module.css';
 
 interface VideoDisplayProps {
@@ -30,37 +30,37 @@ export const VideoDisplay: React.FC<VideoDisplayProps> = ({
     if (videoRef.current && stream) {
       console.log('비디오 엘리먼트에 스트림 설정:', stream);
       videoRef.current.srcObject = stream;
-      
+
       // 이벤트 핸들러 설정
       const videoElement = videoRef.current;
-      
+
       const handleLoadedMetadata = () => {
-        console.log('비디오 메타데이터 로드 완료');
-        console.log('비디오 크기:', videoElement.videoWidth, 'x', videoElement.videoHeight);
+        // console.log('비디오 메타데이터 로드 완료');
+        // console.log('비디오 크기:', videoElement.videoWidth, 'x', videoElement.videoHeight);
       };
-      
+
       const handleCanPlay = () => {
-        console.log('비디오 재생 가능');
+        //console.log('비디오 재생 가능');
         // 자동 재생 시도
         if (videoElement.paused) {
           videoElement.play().catch(e => console.error('자동 재생 실패:', e));
         }
       };
-      
+
       const handlePlay = () => {
-        console.log('비디오 재생 시작됨');
+        //console.log('비디오 재생 시작됨');
       };
-      
+
       const handleError = (e: Event) => {
         console.error('비디오 에러:', e);
       };
-      
+
       // 이벤트 리스너 등록
       videoElement.addEventListener('loadedmetadata', handleLoadedMetadata);
       videoElement.addEventListener('canplay', handleCanPlay);
       videoElement.addEventListener('play', handlePlay);
       videoElement.addEventListener('error', handleError);
-      
+
       // 클린업 함수
       return () => {
         videoElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
@@ -101,40 +101,27 @@ export const VideoDisplay: React.FC<VideoDisplayProps> = ({
 
   return (
     <div className={styles.videoContainer}>
-      {/* 원본 카메라 영상 */}
-      <div className={styles.videoItem}>
-        <h3>원본 영상</h3>
-        <video
-          ref={videoRef}
-          className={`${styles.video} ${styles.originalVideo}`}
-          autoPlay
-          playsInline
-          muted
-          onLoadStart={() => console.log('비디오 로드 시작')}
-          onLoadedMetadata={() => console.log('비디오 메타데이터 로드됨')}
-          onCanPlay={() => console.log('비디오 재생 가능')}
-          onPlay={() => console.log('비디오 재생 시작')}
-          onPause={() => console.log('비디오 일시정지')}
-          onError={(e) => console.error('비디오 오류:', e)}
-        />
-      </div>
-      
-      {/* AI 처리된 영상 */}
+      {/* 화면에는 보이지 않지만, 프레임 캡처를 위해 재생 유지 */}
+      <video
+        ref={videoRef}
+        className={styles.hiddenCaptureVideo}
+        autoPlay
+        playsInline
+        muted
+      />
+
+      {/* AI 처리된 영상만 표시 */}
       {enableAI && (
         <div className={styles.videoItem}>
-          <h3>AI 처리된 영상</h3>
           <div className={styles.aiVideoWrapper}>
             <img
               ref={aiImageRef}
               className={styles.aiVideo}
               alt="AI 처리 영상"
               src={isStreaming ? undefined : ""}
-              onLoad={(e) => {
-                console.log('이미지 onLoad 이벤트 발생:', e.target);
-                console.log('이미지 크기:', (e.target as HTMLImageElement).width, 'x', (e.target as HTMLImageElement).height);
-              }}
+              onLoad={() => {}}
               onError={(e) => {
-                console.error('이미지 onError 이벤트 발생:', e);
+                console.error('AI 처리 영상 로딩 오류:', e);
               }}
             />
             {!isStreaming && (
@@ -147,4 +134,4 @@ export const VideoDisplay: React.FC<VideoDisplayProps> = ({
       )}
     </div>
   );
-}; 
+};

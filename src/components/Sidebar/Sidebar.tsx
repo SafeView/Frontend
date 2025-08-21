@@ -1,38 +1,59 @@
-// src/components/Sidebar/Sidebar.tsx
 import React, { useCallback } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { FaHome, FaCamera, FaBell, FaChartBar, FaCog, FaTimes, FaBars } from 'react-icons/fa';
+import { useLocation, useNavigate } from 'react-router-dom';
+import {
+    FaHome, FaCamera, FaChartBar, FaTimes, FaBars, FaFileVideo, FaKey
+} from 'react-icons/fa'; // FontAwesome 아이콘
 import styles from './Sidebar.module.css';
-import { useUIStore } from '../../stores/uiStore';
+
+// zustand 상태 가져오기
+import { useUIStore } from '../../stores/uiStore';           // 사이드바 열기/닫기 상태
+import useUserStore from '../../stores/userStore';           // 로그인 여부 확인
 
 const Sidebar = React.memo(() => {
-    const location = useLocation();
-    const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
-    const { closeSidebar, openSidebar } = useUIStore();
+    const location = useLocation();      // 현재 URL 경로
+    const navigate = useNavigate();      // 페이지 이동 함수
 
+    const isSidebarOpen = useUIStore((state) => state.isSidebarOpen); // 열림 여부
+    const { closeSidebar, openSidebar } = useUIStore();               // 토글 액션
+    const isLoggedIn = useUserStore((state) => state.isLoggedIn);     // 로그인 여부
+
+    // 메뉴 구성
     const menus = [
-        { path: '/', label: 'Overview', icon: <FaHome /> },
-        { path: '/cameras', label: 'Cameras', icon: <FaCamera /> },
-        { path: '/alerts', label: 'Alerts', icon: <FaBell /> },
-        { path: '/reports', label: 'Reports', icon: <FaChartBar /> },
-        { path: '/settings', label: 'Settings', icon: <FaCog /> },
+        { path: '/', label: 'Overview', icon: <FaHome />, authRequired: false },
+        { path: '/cameras', label: 'Cameras', icon: <FaCamera />, authRequired: false }, // ✅ 필요 시 true로 변경
+        { path: '/analysis', label: 'Video Analysis', icon: <FaFileVideo />, authRequired: false },
+        { path: '/reports', label: 'Reports', icon: <FaChartBar />, authRequired: false },
+        { path: '/verification', label: 'Verification', icon: <FaKey />, authRequired: false },
     ];
 
+    // 사이드바 닫기 핸들러
     const handleCloseSidebar = useCallback(() => {
         closeSidebar();
     }, [closeSidebar]);
 
+    // 사이드바 열기 핸들러
     const handleOpenSidebar = useCallback(() => {
         openSidebar();
     }, [openSidebar]);
 
+    // 메뉴 클릭 시 네비게이션 처리
+    const handleNavigation = (path: string, authRequired: boolean) => {
+        if (authRequired && !isLoggedIn) {
+            alert('로그인이 필요합니다.');
+            navigate('/login');
+            return;
+        }
+        navigate(path);
+        closeSidebar(); // 메뉴 클릭 후 자동으로 닫기
+    };
+
     return (
         <>
-            {/* 열린 사이드바 */}
+            {/* 📌 열려 있는 사이드바 */}
             <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.open : styles.closed}`}>
                 <div className={styles.sidebarHeader}>
                     <h3 className={styles.sidebarTitle}>Menu</h3>
-                    <button 
+                    <button
                         className={styles.closeButton}
                         onClick={handleCloseSidebar}
                         aria-label="사이드바 닫기"
@@ -40,24 +61,25 @@ const Sidebar = React.memo(() => {
                         <FaTimes />
                     </button>
                 </div>
-                
+
+                {/* 메뉴 리스트 */}
                 <nav className={styles.nav}>
                     {menus.map((menu) => (
-                        <Link
+                        <button
                             key={menu.path}
-                            to={menu.path}
                             className={`${styles.link} ${location.pathname === menu.path ? styles.active : ''}`}
+                            onClick={() => handleNavigation(menu.path, menu.authRequired)}
                         >
                             <span className={styles.icon}>{menu.icon}</span>
                             {menu.label}
-                        </Link>
+                        </button>
                     ))}
                 </nav>
             </aside>
 
-            {/* 닫힌 사이드바 - 열기 버튼만 표시 */}
+            {/* 📌 닫힌 사이드바 (오픈 버튼만 보임) */}
             <aside className={`${styles.sidebarClosed} ${!isSidebarOpen ? styles.visible : styles.hidden}`}>
-                <button 
+                <button
                     className={styles.openButton}
                     onClick={handleOpenSidebar}
                     aria-label="사이드바 열기"

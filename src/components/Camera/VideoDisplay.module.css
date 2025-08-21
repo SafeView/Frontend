@@ -132,6 +132,17 @@
   background: #ff5252;
 }
 
+/* 화면에는 보이지 않지만, 프레임 캡처를 위해 재생은 유지 */
+.hiddenCaptureVideo {
+  position: absolute;
+  left: -10000px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
 /* 반응형 디자인 */
 @media (max-width: 768px) {
   .videoContainer {
