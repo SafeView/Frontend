@@ -1,0 +1,25 @@
+node_modules/
+dist/
+
+# IDE / VCS
+.git/
+.vscode/
+.idea/
+.DS_Store
+
+# Env
+.env
+# Gradle
+.gradle
+build
+out
+
+# IDE / VCS
+.idea
+.vscode
+*.iml
+.git
+
+# OS
+.DS_Store
+
