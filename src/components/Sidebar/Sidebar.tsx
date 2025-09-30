@@ -1,13 +1,14 @@
 import React, { useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
-    FaHome, FaCamera, FaChartBar, FaTimes, FaBars, FaFileVideo, FaKey
+    FaHome, FaCamera, FaChartBar, FaTimes, FaBars, FaFileVideo, FaKey, FaFileAlt, FaCameraRetro
 } from 'react-icons/fa'; // FontAwesome 아이콘
 import styles from './Sidebar.module.css';
 
 // zustand 상태 가져오기
 import { useUIStore } from '../../stores/uiStore';           // 사이드바 열기/닫기 상태
-import useUserStore from '../../stores/userStore';           // 로그인 여부 확인
+import useUserStore from '../../stores/userStore';
+import {FaCameraRotate} from "react-icons/fa6";           // 로그인 여부 확인
 
 const Sidebar = React.memo(() => {
     const location = useLocation();      // 현재 URL 경로
@@ -19,11 +20,12 @@ const Sidebar = React.memo(() => {
 
     // 메뉴 구성
     const menus = [
-        { path: '/', label: 'Overview', icon: <FaHome />, authRequired: false },
-        { path: '/cameras', label: 'Cameras', icon: <FaCamera />, authRequired: false }, // ✅ 필요 시 true로 변경
-        { path: '/analysis', label: 'Video Analysis', icon: <FaFileVideo />, authRequired: false },
-        { path: '/reports', label: 'Reports', icon: <FaChartBar />, authRequired: false },
-        { path: '/verification', label: 'Verification', icon: <FaKey />, authRequired: false },
+        { path: '/', label: '홈', icon: <FaHome />, authRequired: false },
+        { path: '/cameras', label: '카메라', icon: <FaCamera />, authRequired: false }, // ✅ 필요 시 true로 변경
+        { path: '/analysis', label: '비디오 분석', icon: <FaFileVideo />, authRequired: false },
+        { path: '/records', label: '저장된 영상', icon: <FaCameraRotate/>, authRequired: false },
+        //{ path: '/reports', label: 'Reports', icon: <FaChartBar />, authRequired: false },
+        { path: '/verification', label: '인증', icon: <FaKey />, authRequired: false },
     ];
 
     // 사이드바 닫기 핸들러
