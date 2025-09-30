@@ -1,14 +1,19 @@
 
 .container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 2rem 1.5rem;
-  background-color: #0d0d0d;
-  color: white;
-  min-height: 100vh;
-  max-width: 400px;
-  margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1.5rem;
+    background-color: #0d0d0d;
+    color: white;
+
+    min-height: 90vh;
+    max-height: 85vh;
+    width: 100%;               /* ✅ 추가 */
+    max-width: 400px;
+    margin: 0 auto;
+
+    overflow-y: auto;          /* ✅ 추가: 스크롤 가능하게 */
 }
 
 .title {
