@@ -173,4 +173,4 @@ git push origin feature/YourFeatureName
 - 복호화 키를 통한 원본 열람
 - 사용자 권한에 따른 화면 분기
 
-📺 [기술 데모 영상 보기](https://youtu.be/X5nI4CyZd9s)
+📺 [기술 데모 영상 보기](https://youtu.be/V7Il3zwaP5U?si=5Vu73owUDwy7iJxv)
