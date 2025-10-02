@@ -4,9 +4,12 @@ import styles from './SavedVideosPage.module.css';
 import HistoryPanel from '../components/Camera/HistoryPanel';
 import useVideoStore from '../stores/videoStore';
 import useUserStore from '../stores/userStore';
+import { useUIStore } from '../stores/uiStore'; // UI 상태 전역 저장소
+
 
 const SavedVideosPage = () => {
     const { user } = useUserStore();
+    const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
     const { videos, adminVideos, fetchVideos, fetchAdminVideos, fetchDownloadUrl, clearDownloadUrl } = useVideoStore();
 
     React.useEffect(() => {
@@ -65,7 +68,10 @@ const SavedVideosPage = () => {
     }, [user, videos, adminVideos]);
 
     return (
-        <div className={styles.container}>
+        <div
+            className={styles.container}
+            style={{ marginLeft: isSidebarOpen ? "0px" : "50px" }} // 사이드바 닫힘 시 여백 확보
+        >
             <h2 className={styles.title}>저장된 영상</h2>
             <HistoryPanel
                 title="저장 기록"
