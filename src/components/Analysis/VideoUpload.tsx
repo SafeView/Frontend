@@ -10,7 +10,6 @@ interface Props {
 
 const VideoUpload: React.FC<Props> = ({ onUpload }) => {
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-    //@ts-ignore
     const [file, setFile] = useState<File | null>(null);
     const [minute, setMinute] = useState('');
     const [second, setSecond] = useState('');
@@ -24,6 +23,16 @@ const VideoUpload: React.FC<Props> = ({ onUpload }) => {
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         const selected = e.target.files?.[0];
         if (selected) {
+            // ✅ 500MB 제한: 524,288,000 bytes
+            const MAX_SIZE = 524288000;
+            if (selected.size > MAX_SIZE) {
+                setFile(null);
+                setPreviewUrl(null);
+                clear();
+                setLocalError('⚠️ 업로드 가능한 최대 용량은 500MB입니다.');
+                return;
+            }
+
             setFile(selected);
             const url = URL.createObjectURL(selected);
             setPreviewUrl(url);

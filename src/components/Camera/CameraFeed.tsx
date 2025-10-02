@@ -21,7 +21,6 @@ interface CameraFeedProps {
 }
 
 // 🔹 CameraFeed 컴포넌트 정의
-// @ts-ignore
 const CameraFeed: React.FC<CameraFeedProps> = ({ decrypted = false, enableAI = false }) => {
     // 비디오 DOM 엘리먼트 참조 (스트리밍 연결용)
     const videoRef = useRef<HTMLVideoElement>(null);

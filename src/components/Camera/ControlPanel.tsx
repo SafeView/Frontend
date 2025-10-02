@@ -45,12 +45,12 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
         >
           AI 서버 연결 및 시작
         </button>
-        <button
-          onClick={onTestAIConnection}
-          className={styles.actionButton}
-        >
-          AI 서버 연결 테스트
-        </button>
+        {/*<button*/}
+        {/*  onClick={onTestAIConnection}*/}
+        {/*  className={styles.actionButton}*/}
+        {/*>*/}
+        {/*  AI 서버 연결 테스트*/}
+        {/*</button>*/}
 
         <button
           onClick={onStopStreaming}
