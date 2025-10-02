@@ -33,6 +33,18 @@ const VideoUpload: React.FC<Props> = ({ onUpload }) => {
                 return;
             }
 
+            // ✅ mp4 확장자/타입 체크
+            const fileName = selected.name.toLowerCase();
+            const fileType = selected.type.toLowerCase();
+            if (!fileName.endsWith('.mp4') || fileType !== 'video/mp4') {
+                setFile(null);
+                setPreviewUrl(null);
+                clear();
+                setLocalError('⚠️ mp4 형식의 영상 파일만 업로드할 수 있습니다.');
+                return;
+            }
+
+            // ✅ 통과하면 상태 업데이트
             setFile(selected);
             const url = URL.createObjectURL(selected);
             setPreviewUrl(url);
@@ -79,7 +91,7 @@ const VideoUpload: React.FC<Props> = ({ onUpload }) => {
             <input
                 id="video-upload"
                 type="file"
-                accept="video/*"
+                accept="video/mp4"
                 onChange={handleFileChange}
                 className={styles.input}
             />
