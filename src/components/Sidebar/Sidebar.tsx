@@ -7,8 +7,8 @@ import {
     Key,
     Menu,
     X,
-    Film, Library
-    ,
+    Film,
+    Library,
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
 
