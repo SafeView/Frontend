@@ -145,3 +145,70 @@ export const sendTempPassword = async (email: string): Promise<string> => {
         throw new Error('네트워크 오류가 발생했습니다.');
     }
 };
+
+
+/**
+ * 📧 이메일 인증번호 발송 API
+ *
+ * - 회원가입 시 입력한 이메일 주소로 인증번호를 전송합니다.
+ * - 이미 가입된 이메일인 경우 409 에러 발생
+ *
+ * @param email 인증번호를 받을 이메일 주소
+ * @returns 성공 메시지 문자열
+ * @throws Error - 이미 존재하는 이메일 또는 서버 오류 시 예외 발생
+ */
+export const sendEmailVerificationCode = async (email: string): Promise<string> => {
+    try {
+        const response = await api.post<ApiResponse<{ message: string }>>(
+            '/users/email-verification/send',
+            { email }
+        );
+
+        if (response.data.isSuccess) {
+            return response.data.data.message; // ex: "인증번호가 이메일로 발송되었습니다."
+        } else {
+            throw new Error(response.data.message || '이메일 인증번호 전송에 실패했습니다.');
+        }
+    } catch (error: any) {
+        if (error.response?.data) {
+            throw new Error(error.response.data.message || '이메일 인증번호 전송 중 오류 발생');
+        }
+        throw new Error('네트워크 오류가 발생했습니다.');
+    }
+};
+
+/**
+ * ✅ 이메일 인증번호 검증 API
+ *
+ * - 사용자가 입력한 인증번호가 서버에 등록된 값과 일치하는지 검증합니다.
+ * - 만료되었거나 틀릴 경우, 400 에러와 함께 실패 메시지 반환
+ *
+ * @param payload 이메일과 인증번호
+ * @returns 성공 메시지 문자열
+ * @throws Error - 인증 실패 또는 서버 오류 시 예외 발생
+ */
+export const verifyEmailCode = async (payload: { email: string; code: string }): Promise<string> => {
+    try {
+        const response = await api.post<ApiResponse<{ message: string }>>(
+            '/users/email-verification/verify',
+            payload
+        );
+
+        if (response.data.isSuccess) {
+            return response.data.data.message; // ex: "이메일 인증이 완료되었습니다."
+        } else {
+            throw new Error(response.data.message || '이메일 인증에 실패했습니다.');
+        }
+    } catch (error: any) {
+        // ✅ data 자체에 에러 메시지가 담기는 케이스도 고려
+        if (error.response?.data) {
+            const fallback = typeof error.response.data.data === 'string'
+                ? error.response.data.data
+                : error.response.data.message;
+
+            throw new Error(fallback || '이메일 인증 요청 중 오류 발생');
+        }
+
+        throw new Error('네트워크 오류가 발생했습니다.');
+    }
+};
