@@ -29,7 +29,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
   aiFrameCount,
   onStartAIStreaming,
   onStopStreaming,
-  onTestAIConnection,
+  // onTestAIConnection,
   onDecryptClick
 }) => {
   if (!enableAI) return null;

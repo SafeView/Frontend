@@ -179,7 +179,10 @@ const CameraPage = () => {
                 {/* 📹 실시간 웹 캠 or 녹화영상 */}
                 <div className={styles.videoWrapper}>
                     {selectedCamera.name === "웹 캠" ? (
-                        <CameraFeed enableAI={true} decrypted={false} />
+                        <CameraFeed
+                            enableAI={true}
+                            // decrypted={false}
+                        />
                     ) : (
                         <video
                             key={currentVideoSrc}
