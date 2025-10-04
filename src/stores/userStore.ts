@@ -1,22 +1,22 @@
 // src/stores/userStore.ts
 // ✅ 사용자 인증, 회원가입, 로그아웃, 토큰 갱신, 복호화 키 관리 등 사용자 관련 상태를 zustand로 관리하는 스토어입니다.
 
-import { create } from 'zustand';
+import {create} from 'zustand';
 import {
     login as loginService,
-    logout as logoutService, // 💡 로그아웃 API import
+    logout as logoutService,
     refreshToken as refreshTokenService,
 } from '../services/authService.ts';
 import {
-    signup as signupService,
     checkEmail,
     getUserInfo,
-    updateUserInfo as updateUserInfoService,
-    sendTempPassword as sendTempPasswordService,
     sendEmailVerificationCode as sendEmailVerificationCodeService,
+    sendTempPassword as sendTempPasswordService,
+    signup as signupService,
+    updateUserInfo as updateUserInfoService,
     verifyEmailCode as verifyEmailCodeService,
 } from '../services/userService.ts';
-import type { LoginRequest, SignupRequest, UserInfo, UpdateUserRequest } from "../types/user.ts";
+import type {LoginRequest, SignupRequest, UpdateUserRequest, UserInfo} from "../types/user.ts";
 
 // ✅ 백엔드 없이 테스트할 수 있는 임시 사용자 목록
 const TEMP_USERS = [
@@ -226,8 +226,7 @@ const useUserStore = create<UserState>((set) => ({
      */
     verifyEmailCode: async (payload) => {
         try {
-            const message = await verifyEmailCodeService(payload);
-            return message;
+            return await verifyEmailCodeService(payload);
         } catch (err) {
             console.error('이메일 인증번호 검증 실패:', err);
             throw err;
