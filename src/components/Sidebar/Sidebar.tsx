@@ -8,7 +8,7 @@ import {
     Menu,
     X,
     Film,
-    Library,
+    // Library,
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
 

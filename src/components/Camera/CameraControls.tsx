@@ -1,5 +1,9 @@
 // ✅ 아이콘 컴포넌트 import (FontAwesome 기반)
-import { FaStop, FaPlay, FaCircle } from "react-icons/fa";
+import {
+    Play,
+    //StopCircle,
+    Dot,
+    Square} from 'lucide-react';
 
 // 카메라 제어 관련 스타일 가져오기
 import styles from "../../pages/CameraPage.module.css"; // 스타일 경로는 페이지 기준으로 설정됨
@@ -34,13 +38,13 @@ const CameraControls = ({
                 {isRecording ? (
                     // 🔴 녹화 중일 때는 중지 버튼 UI로 표시
                     <>
-                        <FaStop className={styles.icon} />
+                        <Square size={20} color="red" />
                         녹화 중지
                     </>
                 ) : (
                     // ⭕ 녹화 중이 아닐 때는 시작 버튼 UI로 표시
                     <>
-                        <FaCircle className={styles.icon} />
+                        <Dot size={12} color="red" />
                         녹화 시작
                     </>
                 )}
@@ -53,7 +57,7 @@ const CameraControls = ({
                 onClick={onGoLive}
                 disabled={mode === "live"} // live 상태에서는 클릭 비활성화
             >
-                <FaPlay className={styles.icon} />
+                <Play size={20} />
                 LIVE
             </button>
         </div>
