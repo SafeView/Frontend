@@ -1,11 +1,12 @@
 // ✅ React 및 라우팅, 상태 관련 모듈 import
-import React, { useCallback } from 'react';
+import React, {useCallback, useState} from 'react';
 import { useNavigate } from "react-router-dom";
 import styles from "./Header.module.css";
 
 // ✅ Zustand 사용자 및 UI 상태 훅
 import useUserStore from "../../stores/userStore.ts";      // 사용자 정보/로그아웃
-import { useUIStore } from "../../stores/uiStore.ts";      // 사이드바 상태
+import { useUIStore } from "../../stores/uiStore.ts";
+import UserInfoModal from "../UserInfoModal/UserInfoModal.tsx";      // 사이드바 상태
 
 // ✅ 알림 아이콘 import (FontAwesome)
 // import { FaBell } from "react-icons/fa";
@@ -16,6 +17,9 @@ const Header = React.memo(() => {
     const user = useUserStore((state) => state.user);                   // 로그인된 사용자 정보
     const performLogout = useUserStore((state) => state.logout);       // 로그아웃 함수
     const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);  // 사이드바 열림 여부
+
+    const [showUserModal, setShowUserModal] = useState(false);
+
 
     // ✅ 라우팅 훅
     const navigate = useNavigate();
@@ -47,9 +51,17 @@ const Header = React.memo(() => {
                 {user ? (
                     <>
                         {/* 사용자 이름 환영 메시지 */}
-                        <span className={styles.welcome}>
+                        <span
+                            className={styles.welcome}
+                            onClick={() => setShowUserModal(true)}
+                            style={{ cursor: "pointer", textDecoration: "underline" }}
+                        >
                             {user.name} 님 환영합니다!
                         </span>
+
+                        {showUserModal && (
+                            <UserInfoModal onClose={() => setShowUserModal(false)} />
+                        )}
 
                         {/*/!* 알림 아이콘 (기능 확장 가능) *!/*/}
                         {/*<button className={styles.iconBtn}>*/}
