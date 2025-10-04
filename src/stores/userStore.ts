@@ -4,13 +4,13 @@
 import { create } from 'zustand';
 import {
     login as loginService,
-    getUserInfo,
     logout as logoutService, // 💡 로그아웃 API import
     refreshToken as refreshTokenService,
 } from '../services/authService.ts';
 import {
     signup as signupService,
     checkEmail,
+    getUserInfo,
 } from '../services/userService.ts';
 import type { LoginRequest, SignupRequest, UserInfo } from "../types/user.ts";
 

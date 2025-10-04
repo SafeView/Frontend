@@ -3,7 +3,6 @@ import api from "../apis/api.ts";
 import {
     type LoginRequest,
     type LoginResponse,
-    type UserInfo,
 } from "../types/user.ts";
 import type { ApiResponse } from '../types/common'; // 공통 API 응답 타입
 
@@ -30,23 +29,6 @@ export const login = async (loginData: LoginRequest): Promise<LoginResponse> => 
         }
         // ❗ 네트워크 오류 또는 기타 에러
         throw new Error('네트워크 오류가 발생했습니다.');
-    }
-};
-
-
-/**
- * 🔍 현재 로그인된 사용자 정보 조회
- * - 서버 세션 또는 쿠키에 저장된 인증 정보를 기반으로 사용자 정보 반환
- * - 실패 시 예외 발생
- * - ⚠️ 해당 API는 백엔드에서 '/auth/me' 등의 라우트로 구현되어 있어야 함
- */
-export const getUserInfo = async (): Promise<UserInfo> => {
-    const res = await api.get<ApiResponse<UserInfo>>('/auth/me'); // 사용자 정보 조회 API 호출
-
-    if (res.data.isSuccess) {
-        return res.data.data; // 사용자 정보 반환
-    } else {
-        throw new Error(res.data.message || '사용자 정보를 불러오지 못했습니다.');
     }
 };
 
