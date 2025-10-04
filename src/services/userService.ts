@@ -22,6 +22,8 @@ import type { ApiResponse } from '../types/common'; // 공통 API 응답 타입
  */
 export const signup = async (userData: SignupRequest): Promise<SignupResponse> => {
     try {
+
+        console.log('API request:', userData);
         // POST /users/signup - 회원가입 요청
         const response = await api.post<ApiResponse<SignupResponse>>('/users/signup', userData);
 

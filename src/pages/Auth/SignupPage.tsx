@@ -99,11 +99,21 @@ const SignupPage = () => {
             password,
             name,
             address: fullAddress,
-            role: "USER",
+            // role: "USER",
             phone,
             gender,
             birthday
         });
+        console.log('[Debug] 회원가입 요청 보냄', {
+            email,
+            password,
+            name,
+            address: fullAddress,
+            // role: "USER",
+            phone,
+            gender,
+            birthday
+        })
     };
 
     /**
