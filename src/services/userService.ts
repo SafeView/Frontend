@@ -83,7 +83,7 @@ export const checkEmail = async (email: string): Promise<EmailCheckResponse> => 
  * - ⚠️ 해당 API는 백엔드에서 '/auth/me' 등의 라우트로 구현되어 있어야 함
  */
 export const getUserInfo = async (): Promise<UserInfo> => {
-    const res = await api.get<ApiResponse<UserInfo>>('/user/me'); // 사용자 정보 조회 API 호출
+    const res = await api.get<ApiResponse<UserInfo>>('/users/me'); // 사용자 정보 조회 API 호출
 
     if (res.data.isSuccess) {
         return res.data.data; // 사용자 정보 반환
