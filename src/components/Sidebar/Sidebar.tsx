@@ -23,7 +23,7 @@ const Sidebar = React.memo(() => {
         { path: '/', label: '홈', icon: <FaHome />, authRequired: false },
         { path: '/cameras', label: '카메라', icon: <FaCamera />, authRequired: false }, // ✅ 필요 시 true로 변경
         { path: '/analysis', label: '비디오 분석', icon: <FaFileVideo />, authRequired: false },
-        { path: '/records', label: '저장된 영상', icon: <FaCameraRotate/>, authRequired: false },
+        { path: '/saved', label: '저장된 영상', icon: <FaCameraRotate/>, authRequired: false },
         //{ path: '/reports', label: 'Reports', icon: <FaChartBar />, authRequired: false },
         { path: '/verification', label: '인증', icon: <FaKey />, authRequired: false },
     ];
