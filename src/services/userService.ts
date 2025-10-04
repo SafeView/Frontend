@@ -5,6 +5,7 @@ import {
     type SignupResponse,
     type EmailCheckResponse,
     type UserInfo,
+    type UpdateUserRequest,
 } from '../types/user.ts';
 import type { ApiResponse } from '../types/common'; // 공통 API 응답 타입
 
@@ -88,5 +89,59 @@ export const getUserInfo = async (): Promise<UserInfo> => {
         return res.data.data; // 사용자 정보 반환
     } else {
         throw new Error(res.data.message || '사용자 정보를 불러오지 못했습니다.');
+    }
+};
+
+
+/**
+ * 🛠️ 회원 정보 수정 API
+ *
+ * - 사용자가 자신의 프로필 정보를 수정할 수 있습니다.
+ * - 수정 항목: 비밀번호, 이름, 주소, 전화번호, 성별, 생년월일
+ *
+ * @param updateData 수정할 유저 정보 (UpdateUserRequest)
+ * @returns 수정된 사용자 정보 (UserInfo)
+ * @throws Error - 실패 시 서버 메시지 기반 예외 발생
+ */
+export const updateUserInfo = async (updateData: UpdateUserRequest): Promise<UserInfo> => {
+    try {
+        const response = await api.put<ApiResponse<UserInfo>>('/users/me', updateData);
+
+        if (response.data.isSuccess) {
+            return response.data.data;
+        } else {
+            throw new Error(response.data.message || '회원 정보 수정에 실패했습니다.');
+        }
+    } catch (error: any) {
+        if (error.response?.data) {
+            throw new Error(error.response.data.message || '회원 정보 수정 중 오류 발생');
+        }
+        throw new Error('네트워크 오류가 발생했습니다.');
+    }
+};
+
+/**
+ * ✉️ 임시 비밀번호 발송 API
+ *
+ * - 사용자가 비밀번호를 잊었을 경우, 등록된 이메일로 임시 비밀번호를 발송합니다.
+ *
+ * @param email 임시 비밀번호를 받을 사용자 이메일
+ * @returns 성공 메시지 문자열
+ * @throws Error - 실패 시 예외 발생 (ex: 사용자 없음)
+ */
+export const sendTempPassword = async (email: string): Promise<string> => {
+    try {
+        const response = await api.post<ApiResponse<{ message: string }>>('/users/temp-password', { email });
+
+        if (response.data.isSuccess) {
+            return response.data.data.message; // ex: "임시 비밀번호가 이메일로 발송되었습니다."
+        } else {
+            throw new Error(response.data.message || '임시 비밀번호 발송에 실패했습니다.');
+        }
+    } catch (error: any) {
+        if (error.response?.data) {
+            throw new Error(error.response.data.message || '임시 비밀번호 요청 중 오류 발생');
+        }
+        throw new Error('네트워크 오류가 발생했습니다.');
     }
 };
