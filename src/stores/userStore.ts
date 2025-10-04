@@ -11,8 +11,12 @@ import {
     signup as signupService,
     checkEmail,
     getUserInfo,
+    updateUserInfo as updateUserInfoService,
+    sendTempPassword as sendTempPasswordService,
+    sendEmailVerificationCode as sendEmailVerificationCodeService,
+    verifyEmailCode as verifyEmailCodeService,
 } from '../services/userService.ts';
-import type { LoginRequest, SignupRequest, UserInfo } from "../types/user.ts";
+import type { LoginRequest, SignupRequest, UserInfo, UpdateUserRequest } from "../types/user.ts";
 
 // ✅ 백엔드 없이 테스트할 수 있는 임시 사용자 목록
 const TEMP_USERS = [
@@ -37,6 +41,11 @@ interface UserState {
 
     setDecryptionKey: (key: string) => void;              // 복호화 키 저장
     toggleDecryption: () => void;                         // 복호화 토글
+
+    updateUser: (updateData: UpdateUserRequest) => Promise<void>;
+    sendTempPassword: (email: string) => Promise<string>;
+    sendEmailVerificationCode: (email: string) => Promise<string>;
+    verifyEmailCode: (payload: { email: string; code: string }) => Promise<string>;
 }
 
 // ✅ zustand 스토어 정의
@@ -169,6 +178,60 @@ const useUserStore = create<UserState>((set) => ({
      */
     toggleDecryption: () => {
         set((state) => ({ isDecrypted: !state.isDecrypted }));
+    },
+
+
+    /**
+     * 🛠️ 회원 정보 수정
+     * - 수정 성공 시 사용자 정보 갱신
+     */
+    updateUser: async (updateData) => {
+        try {
+            const updatedUser = await updateUserInfoService(updateData);
+            set({ user: updatedUser });
+        } catch (err) {
+            console.error('회원 정보 수정 실패:', err);
+            throw err;
+        }
+    },
+
+    /**
+     * ✉️ 임시 비밀번호 전송
+     */
+    sendTempPassword: async (email) => {
+        try {
+            const message = await sendTempPasswordService(email);
+            return message;
+        } catch (err) {
+            console.error('임시 비밀번호 전송 실패:', err);
+            throw err;
+        }
+    },
+
+    /**
+     * 📧 이메일 인증번호 전송
+     */
+    sendEmailVerificationCode: async (email) => {
+        try {
+            const message = await sendEmailVerificationCodeService(email);
+            return message;
+        } catch (err) {
+            console.error('이메일 인증번호 전송 실패:', err);
+            throw err;
+        }
+    },
+
+    /**
+     * ✅ 이메일 인증번호 검증
+     */
+    verifyEmailCode: async (payload) => {
+        try {
+            const message = await verifyEmailCodeService(payload);
+            return message;
+        } catch (err) {
+            console.error('이메일 인증번호 검증 실패:', err);
+            throw err;
+        }
     },
 }));
 
