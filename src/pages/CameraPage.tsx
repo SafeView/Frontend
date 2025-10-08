@@ -13,8 +13,8 @@ import useUserStore from "../stores/userStore.ts"; // 유저 정보 스토어
  * 📹 더미 카메라 목록 (향후 백엔드에서 받아올 예정)
  * -------------------------------- */
 const dummyCameras = [
-    { id: 1, name: "Web Cam", location: "Office", videoSrc: "/videos/cam4.mp5" },
-    { id: 2, name: "Entrance 1", location: "Main Gate", videoSrc: "/videos/cam1.mp4" },
+    { id: 1, name: "웹 캠", location: "사무실", videoSrc: "/videos/cam4.mp5" },
+    //{ id: 2, name: "Entrance 1", location: "Main Gate", videoSrc: "/videos/cam1.mp4" },
     // 비활성 카메라: 개발 시 확장 가능
 ];
 
@@ -155,7 +155,7 @@ const CameraPage = () => {
              }}>
             {/* 왼쪽 카메라 목록 */}
             <aside className={styles.sidebar}>
-                <h2 className={styles.title}>Cameras</h2>
+                <h2 className={styles.title}>카메라</h2>
                 <ul className={styles.cameraList}>
                     {dummyCameras.map((cam) => (
                         <li
@@ -173,13 +173,16 @@ const CameraPage = () => {
             {/* 오른쪽: 영상 영역 + 기록 */}
             <main className={styles.videoPanel}>
                 <h2 className={styles.videoTitle}>
-                    {selectedCamera.name} - {mode === "live" ? "Live View" : "Recorded"}
+                    {selectedCamera.name} - {mode === "live" ? "실시간 보기" : "녹화 영상"}
                 </h2>
 
-                {/* 📹 실시간 웹캠 or 녹화영상 */}
+                {/* 📹 실시간 웹 캠 or 녹화영상 */}
                 <div className={styles.videoWrapper}>
-                    {selectedCamera.name === "Web Cam" ? (
-                        <CameraFeed enableAI={true} decrypted={false} />
+                    {selectedCamera.name === "웹 캠" ? (
+                        <CameraFeed
+                            enableAI={true}
+                            // decrypted={false}
+                        />
                     ) : (
                         <video
                             key={currentVideoSrc}
@@ -201,12 +204,12 @@ const CameraPage = () => {
                 /> */}
 
                 {/* 🕒 영상 히스토리 패널 */}
-                <HistoryPanel
-                    title="Recording History"
-                    records={historyRecords}
-                    onSelectHistory={handleSelectHistory}
-                    onDownload={handleDownload}
-                />
+                {/*<HistoryPanel*/}
+                {/*    title="Recording History"*/}
+                {/*    records={historyRecords}*/}
+                {/*    onSelectHistory={handleSelectHistory}*/}
+                {/*    onDownload={handleDownload}*/}
+                {/*/>*/}
             </main>
         </div>
     );

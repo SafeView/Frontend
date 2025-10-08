@@ -6,6 +6,7 @@ import { useSignupMutation } from "../../hooks/UserSignupMutation.ts";
 import { useEmailCheck } from "../../hooks/useEmailCheck.ts";
 import AddressInput from "../../components/AddressInput/AddressInput.tsx";
 import type { Gender } from "../../types/user.ts";
+import useUserStore from "../../stores/userStore.ts";
 
 /**
  * 📝 회원가입 페이지 컴포넌트
@@ -24,11 +25,20 @@ const SignupPage = () => {
     const [gender, setGender] = useState<Gender>("FEMALE");
     const [birthday, setBirthday] = useState("");
 
-    // ✅ 이메일 중복 체크 훅
+    // 이메일 인증 관련 상태
+    const [verificationCode, setVerificationCode] = useState('');
+    const [emailSent, setEmailSent] = useState(false);
+    const [emailVerified, setEmailVerified] = useState(false);
+    const [emailAuthMessage, setEmailAuthMessage] = useState('');
+
+    // 이메일 중복 체크 훅
     const { emailChecked, checkEmailDuplication, resetEmailCheck } = useEmailCheck();
 
-    // ✅ 회원가입 요청 훅
+    // 회원가입 요청 훅
     const signupMutation = useSignupMutation();
+
+    // userStore에서 메서드 가져오기
+    const { sendEmailVerificationCode, verifyEmailCode } = useUserStore();
 
     /**
      * 📧 이메일 입력 핸들러
@@ -89,11 +99,59 @@ const SignupPage = () => {
             password,
             name,
             address: fullAddress,
-            role: "USER",
+            // role: "USER",
             phone,
             gender,
             birthday
         });
+        console.log('[Debug] 회원가입 요청 보냄', {
+            email,
+            password,
+            name,
+            address: fullAddress,
+            // role: "USER",
+            phone,
+            gender,
+            birthday
+        })
+    };
+
+    /**
+     * ✉️ 이메일 인증 코드 전송
+     */
+    const handleSendVerification = async () => {
+        console.log('[Debug] 인증번호 발송 버튼 클릭됨'); // 🔍 추가
+        if (!email.includes('@')) {
+            alert("유효한 이메일을 입력해주세요.");
+            return;
+        }
+
+        try {
+            const msg = await sendEmailVerificationCode(email);
+            setEmailSent(true);
+            setEmailAuthMessage(msg);
+        } catch (err: any) {
+            setEmailAuthMessage(err.message || "이메일 전송 실패");
+        }
+    };
+
+    /**
+     * ✅ 인증번호 확인 핸들러
+     */
+    const handleVerifyCode = async () => {
+        if (!verificationCode) {
+            alert("인증번호를 입력해주세요.");
+            return;
+        }
+
+        try {
+            const verify = {email , code: verificationCode}
+            const msg = await verifyEmailCode(verify);
+            setEmailVerified(true);
+            setEmailAuthMessage(msg); // 예: "인증 완료"
+        } catch (err: any) {
+            setEmailAuthMessage(err.message || "인증 실패");
+        }
     };
 
     return (
@@ -102,25 +160,58 @@ const SignupPage = () => {
 
             {/* 회원가입 폼 */}
             <form onSubmit={handleSignup} className={styles.form}>
-
-                {/* 이메일 입력 + 중복 체크 버튼 */}
+                {/* 이메일 입력 + 중복체크 + 인증 */}
                 <div className={styles.emailInputWrapper}>
-                    <input
-                        className={styles.emailInput}
-                        placeholder="이메일"
-                        value={email}
-                        onChange={handleEmailChange}
-                        type="email"
-                        required
-                    />
-                    <button
-                        type="button"
-                        onClick={() => checkEmailDuplication(email)}
-                        className={styles.checkButton}
-                    >
-                        중복 체크
-                    </button>
+                    <div className={styles.emailRow}>
+                        <input
+                            className={styles.emailInput}
+                            placeholder="이메일"
+                            value={email}
+                            onChange={handleEmailChange}
+                            type="email"
+                            required
+                        />
+                        <button
+                            type="button"
+                            onClick={() => checkEmailDuplication(email)}
+                            className={styles.emailButton}
+                        >
+                            중복 체크
+                        </button>
+                        {/*<button*/}
+                        {/*    type="button"*/}
+                        {/*    onClick={handleSendVerification}*/}
+                        {/*    className={styles.emailButton}*/}
+                        {/*    disabled={!emailChecked}*/}
+                        {/*>*/}
+                        {/*    인증 발송*/}
+                        {/*</button>*/}
+                    </div>
                 </div>
+
+                {/* 🔐 인증코드 입력 + 인증 확인 */}
+                {emailSent && (
+                    <>
+                        <div className={styles.emailInputWrapper}>
+                            <input
+                                className={styles.emailInput}
+                                placeholder="인증번호 입력"
+                                value={verificationCode}
+                                onChange={(e) => setVerificationCode(e.target.value)}
+                            />
+                            <button
+                                type="button"
+                                onClick={handleVerifyCode}
+                                className={styles.checkButton}
+                            >
+                                인증 확인
+                            </button>
+                        </div>
+                        {emailAuthMessage && (
+                            <p className={styles.verificationMessage}>{emailAuthMessage}</p>
+                        )}
+                    </>
+                )}
 
                 {/* 비밀번호 입력 */}
                 <input
@@ -177,10 +268,11 @@ const SignupPage = () => {
                 />
 
                 {/* 회원가입 버튼 */}
+                {/* ❗️비인증 상태면 회원가입 막기 */}
                 <button
                     className={styles.button}
                     type="submit"
-                    disabled={signupMutation.isPending}
+                    disabled={signupMutation.isPending || !emailVerified}
                 >
                     {signupMutation.isPending ? '회원가입 중...' : '회원가입'}
                 </button>

@@ -1,5 +1,5 @@
 // src/components/Analysis/VideoUpload.tsx
-import React, {type ChangeEvent, useEffect, useState} from 'react';
+import React, { type ChangeEvent, useEffect, useRef, useState } from 'react';
 import styles from './VideoUpload.module.css';
 import useFaceDetectionStore from '../../stores/faceDetectionStore';
 
@@ -10,12 +10,14 @@ interface Props {
 
 const VideoUpload: React.FC<Props> = ({ onUpload }) => {
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-    //@ts-ignore
     const [file, setFile] = useState<File | null>(null);
     const [minute, setMinute] = useState('');
     const [second, setSecond] = useState('');
     const [uploading, setUploading] = useState(false);
     const [localError, setLocalError] = useState<string | null>(null);
+    const [videoDuration, setVideoDuration] = useState<number | null>(null); // 영상 전체 길이 (초)
+
+    const videoRef = useRef<HTMLVideoElement>(null);
 
     // ✅ zustand 스토어 훅
     const { faces, loading, error, detect, detectFromFile, clear } = useFaceDetectionStore();
@@ -24,6 +26,28 @@ const VideoUpload: React.FC<Props> = ({ onUpload }) => {
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         const selected = e.target.files?.[0];
         if (selected) {
+            // ✅ 500MB 제한: 524,288,000 bytes
+            const MAX_SIZE = 524288000;
+            if (selected.size > MAX_SIZE) {
+                setFile(null);
+                setPreviewUrl(null);
+                clear();
+                setLocalError('⚠️ 파일 크기 제한 오류 (최대 500MB)');
+                return;
+            }
+
+            // ✅ mp4 확장자/타입 체크
+            const fileName = selected.name.toLowerCase();
+            const fileType = selected.type.toLowerCase();
+            if (!fileName.endsWith('.mp4') || fileType !== 'video/mp4') {
+                setFile(null);
+                setPreviewUrl(null);
+                clear();
+                setLocalError('⚠️ 올바르지 않은 형식입니다.');
+                return;
+            }
+
+            // ✅ 통과하면 상태 업데이트
             setFile(selected);
             const url = URL.createObjectURL(selected);
             setPreviewUrl(url);
@@ -32,6 +56,14 @@ const VideoUpload: React.FC<Props> = ({ onUpload }) => {
         }
     };
 
+
+    // 🔹 영상 길이 측정
+    const handleLoadedMetadata = () => {
+        const video = videoRef.current;
+        if (video) {
+            setVideoDuration(video.duration); // 초 단위
+        }
+    };
 
     const handleAnalyze = async () => {
         setLocalError(null);
@@ -44,7 +76,22 @@ const VideoUpload: React.FC<Props> = ({ onUpload }) => {
             return;
         }
 
-        const time_input = `${minute} ${second}`;
+        const min = Number(minute);
+        const sec = Number(second);
+
+        if (isNaN(min) || isNaN(sec) || min < 0 || sec < 0) {
+            setLocalError(' 잘못된 입력 - 유효한 숫자(0 이상의 정수)를 입력해주세요.');
+            return;
+        }
+
+        const inputSeconds = min * 60 + sec;
+        if (videoDuration !== null && inputSeconds > videoDuration) {
+            setLocalError(` 잘못된 입력 - 영상 길이(${Math.floor(videoDuration)}초)를 초과했습니다.`);
+            return;
+        }
+
+        const time_input = `${min} ${sec}`;
+
         try {
             setUploading(true);
             // FastAPI가 파일 업로드를 직접 받으므로, 바로 전송해 처리
@@ -70,7 +117,7 @@ const VideoUpload: React.FC<Props> = ({ onUpload }) => {
             <input
                 id="video-upload"
                 type="file"
-                accept="video/*"
+                accept="video/mp4"
                 onChange={handleFileChange}
                 className={styles.input}
             />
@@ -84,7 +131,12 @@ const VideoUpload: React.FC<Props> = ({ onUpload }) => {
 
             {previewUrl && (
                 <>
-                    <video className={styles.preview} controls>
+                    <video
+                        ref={videoRef} // 🔧 추가!
+                        className={styles.preview}
+                        controls
+                        onLoadedMetadata={handleLoadedMetadata} // 🔧 추가!
+                    >
                         <source src={previewUrl} type="video/mp4" />
                         비디오 미리보기를 지원하지 않습니다.
                     </video>

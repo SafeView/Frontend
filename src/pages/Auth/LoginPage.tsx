@@ -4,6 +4,7 @@ import { useState } from 'react';
 import styles from './LoginPage.module.css';
 import { useNavigate } from 'react-router-dom';
 import { useLoginMutation } from '../../hooks/UserLoginMutation.ts';
+import ForgotPasswordModal from "../../components/AuthModal/ForgotPasswordModal.tsx";
 
 /**
  * 🔐 LoginPage 컴포넌트
@@ -16,6 +17,9 @@ const LoginPage = () => {
     // 🔤 입력된 이메일, 비밀번호 상태
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+
+    const [showResetModal, setShowResetModal] = useState(false); // 비밀번호 찾기 모달 상태
+
 
     // 🔁 라우팅 이동을 위한 훅
     const navigate = useNavigate();
@@ -95,7 +99,24 @@ const LoginPage = () => {
             >
                 아직 회원이 아니신가요? 회원가입
             </button>
+
+            {/* ✅ 비밀번호 찾기 버튼 */}
+            <button
+                className={styles.signupButton}
+                onClick={() => setShowResetModal(true)}
+                style={{ marginTop: '0.5rem', backgroundColor: '#444' }}
+            >
+                비밀번호를 잊으셨나요? 비밀번호 찾기
+            </button>
+
+            {showResetModal && (
+                <ForgotPasswordModal onClose={() => setShowResetModal(false)} />
+            )}
+
+
         </div>
+
+
     );
 };
 

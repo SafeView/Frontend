@@ -1,4 +1,9 @@
+// src/types/user.ts
+
 export type Gender = 'MALE' | 'FEMALE'; // ← 백엔드 Enum 이름 기준
+
+// 역할 Enum 타입 (백엔드 기준: USER, MODERATOR, ADMIN)
+export type Role = 'USER' | 'MODERATOR' | 'ADMIN';
 
 // 회원가입 요청 타입
 export interface SignupRequest {
@@ -36,8 +41,7 @@ export interface EmailCheckResponse {
   available: boolean;
 }
 
-// 역할 Enum 타입 (백엔드 기준: USER, MODERATOR, ADMIN)
-export type Role = 'USER' | 'MODERATOR' | 'ADMIN';
+
 
 // 유저 정보 타입 (ex: /api/auth/me)
 export interface UserInfo {
@@ -52,3 +56,14 @@ export interface UserInfo {
   createdAt?: string;
   updatedAt?: string;
 }
+
+// 유저 정보 수정 요청 타입
+export interface UpdateUserRequest {
+    password?: string;
+    name?: string;
+    address?: string;
+    phone?: string;
+    gender?: Gender;
+    birthday?: string;
+}
+

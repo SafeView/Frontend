@@ -12,6 +12,7 @@ import ReportsPage from "../pages/ReportsPage";
 import SettingsPage from "../pages/SettingsPage";
 import AnalysisPage from "../pages/AnalysisPage.tsx";
 import VerificationPage from "../pages/VerificationPage.tsx";
+import SavedVideosPage from "../pages/SavedVideosPage.tsx";
 
 // ✅ 라우터 설정
 export const router = createBrowserRouter([
@@ -30,6 +31,10 @@ export const router = createBrowserRouter([
             {
                 path: "/cameras",      // 📷 카메라 페이지
                 element: <CameraPage />,
+            },
+            {
+                path: "/saved",
+                element: <SavedVideosPage/>,
             },
             {
                 path: "/analysis",     // 📊 영상 분석 페이지

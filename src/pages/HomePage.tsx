@@ -2,10 +2,10 @@
 
 import { useEffect } from "react";
 import SummaryCard from "../components/SummaryCard/SummaryCard"; // 간단한 요약 카드 컴포넌트
-// @ts-ignore
-import AlertTable from "../components/AlertTable/AlertTable"; // 경고 리스트 테이블 (현재 주석 처리됨)
+//import AlertTable from "../components/AlertTable/AlertTable"; // 경고 리스트 테이블 (현재 주석 처리됨)
 import { useAlertStore } from "../stores/alertStore"; // zustand 기반 알림 스토어
-import styles from "./HomePage.module.css"; // CSS 모듈 스타일링
+import styles from "./HomePage.module.css";
+import {useSnackbarStore} from "../stores/snackbarStore.ts"; // CSS 모듈 스타일링
 
 /**
  * 📊 HomePage 컴포넌트
@@ -14,6 +14,10 @@ import styles from "./HomePage.module.css"; // CSS 모듈 스타일링
  * - AlertTable은 향후 활성화 가능
  */
 const HomePage = () => {
+
+    // ✅ 스낵바 스토어 사용
+    const { enqueueSnackbar } = useSnackbarStore();
+
     // zustand에서 알림 데이터를 불러오는 메서드
     const { fetchAlerts } = useAlertStore();
 
@@ -34,6 +38,19 @@ const HomePage = () => {
                     <SummaryCard title="Active Alerts" value={3} />
                     <SummaryCard title="System Uptime" value="87.8%" />
                 </div>
+
+                {/*/!* ✅ 테스트 버튼 추가 *!/*/}
+                {/*<button*/}
+                {/*    className={styles.testButton} // 필요시 스타일 추가*/}
+                {/*    onClick={() =>*/}
+                {/*        enqueueSnackbar({*/}
+                {/*            type: "info",*/}
+                {/*            message: "스낵바 음성 테스트",*/}
+                {/*        })*/}
+                {/*    }*/}
+                {/*>*/}
+                {/*    스낵바 테스트*/}
+                {/*</button>*/}
 
                 {/* 🔔 알림 테이블 (현재 주석 처리됨, 향후 활성화 가능) */}
                 {/*<h2 className={styles.sectionTitle}>Live Feeds</h2>*/}
