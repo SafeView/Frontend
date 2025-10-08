@@ -27,6 +27,21 @@ interface SnackbarState {
 
 let snackbarId = 0; // 고유 ID 증가값 (전역 유지)
 
+
+/**
+ * 🔊 텍스트 음성 출력 함수 (Web Speech API)
+ */
+const speak = (text: string) => {
+    if (!window.speechSynthesis) return;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = 'ko-KR'; // 한국어
+    utterance.pitch = 1;
+    utterance.rate = 1;
+    utterance.volume = 1;
+    window.speechSynthesis.speak(utterance);
+};
+
+
 /**
  * 🧱 zustand 스토어 정의
  */
@@ -38,9 +53,16 @@ export const useSnackbarStore = create<SnackbarState>((set) => ({
      * @param msg 메시지 내용 및 타입 (id는 내부에서 자동 부여)
      */
     enqueueSnackbar: (msg) =>
-        set((state) => ({
-            snackbarQueue: [...state.snackbarQueue, { ...msg, id: snackbarId++ }]
-        })),
+        set((state) => {
+            const messageWithId = { ...msg, id: snackbarId++ };
+
+            // 🔊 음성 출력
+            speak(msg.message);
+
+            return {
+                snackbarQueue: [...state.snackbarQueue, messageWithId]
+            };
+        }),
 
     /**
      * ❌ 특정 스낵바 메시지를 큐에서 제거합니다.
