@@ -178,14 +178,14 @@ const SignupPage = () => {
                         >
                             중복 체크
                         </button>
-                        <button
-                            type="button"
-                            onClick={handleSendVerification}
-                            className={styles.emailButton}
-                            disabled={!emailChecked}
-                        >
-                            인증 발송
-                        </button>
+                        {/*<button*/}
+                        {/*    type="button"*/}
+                        {/*    onClick={handleSendVerification}*/}
+                        {/*    className={styles.emailButton}*/}
+                        {/*    disabled={!emailChecked}*/}
+                        {/*>*/}
+                        {/*    인증 발송*/}
+                        {/*</button>*/}
                     </div>
                 </div>
 
