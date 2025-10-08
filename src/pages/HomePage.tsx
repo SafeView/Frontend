@@ -39,18 +39,18 @@ const HomePage = () => {
                     <SummaryCard title="System Uptime" value="87.8%" />
                 </div>
 
-                {/* ✅ 테스트 버튼 추가 */}
-                <button
-                    className={styles.testButton} // 필요시 스타일 추가
-                    onClick={() =>
-                        enqueueSnackbar({
-                            type: "info",
-                            message: "스낵바 음성 테스트",
-                        })
-                    }
-                >
-                    스낵바 테스트
-                </button>
+                {/*/!* ✅ 테스트 버튼 추가 *!/*/}
+                {/*<button*/}
+                {/*    className={styles.testButton} // 필요시 스타일 추가*/}
+                {/*    onClick={() =>*/}
+                {/*        enqueueSnackbar({*/}
+                {/*            type: "info",*/}
+                {/*            message: "스낵바 음성 테스트",*/}
+                {/*        })*/}
+                {/*    }*/}
+                {/*>*/}
+                {/*    스낵바 테스트*/}
+                {/*</button>*/}
 
                 {/* 🔔 알림 테이블 (현재 주석 처리됨, 향후 활성화 가능) */}
                 {/*<h2 className={styles.sectionTitle}>Live Feeds</h2>*/}
