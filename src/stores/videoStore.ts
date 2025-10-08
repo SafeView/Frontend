@@ -29,7 +29,7 @@ interface VideoState {
     downloadUrl: string | null;              // ⬇️ 비디오 다운로드 URL
     loading: boolean;                        // 🔄 API 로딩 상태
     error: string | null;                    // ❌ 오류 메시지
-    adminVideos: AdminVideoItem[];           // 🛡️ 관리자/중간관리자용 전체 비디오 목록
+    adminVideos: AdminVideoItem[];           // 🛡️ 관리자용 전체 비디오 목록
     hasSentUserId: boolean;                  // 📡 AI 서버에 userId 전송 여부
 
     fetchVideos: () => Promise<void>;                      // ✅ 일반 사용자 비디오 목록 불러오기

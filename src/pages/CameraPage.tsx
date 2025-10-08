@@ -204,12 +204,12 @@ const CameraPage = () => {
                 /> */}
 
                 {/* 🕒 영상 히스토리 패널 */}
-                <HistoryPanel
-                    title="Recording History"
-                    records={historyRecords}
-                    onSelectHistory={handleSelectHistory}
-                    onDownload={handleDownload}
-                />
+                {/*<HistoryPanel*/}
+                {/*    title="Recording History"*/}
+                {/*    records={historyRecords}*/}
+                {/*    onSelectHistory={handleSelectHistory}*/}
+                {/*    onDownload={handleDownload}*/}
+                {/*/>*/}
             </main>
         </div>
     );
