@@ -81,6 +81,10 @@ const SignupPage = () => {
             alert("전화번호는 필수 입력 항목입니다.");
             return;
         }
+        if (!/^\d+$/.test(phone)) { // 🔧 수정: 숫자만 허용 검사
+            alert("전화번호는 숫자만 입력 가능합니다.");
+            return;
+        }
         if (!gender) {
             alert("성별을 선택해주세요.");
             return;
@@ -243,9 +247,15 @@ const SignupPage = () => {
                 {/* 전화번호 입력 */}
                 <input
                     className={styles.input}
-                    placeholder="전화번호"
+                    placeholder="전화번호 (숫자만)"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => {
+                        // 🔧 수정: 숫자만 남기고 자동 필터링
+                        const onlyNums = e.target.value.replace(/\D/g, "");
+                        setPhone(onlyNums);
+                    }}
+                    maxLength={11} // 🔧 수정: 11자리 제한 (01012345678 형식)
+                    required
                 />
 
                 {/* 성별 선택 */}
@@ -272,7 +282,8 @@ const SignupPage = () => {
                 <button
                     className={styles.button}
                     type="submit"
-                    disabled={signupMutation.isPending || !emailVerified}
+                    // disabled={signupMutation.isPending || !emailVerified}
+                    disabled={signupMutation.isPending}
                 >
                     {signupMutation.isPending ? '회원가입 중...' : '회원가입'}
                 </button>
