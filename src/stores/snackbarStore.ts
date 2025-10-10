@@ -57,7 +57,7 @@ export const useSnackbarStore = create<SnackbarState>((set) => ({
             const messageWithId = { ...msg, id: snackbarId++ };
 
             // 🔊 음성 출력
-            speak(msg.message);
+            //speak(msg.message);
 
             return {
                 snackbarQueue: [...state.snackbarQueue, messageWithId]
