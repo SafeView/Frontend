@@ -81,17 +81,17 @@ const HistoryPanel = ({
     }, [records, filterKeyword, filterStartDate, filterEndDate, filterStartTime, filterEndTime]);
 
     // ✅ 키 입력 제출 핸들러
-    const handleSubmitKey = async () => {
-        if (!decryptKey || !pendingDownload) return;
-        await verifyKey({ accessToken: decryptKey, cameraId: "CAMERA_001" });
-    };
-
-    // ✅ 검증 성공 → 자동 다운로드
-    if (verifyResult && pendingDownload) {
-        onDownload?.(pendingDownload);
-        setPendingDownload(null);
-        setShowDecryptModal(false);
-    }
+    // const handleSubmitKey = async () => {
+    //     if (!decryptKey || !pendingDownload) return;
+    //     await verifyKey({ accessToken: decryptKey, cameraId: "CAMERA_001" });
+    // };
+    //
+    // // ✅ 검증 성공 → 자동 다운로드
+    // if (verifyResult && pendingDownload) {
+    //     onDownload?.(pendingDownload);
+    //     setPendingDownload(null);
+    //     setShowDecryptModal(false);
+    // }
 
     return (
         <>
@@ -181,12 +181,15 @@ const HistoryPanel = ({
                                         className={styles.smallBtn}
                                         onClick={(e) => {
                                             e.stopPropagation(); // 행 클릭 방지
+                                            onDownload?.(record.filename);
+                                            /*
                                             if (record.isRaw) {
                                                 setPendingDownload(record.filename || null);
                                                 setShowDecryptModal(true);
                                             } else {
                                                 onDownload?.(record.filename);
                                             }
+                                            */
                                         }}
                                     >
                                         Download
@@ -200,7 +203,7 @@ const HistoryPanel = ({
                 ) : (
                     <tr>
                         <td colSpan={4} className={styles.noRecord}>
-                            No history available for this camera.
+                            저장된 영상이 없습니다.
                         </td>
                     </tr>
                 )}
@@ -208,44 +211,44 @@ const HistoryPanel = ({
             </table>
 
             {/* 🔹 복호화 키 입력 모달 */}
-            {showDecryptModal && (
-                <div className={styles.modalBackdrop}>
-                    <div className={styles.modalContent}>
-                        <h4>🔐 원본 영상 다운로드</h4>
-                        <p>키를 입력해주세요:</p>
-                        <input
-                            type="text"
-                            value={decryptKey}
-                            onChange={(e) => setDecryptKey(e.target.value)}
-                            className={styles.input}
-                            placeholder="Access Token"
-                        />
-                        <div className={styles.modalActions}>
-                            <button onClick={handleSubmitKey} disabled={keyLoading}>
-                                {keyLoading ? "검증 중..." : "검증하기"}
-                            </button>
-                            <button onClick={() => {
-                                setShowDecryptModal(false);
-                                setPendingDownload(null);
-                            }}>취소</button>
-                        </div>
+            {/*{showDecryptModal && (*/}
+            {/*    <div className={styles.modalBackdrop}>*/}
+            {/*        <div className={styles.modalContent}>*/}
+            {/*            <h4>🔐 원본 영상 다운로드</h4>*/}
+            {/*            <p>키를 입력해주세요:</p>*/}
+            {/*            <input*/}
+            {/*                type="text"*/}
+            {/*                value={decryptKey}*/}
+            {/*                onChange={(e) => setDecryptKey(e.target.value)}*/}
+            {/*                className={styles.input}*/}
+            {/*                placeholder="Access Token"*/}
+            {/*            />*/}
+            {/*            <div className={styles.modalActions}>*/}
+            {/*                <button onClick={handleSubmitKey} disabled={keyLoading}>*/}
+            {/*                    {keyLoading ? "검증 중..." : "검증하기"}*/}
+            {/*                </button>*/}
+            {/*                <button onClick={() => {*/}
+            {/*                    setShowDecryptModal(false);*/}
+            {/*                    setPendingDownload(null);*/}
+            {/*                }}>취소</button>*/}
+            {/*            </div>*/}
 
-                        {/* 에러 메시지 */}
-                        {keyError && (
-                            <div className={styles.errorMsg}>
-                                ⚠️ 유효하지 않은 키
-                                {/*{keyError}*/}
-                                <button onClick={clearKeyError}>닫기</button>
-                            </div>
-                        )}
+            {/*            /!* 에러 메시지 *!/*/}
+            {/*            {keyError && (*/}
+            {/*                <div className={styles.errorMsg}>*/}
+            {/*                    ⚠️ 유효하지 않은 키*/}
+            {/*                    /!*{keyError}*!/*/}
+            {/*                    <button onClick={clearKeyError}>닫기</button>*/}
+            {/*                </div>*/}
+            {/*            )}*/}
 
-                        {/* 성공 메시지 */}
-                        {verifyResult && (
-                            <p className={styles.successMsg}>✅ 키 검증 성공! 다운로드 중...</p>
-                        )}
-                    </div>
-                </div>
-            )}
+            {/*            /!* 성공 메시지 *!/*/}
+            {/*            {verifyResult && (*/}
+            {/*                <p className={styles.successMsg}>✅ 키 검증 성공! 다운로드 중...</p>*/}
+            {/*            )}*/}
+            {/*        </div>*/}
+            {/*    </div>*/}
+            {/*)}*/}
         </>
     );
 };
