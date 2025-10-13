@@ -233,7 +233,8 @@ const HistoryPanel = ({
                         {/* 에러 메시지 */}
                         {keyError && (
                             <div className={styles.errorMsg}>
-                                ⚠️ {keyError}
+                                ⚠️ 유효하지 않은 키
+                                {/*{keyError}*/}
                                 <button onClick={clearKeyError}>닫기</button>
                             </div>
                         )}
