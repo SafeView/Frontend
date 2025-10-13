@@ -122,7 +122,7 @@ const PromotionRequestModal = ({ open, onClose }: Props) => {
                     <table className={tableStyles.adminDashboardTable}>
                         <thead>
                         <tr>
-                            <th>ID</th>
+                            {/*<th>ID</th>*/}
                             <th>제목</th>
                             <th>상태</th>
                             <th>생성일</th>
@@ -139,7 +139,7 @@ const PromotionRequestModal = ({ open, onClose }: Props) => {
                                         : undefined
                                 }
                             >
-                                <td>{req.id}</td>
+                                {/*<td>{req.id}</td>*/}
                                 <td>{req.title}</td>
                                 <td
                                     className={
@@ -171,7 +171,7 @@ const PromotionRequestModal = ({ open, onClose }: Props) => {
                 {mySelectedRequest && (
                     <div className={tableStyles.adminDashboardDetail}>
                         <h4>요청 상세</h4>
-                        <div style={{ marginBottom: 8 }}>ID: {mySelectedRequest.id}</div>
+                        {/*<div style={{ marginBottom: 8 }}>ID: {mySelectedRequest.id}</div>*/}
                         <div style={{ marginBottom: 8 }}>제목: {mySelectedRequest.title}</div>
                         <div style={{ marginBottom: 8 }}>상태: {mySelectedRequest.status}</div>
                         <div style={{ marginBottom: 8 }}>설명: {mySelectedRequest.description ?? '-'}</div>
