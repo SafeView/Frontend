@@ -98,7 +98,7 @@ const VerificationPage = () => {
                     )}
 
                     {/* 검증 성공 결과 */}
-                    {verifyResult && <p style={{ color: 'green' }}>✅ 키 검증 성공</p>}
+                    {verifyResult && <p style={{ color: 'green' }}>✅ 유효한 키</p>}
 
                     {/* 오류 발생 시 메시지 */}
                     {keyError && (
