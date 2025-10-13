@@ -25,8 +25,55 @@ const UserInfoModal: React.FC<Props> = ({ onClose }) => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!name.trim() || !phone.trim()) {
-            alert("이름과 전화번호는 필수입니다.");
+        // ✅ 이름 확인
+        if (!name.trim()) {
+            alert("이름은 필수 입력 항목입니다.");
+            return;
+        }
+
+        // ✅ 전화번호 유효성 검사
+        if (!phone.trim()) {
+            alert("전화번호는 필수 입력 항목입니다.");
+            return;
+        }
+        if (!/^\d+$/.test(phone)) {
+            alert("전화번호는 숫자만 입력 가능합니다.");
+            return;
+        }
+
+        // ✅ 주소 확인
+        if (!address.trim()) {
+            alert("주소를 입력해주세요.");
+            return;
+        }
+
+        // ✅ 생년월일 확인
+        if (!birthday.trim()) {
+            alert("생년월일을 입력해주세요.");
+            return;
+        }
+
+        // ✅ 비밀번호 확인 (필수)
+        if (!password.trim()) { // ✅ 수정됨
+            alert("비밀번호는 필수 입력 항목입니다.");
+            return;
+        }
+
+        // ✅ 비밀번호 복잡도 검사
+        if (password.length < 8) {
+            alert("비밀번호는 최소 8자 이상이어야 합니다.");
+            return;
+        }
+        if (!/[a-z]/.test(password)) {
+            alert("비밀번호에 소문자가 최소 1자 이상 포함되어야 합니다.");
+            return;
+        }
+        if (!/\d/.test(password)) {
+            alert("비밀번호에 숫자가 최소 1자 이상 포함되어야 합니다.");
+            return;
+        }
+        if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+            alert("비밀번호에 특수문자가 최소 1자 이상 포함되어야 합니다.");
             return;
         }
 
@@ -35,13 +82,13 @@ const UserInfoModal: React.FC<Props> = ({ onClose }) => {
             await updateUser({
                 name,
                 phone,
-                password: password || undefined, // 비밀번호가 비어있으면 전송 X
+                password,
                 address,
                 gender,
                 birthday,
             });
 
-            alert("정보가 수정되었습니다.");
+            alert("회원 정보가 성공적으로 수정되었습니다.");
             onClose();
         } catch (err) {
             console.error("회원 정보 수정 실패:", err);
@@ -68,7 +115,7 @@ const UserInfoModal: React.FC<Props> = ({ onClose }) => {
                     />
                     <input
                         type="password"
-                        placeholder="새 비밀번호 (변경 시 입력)"
+                        placeholder="새 비밀번호 (필수 입력)"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     />

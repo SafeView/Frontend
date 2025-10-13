@@ -98,7 +98,7 @@ const VerificationPage = () => {
                     )}
 
                     {/* 검증 성공 결과 */}
-                    {verifyResult && <p style={{ color: 'green' }}>✅ 키 검증 성공</p>}
+                    {verifyResult && <p style={{ color: 'green' }}>✅ 유효한 키</p>}
 
                     {/* 오류 발생 시 메시지 */}
                     {keyError && (
@@ -129,7 +129,7 @@ const VerificationPage = () => {
                     <table>
                         <thead>
                         <tr>
-                            <th>ID</th>
+                            {/*<th>ID</th>*/}
                             <th>유저ID</th>
                             <th>제목</th>
                             <th>상태</th>
@@ -140,7 +140,7 @@ const VerificationPage = () => {
                         <tbody>
                         {requests.map((r) => (
                             <tr key={r.id}>
-                                <td>{r.id}</td>
+                                {/*<td>{r.id}</td>*/}
                                 <td>{r.userId}</td>
                                 <td>{r.title}</td>
                                 <td>{r.status}</td>
@@ -160,8 +160,34 @@ const VerificationPage = () => {
                             <p>설명: {selectedRequest.description}</p>
                             <p>상태: {selectedRequest.status}</p>
                             <div className={styles.actions}>
-                                <button onClick={() => approveRequest(selectedRequest.id, '승인합니다.')}>승인</button>
-                                <button onClick={() => rejectRequest(selectedRequest.id, '거절합니다.')}>거절</button>
+                                {/* ✅ 승인/거절 버튼은 대기 상태일 때만 표시 */}
+                                {selectedRequest.status === "PENDING" ? (
+                                    <>
+                                        <button
+                                            onClick={() =>
+                                                approveRequest(selectedRequest.id, "승인합니다.")
+                                            }
+                                        >
+                                            승인
+                                        </button>
+                                        <button
+                                            onClick={() =>
+                                                rejectRequest(selectedRequest.id, "거절합니다.")
+                                            }
+                                        >
+                                            거절
+                                        </button>
+                                    </>
+                                ) : (
+                                    // ✅ 이미 승인/거절된 경우 닫기만 표시
+                                    <p style={{ color: "gray", marginRight: "8px" }}>
+                                        {selectedRequest.status === "APPROVED"
+                                            ? "이미 승인된 요청입니다."
+                                            : "이미 거절된 요청입니다."}
+                                    </p>
+                                )}
+
+                                {/* ✅ 닫기 버튼은 항상 표시 */}
                                 <button onClick={clearSelected}>닫기</button>
                             </div>
                         </div>

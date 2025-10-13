@@ -26,13 +26,17 @@ const VideoUpload: React.FC<Props> = ({ onUpload }) => {
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         const selected = e.target.files?.[0];
         if (selected) {
-            // ✅ 500MB 제한: 524,288,000 bytes
-            const MAX_SIZE = 524288000;
+            // ✅ 500MB 제한 (500 * 1024 * 1024 bytes)
+            const MAX_SIZE = 500 * 1024 * 1024; // 524,288,000 bytes
+            console.log('selected.size:', selected.size);
+
             if (selected.size > MAX_SIZE) {
                 setFile(null);
                 setPreviewUrl(null);
                 clear();
-                setLocalError('⚠️ 파일 크기 제한 오류 (최대 500MB)');
+                const msg = '⚠️ 파일 크기 제한 오류 (최대 500MB)';
+                setLocalError(msg);
+                alert(msg); // 🔔 사용자에게 즉시 알림
                 return;
             }
 
@@ -43,7 +47,9 @@ const VideoUpload: React.FC<Props> = ({ onUpload }) => {
                 setFile(null);
                 setPreviewUrl(null);
                 clear();
-                setLocalError('⚠️ 올바르지 않은 형식입니다.');
+                const msg = '⚠️ 올바르지 않은 형식입니다.';
+                setLocalError(msg);
+                alert(msg);
                 return;
             }
 
@@ -117,7 +123,7 @@ const VideoUpload: React.FC<Props> = ({ onUpload }) => {
             <input
                 id="video-upload"
                 type="file"
-                accept="video/mp4"
+                // accept="video/mp4"
                 onChange={handleFileChange}
                 className={styles.input}
             />
