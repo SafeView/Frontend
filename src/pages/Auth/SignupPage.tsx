@@ -65,8 +65,28 @@ const SignupPage = () => {
             alert("유효한 이메일 주소를 입력해주세요.");
             return;
         }
+        /**
+         * ✅ 비밀번호 유효성 검사
+         * - 8자 이상
+         * - 소문자 포함
+         * - 숫자 포함
+         * - 특수문자 포함
+         * 각 조건을 세분화하여 구체적인 에러 메시지 출력
+         */
         if (password.length < 8) {
-            alert("비밀번호는 8자 이상이어야 합니다.");
+            alert("비밀번호는 최소 8자 이상이어야 합니다.");
+            return;
+        }
+        if (!/[a-z]/.test(password)) {
+            alert("비밀번호에 소문자가 최소 1자 이상 포함되어야 합니다.");
+            return;
+        }
+        if (!/\d/.test(password)) {
+            alert("비밀번호에 숫자가 최소 1자 이상 포함되어야 합니다.");
+            return;
+        }
+        if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+            alert("비밀번호에 특수문자가 최소 1자 이상 포함되어야 합니다.");
             return;
         }
         if (name.trim() === "") {
@@ -79,6 +99,10 @@ const SignupPage = () => {
         }
         if (!phone.trim()) {
             alert("전화번호는 필수 입력 항목입니다.");
+            return;
+        }
+        if (!/^\d+$/.test(phone)) { // 🔧 수정: 숫자만 허용 검사
+            alert("전화번호는 숫자만 입력 가능합니다.");
             return;
         }
         if (!gender) {
@@ -243,9 +267,15 @@ const SignupPage = () => {
                 {/* 전화번호 입력 */}
                 <input
                     className={styles.input}
-                    placeholder="전화번호"
+                    placeholder="전화번호 (숫자만)"
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => {
+                        // 🔧 수정: 숫자만 남기고 자동 필터링
+                        const onlyNums = e.target.value.replace(/\D/g, "");
+                        setPhone(onlyNums);
+                    }}
+                    maxLength={11} // 🔧 수정: 11자리 제한 (01012345678 형식)
+                    required
                 />
 
                 {/* 성별 선택 */}
@@ -272,7 +302,8 @@ const SignupPage = () => {
                 <button
                     className={styles.button}
                     type="submit"
-                    disabled={signupMutation.isPending || !emailVerified}
+                    // disabled={signupMutation.isPending || !emailVerified}
+                    disabled={signupMutation.isPending}
                 >
                     {signupMutation.isPending ? '회원가입 중...' : '회원가입'}
                 </button>

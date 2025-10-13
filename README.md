@@ -1,4 +1,6 @@
 # 🎥 SafeView Frontend
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FSafeView%2FFrontend.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FSafeView%2FFrontend?ref=badge_shield)
+
 **AI 기반 CCTV 영상 모자이크 및 복호화 키 기반 열람 시스템 - 프론트엔드 애플리케이션**
 
 ---
@@ -174,3 +176,7 @@ git push origin feature/YourFeatureName
 - 사용자 권한에 따른 화면 분기
 
 📺 [기술 데모 영상 보기](https://youtu.be/V7Il3zwaP5U?si=5Vu73owUDwy7iJxv)
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FSafeView%2FFrontend.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FSafeView%2FFrontend?ref=badge_large)
