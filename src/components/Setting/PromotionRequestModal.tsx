@@ -50,21 +50,26 @@ const PromotionRequestModal = ({ open, onClose }: Props) => {
     // 요청 제출 핸들러
     const handleSubmitRequest = async () => {
         if (!requestTitle.trim() || !requestDesc.trim()) {
-            console.log('⚠️ 제목 또는 설명이 비어있음');
+            console.log('⚠️ 제목과 설명을 모두 입력해주세요.');
             return;
         }
 
-        console.log('📤 요청 제출 버튼 클릭됨');
-        await createRequest({ title: requestTitle, description: requestDesc }); // 요청 전송
-        console.log('✅ 요청 전송 완료');
+        try {
+            console.log('📤 요청 제출 중...');
+            await createRequest({ title: requestTitle, description: requestDesc });
+            console.log('✅ 요청 전송 완료');
 
-        // 입력 초기화
-        setRequestTitle('');
-        setRequestDesc('');
 
-        // 목록 및 개수 갱신
-        await fetchMyRequests();
-        await fetchPendingCount();
+            // 입력 초기화
+            setRequestTitle('');
+            setRequestDesc('');
+
+            // 목록 및 개수 갱신
+            await fetchMyRequests();
+            await fetchPendingCount();
+        } catch (error) {
+            console.error('🚨 요청 전송 실패:', error);
+        }
     };
 
     // 모달이 닫혀있다면 아무것도 렌더링하지 않음

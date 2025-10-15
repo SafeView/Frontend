@@ -98,8 +98,14 @@ const useAdminRequestStore = create<AdminRequestState>((set) => ({
             await createAdminRequest(body);
             set({ loading: false });
         } catch (err: any) {
+            // ✅ 여기 수정
+            const errorMsg =
+                err?.message || // Error 객체의 message 사용
+                err?.response?.data?.data || // 백엔드 data 필드
+                '권한 요청 생성 중 오류가 발생했습니다.';
+
             set({
-                error: err.message || '권한 요청 생성 중 오류가 발생했습니다.',
+                error: errorMsg,
                 loading: false,
             });
         }
