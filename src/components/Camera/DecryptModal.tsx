@@ -63,7 +63,7 @@ export const DecryptModal: React.FC<DecryptModalProps> = ({
                 {/* 🔸 에러 메시지 출력 영역 */}
                 {decryptError && (
                     <div className={styles.decryptError}>
-                        {decryptError}
+                        {/*{decryptError}*/} ⚠️유효하지 않은 키
                         {/* 닫기 버튼이 있는 경우만 출력 */}
                         {onClearError && (
                             <button

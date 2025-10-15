@@ -26,20 +26,26 @@ export const createAdminRequest = async (
     try {
         const response = await api.post<CreateAdminRequestResponse>('/admin-requests', body);
 
+        // ✅ 성공 시
         if (response.data.isSuccess) {
             return response.data.data;
         } else {
-            // API 응답 실패 (isSuccess: false)
-            throw new Error(response.data.message || '권한 요청 생성에 실패했습니다.');
+            // ✅ 실패 시 (isSuccess: false)
+            // 서버 구조: { isSuccess: false, code: "400", message: "...", data: "..." }
+            const serverMsg =
+                typeof response.data.data === 'string'
+                    ? response.data.data
+                    : response.data.message || '권한 요청 생성에 실패했습니다.';
+            throw new Error(serverMsg);
         }
     } catch (error: any) {
-        // 서버로부터 구체적인 오류 메시지가 온 경우
-        if (error.response?.data?.detail) {
-            throw new Error(error.response.data.detail);
-        }
+        // ✅ 서버에서 data / message 순으로 확인
+        const serverMsg =
+            error.response?.data?.data ||
+            error.response?.data?.message ||
+            '네트워크 오류가 발생했습니다.';
 
-        // 그 외 네트워크 오류 등
-        throw new Error('네트워크 오류가 발생했습니다.');
+        throw new Error(String(serverMsg)); // ✅ 문자열로 변환 (TS2769 방지)
     }
 };
 

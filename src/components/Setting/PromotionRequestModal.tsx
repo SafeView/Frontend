@@ -50,21 +50,28 @@ const PromotionRequestModal = ({ open, onClose }: Props) => {
     // 요청 제출 핸들러
     const handleSubmitRequest = async () => {
         if (!requestTitle.trim() || !requestDesc.trim()) {
-            console.log('⚠️ 제목 또는 설명이 비어있음');
+            console.log('⚠️ 제목과 설명을 모두 입력해주세요.');
             return;
         }
 
-        console.log('📤 요청 제출 버튼 클릭됨');
-        await createRequest({ title: requestTitle, description: requestDesc }); // 요청 전송
-        console.log('✅ 요청 전송 완료');
+        try {
+            console.log('📤 요청 제출 중...');
+            await createRequest({ title: requestTitle, description: requestDesc });
 
-        // 입력 초기화
-        setRequestTitle('');
-        setRequestDesc('');
+            console.log('✅ 요청 성공');
 
-        // 목록 및 개수 갱신
-        await fetchMyRequests();
-        await fetchPendingCount();
+            // 성공 시 에러 초기화
+            clearMyError();
+            setRequestTitle('');
+            setRequestDesc('');
+
+            // 목록 및 개수 갱신
+            await fetchMyRequests();
+            await fetchPendingCount();
+        } catch (err: any) {
+            console.error('🚨 요청 전송 실패:', err.message);
+            // alert(err.message || '요청 전송 중 오류가 발생했습니다.');
+        }
     };
 
     // 모달이 닫혀있다면 아무것도 렌더링하지 않음
@@ -87,6 +94,7 @@ const PromotionRequestModal = ({ open, onClose }: Props) => {
                         value={requestTitle}
                         onChange={e => setRequestTitle(e.target.value)}
                         placeholder="요청 제목"
+                        disabled={myLoading}
                     />
                     <label>설명</label>
                     <textarea
@@ -94,13 +102,14 @@ const PromotionRequestModal = ({ open, onClose }: Props) => {
                         value={requestDesc}
                         onChange={e => setRequestDesc(e.target.value)}
                         placeholder="요청 상세 설명"
+                        disabled={myLoading}
                     />
                     <button
                         className={modalStyles.submitButton}
                         disabled={myLoading || !requestTitle.trim() || !requestDesc.trim()}
                         onClick={handleSubmitRequest}
                     >
-                        요청 제출
+                        {myLoading ? '요청 중...' : '요청 제출'}
                     </button>
                 </div>
 
@@ -113,7 +122,12 @@ const PromotionRequestModal = ({ open, onClose }: Props) => {
                 {myError && (
                     <div className={modalStyles.error}>
                         {myError}
-                        <button onClick={clearMyError} className={modalStyles.errorClose}>닫기</button>
+                        <button
+                            onClick={clearMyError}
+                            className={modalStyles.errorClose}
+                        >
+                            닫기
+                        </button>
                     </div>
                 )}
 
