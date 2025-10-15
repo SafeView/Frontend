@@ -57,18 +57,20 @@ const PromotionRequestModal = ({ open, onClose }: Props) => {
         try {
             console.log('📤 요청 제출 중...');
             await createRequest({ title: requestTitle, description: requestDesc });
-            console.log('✅ 요청 전송 완료');
 
+            console.log('✅ 요청 성공');
 
-            // 입력 초기화
+            // 성공 시 에러 초기화
+            clearMyError();
             setRequestTitle('');
             setRequestDesc('');
 
             // 목록 및 개수 갱신
             await fetchMyRequests();
             await fetchPendingCount();
-        } catch (error) {
-            console.error('🚨 요청 전송 실패:', error);
+        } catch (err: any) {
+            console.error('🚨 요청 전송 실패:', err.message);
+            // alert(err.message || '요청 전송 중 오류가 발생했습니다.');
         }
     };
 
@@ -92,6 +94,7 @@ const PromotionRequestModal = ({ open, onClose }: Props) => {
                         value={requestTitle}
                         onChange={e => setRequestTitle(e.target.value)}
                         placeholder="요청 제목"
+                        disabled={myLoading}
                     />
                     <label>설명</label>
                     <textarea
@@ -99,13 +102,14 @@ const PromotionRequestModal = ({ open, onClose }: Props) => {
                         value={requestDesc}
                         onChange={e => setRequestDesc(e.target.value)}
                         placeholder="요청 상세 설명"
+                        disabled={myLoading}
                     />
                     <button
                         className={modalStyles.submitButton}
                         disabled={myLoading || !requestTitle.trim() || !requestDesc.trim()}
                         onClick={handleSubmitRequest}
                     >
-                        요청 제출
+                        {myLoading ? '요청 중...' : '요청 제출'}
                     </button>
                 </div>
 
@@ -118,7 +122,12 @@ const PromotionRequestModal = ({ open, onClose }: Props) => {
                 {myError && (
                     <div className={modalStyles.error}>
                         {myError}
-                        <button onClick={clearMyError} className={modalStyles.errorClose}>닫기</button>
+                        <button
+                            onClick={clearMyError}
+                            className={modalStyles.errorClose}
+                        >
+                            닫기
+                        </button>
                     </div>
                 )}
 
