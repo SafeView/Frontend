@@ -72,12 +72,12 @@ const UserInfoModal: React.FC<Props> = ({ onClose }) => {
             alert("비밀번호에 숫자가 최소 1자 이상 포함되어야 합니다.");
             return;
         }
-        if (!/[!@#$%^&*+?]/.test(password)) {
-            alert("비밀번호에 특수문자(!@#$%^&*+?) 중 하나 이상을 포함해야 합니다.");
+        if (!/[@$!%*?&]/.test(password)) {
+            alert("비밀번호에 특수문자(@$!%*?&) 중 하나 이상을 포함해야 합니다.");
             return;
         }
-        if (/[^a-zA-Z0-9!@#$%^&*+?]/.test(password)) {
-            alert("비밀번호에는 !@#$%^&*+? 외의 특수문자는 사용할 수 없습니다.");
+        if (/[^a-zA-Z0-9@$!%*?&]/.test(password)) {
+            alert("비밀번호에는 @$!%*?& 외의 특수문자는 사용할 수 없습니다.");
             return;
         }
 

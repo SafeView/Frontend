@@ -36,7 +36,7 @@ export const useSignupMutation = (options?: UseSignupMutationOptions) => {
 
         /**
          * ✅ 회원가입 성공 시 처리
-         * - 자동 로그인 후 메인 페이지(/)로 이동
+         * - 자동 로그인 후 로그인 페이지(/)로 이동
          * - onSuccess 콜백 실행
          */
         onSuccess: () => {

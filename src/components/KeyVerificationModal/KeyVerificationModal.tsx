@@ -17,7 +17,6 @@ const KeyVerificationModal: React.FC<Props> = ({ onClose }) => {
         verifyResult,
         error: keyError,
         clearError: clearKeyError,
-        set,
     } = useKeyStore();
 
     // ✅ 입력된 키 상태

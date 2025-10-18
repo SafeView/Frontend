@@ -113,7 +113,7 @@ const useUserStore = create<UserState>((set) => ({
     signup: async (form) => {
         try {
             await signupService(form); // 회원가입 요청
-            // 자동 로그인
+            //자동 로그인
             // await useUserStore.getState().login({
             //     email: form.email,
             //     password: form.password,
