@@ -285,15 +285,15 @@ const SignupPage = () => {
                 />
 
                 {/* 성별 선택 */}
-                <select
-                    className={styles.input}
-                    value={gender}
-                    onChange={(e) => setGender(e.target.value as Gender)}
-                >
-                    <option value="">성별 선택</option>
-                    <option value="MALE">남성</option>
-                    <option value="FEMALE">여성</option>
-                </select>
+                {/*<select*/}
+                {/*    className={styles.input}*/}
+                {/*    value={gender}*/}
+                {/*    onChange={(e) => setGender(e.target.value as Gender)}*/}
+                {/*>*/}
+                {/*    <option value="">성별 선택</option>*/}
+                {/*    <option value="MALE">남성</option>*/}
+                {/*    <option value="FEMALE">여성</option>*/}
+                {/*</select>*/}
 
                 {/* 생년월일 입력 */}
                 <input
