@@ -6,6 +6,7 @@ import SummaryCard from "../components/SummaryCard/SummaryCard"; // 간단한 �
 import { useAlertStore } from "../stores/alertStore"; // zustand 기반 알림 스토어
 import styles from "./HomePage.module.css";
 import {useSnackbarStore} from "../stores/snackbarStore.ts"; // CSS 모듈 스타일링
+import { motion } from "framer-motion";
 
 /**
  * 📊 HomePage 컴포넌트
@@ -32,12 +33,44 @@ const HomePage = () => {
                 {/* 🏷️ 대시보드 헤더 */}
                 <h1 className={styles.heading}>Overview</h1>
 
+                {/* 👋 인트로 Hero Section */}
+                <motion.div
+                    className={styles.hero}
+                    initial={{ opacity: 0, y: -30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.7 }}
+                >
+                    <h1 className={styles.title}>👁️‍🗨️ SafeView Dashboard</h1>
+                    <p className={styles.subtitle}>
+                        AI 기반 CCTV 영상 분석 플랫폼 <br />
+                        개인정보 보호와 수사 지원을 동시에!
+                    </p>
+                </motion.div>
+
+                {/* ✨ 프로젝트 설명 */}
+                {/*<motion.div*/}
+                {/*    className={styles.projectInfo}*/}
+                {/*    initial={{ opacity: 0 }}*/}
+                {/*    animate={{ opacity: 1 }}*/}
+                {/*    transition={{ delay: 0.5, duration: 1 }}*/}
+                {/*>*/}
+                {/*    <h3>📌 프로젝트 개요</h3>*/}
+                {/*    <p>*/}
+                {/*        SafeView는 AI를 활용한 영상 분석 시스템입니다. <br />*/}
+                {/*        얼굴과 번호판을 자동으로 탐지 및 모자이크 처리하여, <br />*/}
+                {/*        일반 사용자에겐 개인정보 보호를, 공인에겐 복호화 키 기반 원본 제공을 지원합니다.*/}
+                {/*    </p>*/}
+                {/*    <p>*/}
+                {/*        ✅ 주요 기능: 영상 스트리밍, 자동 모자이크, 키 발급/검증, 사용자 권한 관리*/}
+                {/*    </p>*/}
+                {/*</motion.div>*/}
+
                 {/* 📦 요약 카드 섹션 (총 카메라 수, 활성 경고 수, 시스템 가동률) */}
-                <div className={styles.cardRow}>
-                    <SummaryCard title="Total Cameras" value={3} />
-                    <SummaryCard title="Active Alerts" value={3} />
-                    <SummaryCard title="System Uptime" value="87.8%" />
-                </div>
+                {/*<div className={styles.cardRow}>*/}
+                {/*    <SummaryCard title="Total Cameras" value={3} />*/}
+                {/*    <SummaryCard title="Active Alerts" value={3} />*/}
+                {/*    <SummaryCard title="System Uptime" value="87.8%" />*/}
+                {/*</div>*/}
 
                 {/*/!* ✅ 테스트 버튼 추가 *!/*/}
                 {/*<button*/}
