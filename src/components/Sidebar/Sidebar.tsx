@@ -27,11 +27,11 @@ const Sidebar = React.memo(() => {
     // 메뉴 구성
     const menus = [
         { path: '/', label: '홈', icon: <Home size={18} />, authRequired: false },
-        { path: '/cameras', label: '카메라', icon: <Camera size={18} />, authRequired: false }, // ✅ 필요 시 true로 변경
-        { path: '/analysis', label: '비디오 분석', icon: <Video size={18} />, authRequired: false },
-        { path: '/saved', label: '저장된 영상', icon: <Film size={18} />, authRequired: false },
+        { path: '/cameras', label: '카메라', icon: <Camera size={18} />, authRequired: true }, // ✅ 필요 시 true로 변경
+        { path: '/analysis', label: '비디오 분석', icon: <Video size={18} />, authRequired: true },
+        { path: '/saved', label: '저장된 영상', icon: <Film size={18} />, authRequired: true },
         //{ path: '/reports', label: '통계', icon: <Library size={18} />, authRequired: false },
-        { path: '/verification', label: '인증', icon: <Key size={18} />, authRequired: false },
+        { path: '/verification', label: '인증', icon: <Key size={18} />, authRequired: true },
     ];
 
     // 사이드바 닫기 핸들러
