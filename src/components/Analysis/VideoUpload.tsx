@@ -180,7 +180,7 @@ const VideoUpload: React.FC<Props> = ({ onUpload }) => {
                 type="button"
                 className={styles.uploadButton}
                 onClick={async () => {
-                    const testUrl = 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4';
+                    const testUrl = 'https://gitpolio-images.s3.ap-northeast-2.amazonaws.com/facetest/%E1%84%86%E1%85%A2%E1%84%8C%E1%85%A1%E1%86%BC_%E1%84%8B%E1%85%A7%E1%86%BC%E1%84%89%E1%85%A1%E1%86%BC_%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%84%87%E1%85%B3%E1%86%AF_%E1%84%89%E1%85%B5%E1%86%A8%E1%84%83%E1%85%A1%E1%86%BC_%E1%84%87%E1%85%A7%E1%86%AB%E1%84%80%E1%85%A7%E1%86%BC+(1).mp4';
                     const timeInput = '0 5';
 
                     await detect(testUrl, timeInput);
