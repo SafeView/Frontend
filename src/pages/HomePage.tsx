@@ -39,10 +39,6 @@ const HomePage = () => {
                     transition={{ duration: 0.7 }}
                 >
                     <h1 className={styles.title}>👁️‍🗨️ SafeView</h1>
-                    <p className={styles.subtitle}>
-                        AI 기반 CCTV 영상 분석 플랫폼 <br />
-                        개인정보 보호와 수사 지원을 동시에!
-                    </p>
                 </motion.div>
 
                 {/* 📌 서비스 소개 섹션 */}
