@@ -114,10 +114,10 @@ const useUserStore = create<UserState>((set) => ({
         try {
             await signupService(form); // 회원가입 요청
             // 자동 로그인
-            await useUserStore.getState().login({
-                email: form.email,
-                password: form.password,
-            });
+            // await useUserStore.getState().login({
+            //     email: form.email,
+            //     password: form.password,
+            // });
         } catch (err) {
             console.error('회원가입 오류:', err);
             throw err;
