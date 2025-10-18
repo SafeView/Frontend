@@ -84,7 +84,7 @@ select {
     border-radius: 12px;
     padding: 2rem;
     color: white;
-    max-height: 60vh;
+    max-height: 100vh;
     min-height: 300px;
     overflow-y: auto;
     box-shadow: 0 2px 16px 0 #00000033;
@@ -94,10 +94,12 @@ select {
 .adminDashboardTableWrapper {
     overflow-x: auto;
     margin-bottom: 2rem;
+    min-height: 120px;
 }
 
 .adminDashboardTable {
     width: 100%;
+
     border-collapse: collapse;
     background: #222;
     border-radius: 8px;
