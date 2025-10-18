@@ -8,7 +8,8 @@ import useKeyStore from '../stores/keyStore';       // 키 발급/검증 관련 
 import useUserStore from '../stores/userStore';     // 현재 로그인 사용자 정보
 import useAdminStore from '../stores/adminStore';   // 어드민 권한 요청 관리 상태
 import PromotionRequestModal from '../components/Setting/PromotionRequestModal'; // 일반 유저용 승격 요청 모달
-import { useUIStore } from "../stores/uiStore.ts"; // 사이드바 열림 여부
+import { useUIStore } from "../stores/uiStore.ts";
+import KeyVerificationModal from "../components/KeyVerificationModal/KeyVerificationModal.tsx"; // 사이드바 열림 여부
 
 const VerificationPage = () => {
     const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
@@ -21,6 +22,8 @@ const VerificationPage = () => {
 
     // 모달 열림 상태
     const [showRequestModal, setShowRequestModal] = useState(false);
+    const [showVerifyModal, setShowVerifyModal] = useState(false); // ✅ 추가된 모달 상태
+
 
     // ✅ 키 관련 store 훅
     const {
@@ -71,15 +74,18 @@ const VerificationPage = () => {
                         {keyLoading ? '키 발급 중...' : '키 발급'}
                     </button>
 
-                    {/* 키 검증 버튼 */}
-                    <button
-                        onClick={() => {
-                            if (!keyInfo?.accessToken) return alert('먼저 키를 발급받으세요.');
-                            verifyKey({ accessToken: keyInfo.accessToken, cameraId: 'CAMERA_001' }); // 예시 cameraId
-                        }}
-                    >
+                    {/* ✅ 키 검증 모달 오픈 버튼 추가 */}
+                    <button onClick={() => setShowVerifyModal(true)}>
                         키 검증
                     </button>
+
+                    {/* 키 검증 모달 */}
+                    {showVerifyModal && (
+                        <KeyVerificationModal
+                            onClose={() => setShowVerifyModal(false)}
+                        />
+                    )}
+
 
                     {/* 발급된 키 정보 표시 */}
                     {keyInfo && (
@@ -94,17 +100,6 @@ const VerificationPage = () => {
                             >
                                 복사
                             </button>
-                        </div>
-                    )}
-
-                    {/* 검증 성공 결과 */}
-                    {verifyResult && <p style={{ color: 'green' }}>✅ 유효한 키</p>}
-
-                    {/* 오류 발생 시 메시지 */}
-                    {keyError && (
-                        <div style={{ color: 'red' }}>
-                            ⚠️ {keyError}
-                            <button onClick={clearKeyError}>닫기</button>
                         </div>
                     )}
                 </section>
