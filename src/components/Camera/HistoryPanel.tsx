@@ -35,50 +35,50 @@ const HistoryPanel = ({
                       }: HistoryPanelProps) => {
 
     // ✅ 필터 관련 로컬 상태
-    const [filterKeyword, setFilterKeyword] = useState("");
-    const [filterStartDate, setFilterStartDate] = useState("");
-    const [filterEndDate, setFilterEndDate] = useState("");
-    const [filterStartTime, setFilterStartTime] = useState("");
-    const [filterEndTime, setFilterEndTime] = useState("");
+    // const [filterKeyword, setFilterKeyword] = useState("");
+    // const [filterStartDate, setFilterStartDate] = useState("");
+    // const [filterEndDate, setFilterEndDate] = useState("");
+    // const [filterStartTime, setFilterStartTime] = useState("");
+    // const [filterEndTime, setFilterEndTime] = useState("");
 
     // ✅ 복호화 키 입력 및 모달 상태
-    const [pendingDownload, setPendingDownload] = useState<string | null>(null); // 검증 후 다운로드할 파일
-    const [showDecryptModal, setShowDecryptModal] = useState(false);             // 모달 표시 여부
-    const [decryptKey, setDecryptKey] = useState("");                            // 입력 중인 키
-
-    // ✅ 키 검증 스토어 훅 (Zustand)
-    const {
-        verifyKey,         // 키 검증 함수
-        verifyResult,      // 성공 여부
-        loading: keyLoading,
-        error: keyError,
-        clearError: clearKeyError,
-    } = useKeyStore();
-
-    // ✅ 필터링 로직 (useMemo로 성능 최적화)
-    const filtered = useMemo(() => {
-        return records.filter((record) => {
-            const [date, time] = record.timestamp.split(" ");
-
-            // 검색어 필터: type, description 포함 여부
-            const keywordMatch =
-                !filterKeyword ||
-                record.type.toLowerCase().includes(filterKeyword.toLowerCase()) ||
-                record.description.toLowerCase().includes(filterKeyword.toLowerCase());
-
-            // 날짜 필터
-            const dateMatch =
-                (!filterStartDate || date >= filterStartDate) &&
-                (!filterEndDate || date <= filterEndDate);
-
-            // 시간 필터
-            const timeMatch =
-                (!filterStartTime || time >= filterStartTime) &&
-                (!filterEndTime || time <= filterEndTime);
-
-            return keywordMatch && dateMatch && timeMatch;
-        });
-    }, [records, filterKeyword, filterStartDate, filterEndDate, filterStartTime, filterEndTime]);
+    // const [pendingDownload, setPendingDownload] = useState<string | null>(null); // 검증 후 다운로드할 파일
+    // const [showDecryptModal, setShowDecryptModal] = useState(false);             // 모달 표시 여부
+    // const [decryptKey, setDecryptKey] = useState("");                            // 입력 중인 키
+    //
+    // // ✅ 키 검증 스토어 훅 (Zustand)
+    // const {
+    //     verifyKey,         // 키 검증 함수
+    //     verifyResult,      // 성공 여부
+    //     loading: keyLoading,
+    //     error: keyError,
+    //     clearError: clearKeyError,
+    // } = useKeyStore();
+    //
+    // // ✅ 필터링 로직 (useMemo로 성능 최적화)
+    // const filtered = useMemo(() => {
+    //     return records.filter((record) => {
+    //         const [date, time] = record.timestamp.split(" ");
+    //
+    //         // 검색어 필터: type, description 포함 여부
+    //         const keywordMatch =
+    //             !filterKeyword ||
+    //             record.type.toLowerCase().includes(filterKeyword.toLowerCase()) ||
+    //             record.description.toLowerCase().includes(filterKeyword.toLowerCase());
+    //
+    //         // 날짜 필터
+    //         const dateMatch =
+    //             (!filterStartDate || date >= filterStartDate) &&
+    //             (!filterEndDate || date <= filterEndDate);
+    //
+    //         // 시간 필터
+    //         const timeMatch =
+    //             (!filterStartTime || time >= filterStartTime) &&
+    //             (!filterEndTime || time <= filterEndTime);
+    //
+    //         return keywordMatch && dateMatch && timeMatch;
+    //     });
+    // }, [records, filterKeyword, filterStartDate, filterEndDate, filterStartTime, filterEndTime]);
 
     // ✅ 키 입력 제출 핸들러
     // const handleSubmitKey = async () => {
@@ -99,52 +99,52 @@ const HistoryPanel = ({
             <h3 className={styles.historyTitle}>{title}</h3>
 
             {/* 🔹 필터 영역 */}
-            <div className={styles.filterWrapper}>
-                {/* 검색어 필터 */}
-                <input
-                    type="text"
-                    placeholder="검색어를 입력하세요 (Type 또는 Description)"
-                    value={filterKeyword}
-                    onChange={(e) => setFilterKeyword(e.target.value)}
-                    className={styles.searchInput}
-                />
+            {/*<div className={styles.filterWrapper}>*/}
+            {/*    /!* 검색어 필터 *!/*/}
+            {/*    <input*/}
+            {/*        type="text"*/}
+            {/*        placeholder="검색어를 입력하세요 (Type 또는 Description)"*/}
+            {/*        value={filterKeyword}*/}
+            {/*        onChange={(e) => setFilterKeyword(e.target.value)}*/}
+            {/*        className={styles.searchInput}*/}
+            {/*    />*/}
 
-                {/* 날짜 필터 */}
-                <div className={styles.rowFilterGroup}>
-                    <label className={styles.filterLabel}>📅 날짜:</label>
-                    <input
-                        type="date"
-                        value={filterStartDate}
-                        onChange={(e) => setFilterStartDate(e.target.value)}
-                        className={styles.filterInput}
-                    />
-                    <span className={styles.tilde}>~</span>
-                    <input
-                        type="date"
-                        value={filterEndDate}
-                        onChange={(e) => setFilterEndDate(e.target.value)}
-                        className={styles.filterInput}
-                    />
-                </div>
+            {/*    /!* 날짜 필터 *!/*/}
+            {/*    <div className={styles.rowFilterGroup}>*/}
+            {/*        <label className={styles.filterLabel}>📅 날짜:</label>*/}
+            {/*        <input*/}
+            {/*            type="date"*/}
+            {/*            value={filterStartDate}*/}
+            {/*            onChange={(e) => setFilterStartDate(e.target.value)}*/}
+            {/*            className={styles.filterInput}*/}
+            {/*        />*/}
+            {/*        <span className={styles.tilde}>~</span>*/}
+            {/*        <input*/}
+            {/*            type="date"*/}
+            {/*            value={filterEndDate}*/}
+            {/*            onChange={(e) => setFilterEndDate(e.target.value)}*/}
+            {/*            className={styles.filterInput}*/}
+            {/*        />*/}
+            {/*    </div>*/}
 
-                {/* 시간 필터 */}
-                <div className={styles.rowFilterGroup}>
-                    <label className={styles.filterLabel}>⏰ 시간:</label>
-                    <input
-                        type="time"
-                        value={filterStartTime}
-                        onChange={(e) => setFilterStartTime(e.target.value)}
-                        className={styles.filterInput}
-                    />
-                    <span className={styles.tilde}>~</span>
-                    <input
-                        type="time"
-                        value={filterEndTime}
-                        onChange={(e) => setFilterEndTime(e.target.value)}
-                        className={styles.filterInput}
-                    />
-                </div>
-            </div>
+            {/*    /!* 시간 필터 *!/*/}
+            {/*    <div className={styles.rowFilterGroup}>*/}
+            {/*        <label className={styles.filterLabel}>⏰ 시간:</label>*/}
+            {/*        <input*/}
+            {/*            type="time"*/}
+            {/*            value={filterStartTime}*/}
+            {/*            onChange={(e) => setFilterStartTime(e.target.value)}*/}
+            {/*            className={styles.filterInput}*/}
+            {/*        />*/}
+            {/*        <span className={styles.tilde}>~</span>*/}
+            {/*        <input*/}
+            {/*            type="time"*/}
+            {/*            value={filterEndTime}*/}
+            {/*            onChange={(e) => setFilterEndTime(e.target.value)}*/}
+            {/*            className={styles.filterInput}*/}
+            {/*        />*/}
+            {/*    </div>*/}
+            {/*</div>*/}
 
             {/* 🔹 테이블 출력 */}
             <table className={styles.historyTable}>
@@ -158,8 +158,8 @@ const HistoryPanel = ({
                 </tr>
                 </thead>
                 <tbody>
-                {filtered.length > 0 ? (
-                    filtered.map((record, idx) => (
+                {records.length > 0 ? (
+                    records.map((record, idx) => (
                         <tr key={idx} className={styles.historyRow}>
                             {/* 테이블 클릭 시 영상 선택 */}
                             <td onClick={() => onSelectHistory(record.videoSrc)}>{record.timestamp}</td>
