@@ -1,73 +1,124 @@
+/* 🧱 전체 레이아웃 컨테이너 */
 .container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 2rem;
-    background: #0d0d0d;
-    color: white;
+    padding: 5rem 2rem 8rem;
+    background-color: #0a0a0a;
+    color: #f5f5f5;
+    font-family: 'Segoe UI', 'Noto Sans KR', sans-serif;
     min-height: 100vh;
     overflow-x: hidden;
+    scroll-behavior: smooth;
 }
 
+/* 👁️ Hero 영역 */
 .hero {
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 5rem;
 }
 
 .title {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: #fff;
+    font-size: 3.2rem;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.03em;
 }
 
-.subtitle {
-    font-size: 1.2rem;
-    color: #ccc;
-    margin-top: 0.5rem;
-}
-
-.cardRow {
+/* 📌 섹션 공통 */
+.section {
+    margin: 6rem auto;
+    max-width: 960px;
+    width: 100%;
+    text-align: left; /* ✅ 왼쪽 정렬로 변경 */
+    padding: 0 2rem;
     display: flex;
-    gap: 1.5rem;
-    margin: 2rem 0;
+    flex-direction: column;
+    align-items: flex-start;
 }
 
-.projectInfo {
-    max-width: 800px;
-    background: #1c1c1c;
-    padding: 1.5rem 2rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
-    text-align: left;
-}
-
-.projectInfo h3 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
-    color: #61dafb;
-}
-
-.projectInfo p {
-    line-height: 1.7;
-    font-size: 1rem;
-    margin-bottom: 0.8rem;
-    color: #ddd;
-}
-.heading {
+/* 섹션 제목: 모두 같은 수직선 기준으로 정렬 */
+.section h2 {
     font-size: 2rem;
-    font-weight: bold;
-    color: white;
-    margin-bottom: 2rem;
+    margin-bottom: 1.25rem;
+    color: #ffffff;
+    font-weight: 600;
+    border-left: 3px solid #61dafb; /* ✅ 시각적 수직 기준선 */
+    padding-left: 0.75rem;
+    margin-left: 0; /* 모든 섹션 동일 정렬선 유지 */
 }
 
+/* 섹션 본문 */
+.section p {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #bbbbbb;
+    margin-top: 0.75rem;
+    margin-left: 0.75rem; /* 제목 기준선과 살짝 여백 */
+    max-width: 800px;
+}
 
-.cardRow {
+/* 🧩 리스트형 콘텐츠 */
+.featureList,
+.flowList {
+    margin-top: 1.8rem;
+    margin-left: 1.2rem; /* 제목 정렬선과 동일한 기준 */
+    color: #cccccc;
+    font-size: 1rem;
+    line-height: 1.8;
+    list-style: none;
+    padding: 0;
+}
+
+.featureList li,
+.flowList li {
+    margin-bottom: 0.75rem;
+    position: relative;
+    padding-left: 1.5rem; /* ✔ 마커 공간 확보 */
     display: flex;
-    gap: 1.5rem;
-    margin-bottom: 3rem;
+    align-items: center;
 }
 
+/* 리스트 마커 */
+.featureList li::before,
+.flowList li::before {
+    content: "✔";
+    position: absolute;
+    left: 0;
+    color: #61dafb;
+    font-size: 0.9rem;
+    top: 1px;
+}
 
-.sectionTitle {
+/* 🚀 CTA 버튼 */
+.ctaButton {
+    background-color: transparent;
+    color: #ffffff;
+    border: 1px solid #ffffff55;
+    border-radius: 6px;
+    padding: 0.75rem 1.75rem;
+    font-size: 1rem;
+    font-weight: 500;
     margin-top: 2rem;
+    margin-left: 0.75rem; /* 정렬 기준 유지 */
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ctaButton:hover {
+    background-color: #ffffff;
+    color: #0a0a0a;
+    transform: translateY(-2px);
+}
+
+/* ✨ 서브 타이틀 (Hero 하단 등) */
+.subtitle {
+    font-size: 1.25rem;
+    color: #bbbbbb;
+    margin-top: 1rem;
+    line-height: 1.7;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
 }
