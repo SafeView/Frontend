@@ -17,10 +17,19 @@ const KeyVerificationModal: React.FC<Props> = ({ onClose }) => {
         verifyResult,
         error: keyError,
         clearError: clearKeyError,
+        set,
     } = useKeyStore();
 
     // ✅ 입력된 키 상태
     const [inputKey, setInputKey] = useState('');
+
+    // ✅ 닫기 시 전체 초기화
+    const handleClose = () => {
+        clearKeyError(); // 에러 초기화
+        useKeyStore.setState({ verifyResult: null }); // 검증 성공 상태 초기화
+        setInputKey(''); // 입력창 초기화
+        onClose(); // 모달 닫기
+    };
 
     return (
         <div className={styles.modalOverlay}>
@@ -43,7 +52,6 @@ const KeyVerificationModal: React.FC<Props> = ({ onClose }) => {
                             alert('키를 정확히 입력하세요.');
                             return;
                         }
-                        clearKeyError();
                         verifyKey({ accessToken: inputKey, cameraId: 'CAMERA_001' }); // 예시 cameraId
                     }}
                 >
@@ -59,7 +67,6 @@ const KeyVerificationModal: React.FC<Props> = ({ onClose }) => {
                 {keyError && (
                     <div className={styles.error}>
                         ⚠️ 유효하지 않은 키입니다.
-                        {/*<button onClick={clearKeyError}>닫기</button>*/}
                     </div>
                 )}
 
@@ -76,7 +83,9 @@ const KeyVerificationModal: React.FC<Props> = ({ onClose }) => {
                 {/*    <p>🕓 최근 키 이력 기능은 추후 구현 예정</p>*/}
                 {/*</div>*/}
 
-                <button className={styles.closeButton} onClick={onClose}>닫기</button>
+                <button className={styles.closeButton} onClick={handleClose}>
+                    닫기
+                </button>
             </div>
         </div>
     );
