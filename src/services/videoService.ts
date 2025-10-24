@@ -136,6 +136,32 @@ export const getAllVideosForAdmin = async (): Promise<AdminVideoItem[]> => {
 };
 
 /**
+ * ▶️ 저장된 영상 스트리밍 URL 요청
+ *
+ * 서버에 저장된 영상을 Blob 형태로 가져와 브라우저에서 사용 가능한 URL로 반환합니다.
+ * 인증은 쿠키 기반으로 처리되며, 별도의 토큰은 필요하지 않습니다.
+ *
+ * @param filename 스트리밍할 비디오 파일명 (예: example.mp4)
+ * @returns 비디오 재생용 Blob Object URL
+ * @throws Error - API 실패 또는 네트워크 오류 시 예외 발생
+ */
+export const getVideoStreamUrl = async (filename: string): Promise<string> => {
+    try {
+        const response = await api.get(`/videos/stream/${filename}`, {
+            responseType: 'blob', // ✅ Blob 형태로 수신
+        });
+
+        const blob = new Blob([response.data], { type: 'video/mp4' });
+        const blobUrl = URL.createObjectURL(blob);
+        return blobUrl;
+    } catch (error: any) {
+        throw new Error(
+            error.response?.data?.message || '비디오 스트리밍 URL 요청 중 오류가 발생했습니다.'
+        );
+    }
+};
+
+/**
  * 📡 웹소켓 연결 전에 AI 서버에 사용자 ID 전송
  *
  * - 쿠키 기반 인증과 함께 현재 사용자 ID를 AI 서버에 등록합니다.
