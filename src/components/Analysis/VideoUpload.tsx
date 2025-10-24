@@ -2,6 +2,7 @@
 import React, { type ChangeEvent, useEffect, useRef, useState } from 'react';
 import styles from './VideoUpload.module.css';
 import useFaceDetectionStore from '../../stores/faceDetectionStore';
+import usePersonTimingStore from '../../stores/personTimingStore';
 
 
 interface Props {
@@ -21,6 +22,15 @@ const VideoUpload: React.FC<Props> = ({ onUpload }) => {
 
     // ✅ zustand 스토어 훅
     const { faces, loading, error, detect, detectFromFile, clear } = useFaceDetectionStore();
+
+    const {
+        analyze: analyzePersonTiming,
+        timings,
+        total,
+        error: personError,
+        loading: personLoading,
+        clear: clearPersonTiming,
+    } = usePersonTimingStore();
 
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -58,6 +68,7 @@ const VideoUpload: React.FC<Props> = ({ onUpload }) => {
             const url = URL.createObjectURL(selected);
             setPreviewUrl(url);
             clear(); // 새로운 파일 업로드 시 상태 초기화
+            clearPersonTiming();
             setLocalError(null);
         }
     };
@@ -109,6 +120,22 @@ const VideoUpload: React.FC<Props> = ({ onUpload }) => {
         }
     };
 
+    const handlePersonTimingAnalyze = async () => {
+        if (!file) {
+            setLocalError('파일을 선택하세요.');
+            return;
+        }
+
+        try {
+            setUploading(true);
+            await analyzePersonTiming(file); // ✅ 사람 등장 구간 분석 실행
+        } catch (e: any) {
+            setLocalError(e.message || '사람 등장 구간 분석 중 오류가 발생했습니다.');
+        } finally {
+            setUploading(false);
+        }
+    };
+
     // ✅ 얼굴 검출 완료 후 상위 컴포넌트로 전달
     useEffect(() => {
         if (faces.length > 0) {
@@ -116,6 +143,13 @@ const VideoUpload: React.FC<Props> = ({ onUpload }) => {
             onUpload(urls);
         }
     }, [faces, onUpload]);
+
+
+    useEffect(() => {
+        if (timings.length > 0) {
+            console.log('📌 탐지된 사람 등장 시간 구간:', timings);
+        }
+    }, [timings]);
 
     return (
         <div className={styles.container}>
