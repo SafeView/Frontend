@@ -152,6 +152,11 @@
     margin-top: 1rem;
 }
 
+.actionCell {
+    display: flex;
+    flex-direction: column;
+}
+
 .smallBtn {
     padding: 0.3rem 0.8rem;
     background-color: #2a2e39;
@@ -161,6 +166,7 @@
     font-size: 0.85rem;
     cursor: pointer;
     transition: all 0.2s ease;
+    margin-bottom: 0.5rem;
 }
 
 .smallBtn:hover:not(:disabled) {
