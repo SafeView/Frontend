@@ -1,9 +1,6 @@
 // ✅ 스타일 모듈 import (페이지 단위 CSS 사용 중)
 import styles from "./HistoryPanel.module.css";
 
-// ✅ 복호화 키 검증 Zustand 스토어
-import useKeyStore from "../../stores/keyStore";
-
 // 🔹 히스토리 레코드 데이터 타입 정의
 export interface HistoryRecord {
     timestamp: string; // "YYYY-MM-DD HH:mm"
@@ -19,7 +16,7 @@ export interface HistoryRecord {
 interface HistoryPanelProps {
     title?: string; // 섹션 타이틀 (기본값: "Recording History")
     records: HistoryRecord[]; // 기록 데이터 배열
-    onStream: (videoSrc?: string) => void; // 테이블 클릭 시 영상 선택 처리
+    onStream: (filename?: string) => void; // 테이블 클릭 시 영상 선택 처리
     onDownload?: (filename?: string) => void;     // 다운로드 함수 (옵션)
 }
 
@@ -161,25 +158,25 @@ const HistoryPanel = ({
                     records.map((record, idx) => (
                         <tr key={idx} className={styles.historyRow}>
                             {/* 테이블 클릭 시 영상 선택 */}
-                            <td onClick={() => onStream(record.videoSrc)}>{record.timestamp}</td>
-                            <td onClick={() => onStream(record.videoSrc)}>
+                            <td onClick={() => onStream(record.filename)}>{record.timestamp}</td>
+                            <td onClick={() => onStream(record.filename)}>
                                 <span className={styles.badge}>{record.type}</span>
                             </td>
-                            <td onClick={() => onStream(record.videoSrc)}>{record.description}</td>
+                            <td onClick={() => onStream(record.filename)}>{record.description}</td>
 
                             {records.some(r => r.userId) && (
-                                <td onClick={() => onStream(record.videoSrc)}>
+                                <td onClick={() => onStream(record.filename)}>
                                     <span className={styles.userId}>{record.userId}</span>
                                 </td>
                             )}
 
-                            {/* 🔹 다운로드 버튼 */}
+                            {/* 🔹 다운로드, 재생 버튼 */}
                             <td className={styles.actionCell}>
                                 <button
                                     className={styles.smallBtn}
                                     onClick={(e) => {
                                         e.stopPropagation(); // 테이블 row 클릭 방지
-                                        onStream(record.videoSrc);
+                                        onStream(record.filename);
                                     }}
                                 >
                                     Play

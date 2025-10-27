@@ -2,7 +2,7 @@
 // - 업로드한 비디오에서 사람이 등장하는 시간대를 분석
 // - MP4, AVI, MOV, MKV 형식만 지원됨
 
-import api from '../apis/api';
+import axios from 'axios';
 import type { PersonTimingResponse } from '../types/personTiming';
 
 /**
@@ -19,13 +19,14 @@ export const analyzePersonTiming = async (
         const formData = new FormData();
         formData.append('video', videoFile); // 백엔드에서 'video' 키로 받음
 
-        const response = await api.post<PersonTimingResponse>(
-            '/person-timing/analyze',
+        const response = await axios.post<PersonTimingResponse>(
+            'http://localhost:8000/person-timing/analyze', // ✅ 포트 8000 고정 API 직접 호출
             formData,
             {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },
+                withCredentials: true, // ✅ 쿠키 인증 사용하는 경우
             }
         );
 
