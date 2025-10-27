@@ -17,15 +17,12 @@ export const analyzePersonTiming = async (
 ): Promise<PersonTimingResponse> => {
     try {
         const formData = new FormData();
-        formData.append('video', videoFile); // 백엔드에서 'video' 키로 받음
+        formData.append('file', videoFile);
 
         const response = await axios.post<PersonTimingResponse>(
             'http://localhost:8000/person-timing/analyze', // ✅ 포트 8000 고정 API 직접 호출
             formData,
             {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
                 withCredentials: true, // ✅ 쿠키 인증 사용하는 경우
             }
         );

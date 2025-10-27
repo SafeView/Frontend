@@ -7,9 +7,10 @@ import usePersonTimingStore from '../../stores/personTimingStore';
 
 interface Props {
     onUpload: (faceUrls: string[]) => void;
+    onPersonTimingResult?: (timings: string[]) => void;
 }
 
-const VideoUpload: React.FC<Props> = ({ onUpload }) => {
+const VideoUpload: React.FC<Props> = ({ onUpload, onPersonTimingResult }) => {
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [file, setFile] = useState<File | null>(null);
     const [minute, setMinute] = useState('');
@@ -111,8 +112,14 @@ const VideoUpload: React.FC<Props> = ({ onUpload }) => {
 
         try {
             setUploading(true);
-            // FastAPI가 파일 업로드를 직접 받으므로, 바로 전송해 처리
+
+            // ✅ 1. 얼굴 분석
             await detectFromFile(file, time_input);
+
+            // ✅ 2. 사람 등장 구간 분석
+            await handlePersonTimingAnalyze();
+
+
         } catch (e: any) {
             setLocalError(e.message || '업로드 또는 분석 중 오류가 발생했습니다.');
         } finally {
@@ -128,6 +135,7 @@ const VideoUpload: React.FC<Props> = ({ onUpload }) => {
 
         try {
             setUploading(true);
+            console.log('📌 사람 등장 구간 분석 시작 :', file);
             await analyzePersonTiming(file); // ✅ 사람 등장 구간 분석 실행
         } catch (e: any) {
             setLocalError(e.message || '사람 등장 구간 분석 중 오류가 발생했습니다.');
@@ -138,11 +146,15 @@ const VideoUpload: React.FC<Props> = ({ onUpload }) => {
 
     // ✅ 얼굴 검출 완료 후 상위 컴포넌트로 전달
     useEffect(() => {
-        if (faces.length > 0) {
-            const urls = faces.map((f) => f.s3_url);
-            onUpload(urls);
+        const faceUrls = faces.map((f) => f.s3_url);
+        if (faceUrls.length > 0) {
+            onUpload(faceUrls); // 얼굴 결과
         }
-    }, [faces, onUpload]);
+
+        if (timings.length > 0 && onPersonTimingResult) {
+            onPersonTimingResult(timings); // ✅ 사람 시간대 결과
+        }
+    }, [faces, onPersonTimingResult, onUpload, timings]);
 
 
     useEffect(() => {
