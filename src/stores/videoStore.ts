@@ -12,6 +12,7 @@ import {
     stopVideoRecording,
     getAllVideos,
     getVideoDownloadUrl,
+    getVideoStreamUrl,
     getAllVideosForAdmin,
     sendUserIdToAIServer,
 } from '../services/videoService';
@@ -27,6 +28,7 @@ interface VideoState {
     recording: boolean;                      // 🔴 현재 녹화 중인지 여부
     lastRecordResult: VideoRecordResponseData | null; // 📝 마지막 녹화 결과 정보
     downloadUrl: string | null;              // ⬇️ 비디오 다운로드 URL
+    streamUrl: string | null;              // ✅ 스트리밍 URL 상태 추가
     loading: boolean;                        // 🔄 API 로딩 상태
     error: string | null;                    // ❌ 오류 메시지
     adminVideos: AdminVideoItem[];           // 🛡️ 관리자용 전체 비디오 목록
@@ -36,8 +38,11 @@ interface VideoState {
     startRecording: () => Promise<void>;                   // ✅ 녹화 시작
     stopRecording: () => Promise<void>;                    // ✅ 녹화 중단
     fetchDownloadUrl: (filename: string) => Promise<void>; // ✅ 다운로드 URL 요청
+    fetchStreamUrl: (filename: string) => Promise<void>; // ✅ 스트리밍 URL 요청 함수 추가
+
     clearError: () => void;                                // ✅ 에러 초기화
     clearDownloadUrl: () => void;                          // ✅ 다운로드 URL 초기화
+    clearStreamUrl: () => void;                             // ✅ 스트리밍 URL 초기화
     fetchAdminVideos: () => Promise<void>;                 // ✅ 관리자용 비디오 전체 불러오기
     sendUserId: (userId: number) => Promise<void>;         // ✅ AI 서버로 userId 전송
 }
@@ -48,6 +53,7 @@ const useVideoStore = create<VideoState>((set) => ({
     recording: false,
     lastRecordResult: null,
     downloadUrl: null,
+    streamUrl: null, // ✅ 스트리밍 상태 초기화
     loading: false,
     error: null,
     adminVideos: [],
@@ -119,6 +125,24 @@ const useVideoStore = create<VideoState>((set) => ({
     },
 
     /**
+     * ▶️ 스트리밍 URL 요청
+     * - 비디오를 Blob URL 형태로 반환
+     */
+    fetchStreamUrl: async (filename: string) => {
+        set({ loading: true, error: null });
+        try {
+            const url = await getVideoStreamUrl(filename);
+            set({ streamUrl: url, loading: false });
+        } catch (err: any) {
+            set({
+                error: err.message || '비디오 스트리밍 요청 중 오류가 발생했습니다.',
+                loading: false,
+            });
+        }
+    },
+
+
+    /**
      * ❌ 에러 메시지를 초기화합니다.
      */
     clearError: () => set({ error: null }),
@@ -127,6 +151,8 @@ const useVideoStore = create<VideoState>((set) => ({
      * 📭 다운로드 링크 상태를 초기화합니다.
      */
     clearDownloadUrl: () => set({ downloadUrl: null }),
+
+    clearStreamUrl: () => set({ streamUrl: null }), // ✅ 스트리밍 URL 초기화
 
     /**
      * 🛡️ 관리자/중간관리자 전용 전체 비디오 목록을 불러옵니다.

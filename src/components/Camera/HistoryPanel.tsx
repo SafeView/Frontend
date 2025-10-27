@@ -1,11 +1,5 @@
-// ✅ React 훅 import
-import { useMemo, useState } from "react";
-
 // ✅ 스타일 모듈 import (페이지 단위 CSS 사용 중)
-import styles from "../../pages/CameraPage.module.css";
-
-// ✅ 복호화 키 검증 Zustand 스토어
-import useKeyStore from "../../stores/keyStore";
+import styles from "./HistoryPanel.module.css";
 
 // 🔹 히스토리 레코드 데이터 타입 정의
 export interface HistoryRecord {
@@ -22,7 +16,7 @@ export interface HistoryRecord {
 interface HistoryPanelProps {
     title?: string; // 섹션 타이틀 (기본값: "Recording History")
     records: HistoryRecord[]; // 기록 데이터 배열
-    onSelectHistory: (videoSrc?: string) => void; // 테이블 클릭 시 영상 선택 처리
+    onStream: (filename?: string) => void; // 테이블 클릭 시 영상 선택 처리
     onDownload?: (filename?: string) => void;     // 다운로드 함수 (옵션)
 }
 
@@ -30,9 +24,11 @@ interface HistoryPanelProps {
 const HistoryPanel = ({
                           title = "Recording History",
                           records,
-                          onSelectHistory,
+                          onStream,
                           onDownload,
                       }: HistoryPanelProps) => {
+
+
 
     // ✅ 필터 관련 로컬 상태
     // const [filterKeyword, setFilterKeyword] = useState("");
@@ -162,34 +158,36 @@ const HistoryPanel = ({
                     records.map((record, idx) => (
                         <tr key={idx} className={styles.historyRow}>
                             {/* 테이블 클릭 시 영상 선택 */}
-                            <td onClick={() => onSelectHistory(record.videoSrc)}>{record.timestamp}</td>
-                            <td onClick={() => onSelectHistory(record.videoSrc)}>
+                            <td onClick={() => onStream(record.filename)}>{record.timestamp}</td>
+                            <td onClick={() => onStream(record.filename)}>
                                 <span className={styles.badge}>{record.type}</span>
                             </td>
-                            <td onClick={() => onSelectHistory(record.videoSrc)}>{record.description}</td>
+                            <td onClick={() => onStream(record.filename)}>{record.description}</td>
 
                             {records.some(r => r.userId) && (
-                                <td onClick={() => onSelectHistory(record.videoSrc)}>
+                                <td onClick={() => onStream(record.filename)}>
                                     <span className={styles.userId}>{record.userId}</span>
                                 </td>
                             )}
 
-                            {/* 🔹 다운로드 버튼 */}
-                            <td>
+                            {/* 🔹 다운로드, 재생 버튼 */}
+                            <td className={styles.actionCell}>
+                                <button
+                                    className={styles.smallBtn}
+                                    onClick={(e) => {
+                                        e.stopPropagation(); // 테이블 row 클릭 방지
+                                        onStream(record.filename);
+                                    }}
+                                >
+                                    Play
+                                </button>
+
                                 {onDownload && record.filename ? (
                                     <button
                                         className={styles.smallBtn}
                                         onClick={(e) => {
-                                            e.stopPropagation(); // 행 클릭 방지
+                                            e.stopPropagation(); // 테이블 row 클릭 방지
                                             onDownload?.(record.filename);
-                                            /*
-                                            if (record.isRaw) {
-                                                setPendingDownload(record.filename || null);
-                                                setShowDecryptModal(true);
-                                            } else {
-                                                onDownload?.(record.filename);
-                                            }
-                                            */
                                         }}
                                     >
                                         Download

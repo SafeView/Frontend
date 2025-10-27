@@ -10,7 +10,10 @@ import { useUIStore } from '../stores/uiStore'; // UI 상태 전역 저장소
 const SavedVideosPage = () => {
     const { user } = useUserStore();
     const isSidebarOpen = useUIStore((state) => state.isSidebarOpen);
-    const { videos, adminVideos, fetchVideos, fetchAdminVideos, fetchDownloadUrl, clearDownloadUrl } = useVideoStore();
+    const { videos, adminVideos, fetchVideos, fetchAdminVideos, fetchDownloadUrl, fetchStreamUrl, clearDownloadUrl } = useVideoStore();
+
+    const [isModalOpen, setIsModalOpen] = React.useState(false);
+    const [streamSrc, setStreamSrc] = React.useState<string | null>(null);
 
     // ✅ 영상 데이터 불러오기
     React.useEffect(() => {
@@ -50,9 +53,23 @@ const SavedVideosPage = () => {
         }
     };
 
-    // ✅ 히스토리 선택 시 새 창에서 재생
-    const handleSelectHistory = (videoSrc?: string) => {
-        if (videoSrc) window.open(videoSrc, '_blank');
+
+    // 영상 스트리밍 전용 핸들러
+    const handleStreamVideo = async (filename?: string) => {
+        if (!filename) return;
+
+        // zustand 스토어에서 fetchStreamUrl 호출
+        await fetchStreamUrl(filename);
+
+        const url = useVideoStore.getState().streamUrl;
+        if (url) {
+            setStreamSrc(url);         // ✅ 영상 URL 저장
+            setIsModalOpen(true);      // ✅ 모달 오픈
+            setTimeout(() => {
+                // streamUrl 초기화 (선택사항)
+                useVideoStore.getState().clearStreamUrl?.();
+            }, 1000);
+        }
     };
 
     // ✅ record 목록 구성 (역할별)
@@ -112,9 +129,20 @@ const SavedVideosPage = () => {
             <HistoryPanel
                 title="저장 기록"
                 records={records}
-                onSelectHistory={handleSelectHistory}
+                onStream={handleStreamVideo}
                 onDownload={handleDownload}
             />
+
+            {isModalOpen && streamSrc && (
+                <div className={styles.modalOverlay}>
+                    <div className={styles.modalContent}>
+                        <video src={streamSrc} controls autoPlay style={{ width: '100%' }} />
+                        <button onClick={() => { setIsModalOpen(false); setStreamSrc(null); }}>
+                            닫기
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
