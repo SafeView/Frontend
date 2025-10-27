@@ -35,7 +35,17 @@
     gap: 0.4rem;
 }
 
+.timingSection {
+    margin-top: 1rem;
+}
+
+.timeList {
+    list-style: none;
+    padding-left: 0;
+}
+
 .timeText {
     font-size: 1rem;
+    padding: 0.3rem 0;
     color: #888;
 }
