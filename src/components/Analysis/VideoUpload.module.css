@@ -1,15 +1,20 @@
 .container {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 1rem;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 2rem;
+    background-color: #1f2937;
+    border-radius: 12px;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 .label {
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: 600;
-    color: #ffffff;
+    color: #f3f4f6;
+    align-self: flex-start;
 }
 
 .input {
@@ -17,40 +22,68 @@
 }
 
 .uploadButton {
-    background-color: #2563eb;
+    background-color: #3b82f6;
     color: white;
     border: none;
     border-radius: 6px;
-    padding: 0.5rem 1rem;
+    padding: 0.6rem 1.2rem;
     font-size: 0.95rem;
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
 
 .uploadButton:hover {
-    background-color: #1e40af;
+    background-color: #1d4ed8;
 }
 
 .preview {
     width: 100%;
     max-width: 720px;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
 }
 
-.inputRow {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
+.imagePreview {
+    width: 180px;
+    height: auto;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     margin-top: 0.5rem;
 }
 
+/* ⏱ 전체 입력 그룹 */
+.inputRow {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    align-items: center;
+    margin-top: 1rem;
+    width: 100%;
+}
+
+/* ⏳ 분/초 입력 가로 정렬 */
+.timeRow {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: center;
+}
+
 .timeInput {
-    width: 60px;
-    padding: 0.3rem;
-    border-radius: 4px;
-    border: 1px solid #ccc;
+    width: 70px;
+    padding: 0.4rem;
+    border-radius: 6px;
+    border: 1px solid #d1d5db;
+    font-size: 0.95rem;
     text-align: center;
+}
+
+/* 🎯 버튼 그룹 중앙 정렬 */
+.buttonGroup {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
 }
 
 .analyzeButton {
@@ -58,19 +91,45 @@
     color: white;
     border: none;
     border-radius: 6px;
-    padding: 0.4rem 1rem;
-    margin-bottom: 16px;
+    padding: 0.5rem 1.2rem;
+    font-size: 0.95rem;
     cursor: pointer;
     transition: background-color 0.2s ease;
 }
 
 .analyzeButton:hover {
     background-color: #059669;
+}
 
+.analyzeButton.secondary {
+    background-color: #f59e0b;
+}
+
+.analyzeButton.secondary:hover {
+    background-color: #d97706;
 }
 
 .error {
     color: #f87171;
     font-size: 0.9rem;
     margin-top: 0.5rem;
+}
+
+.info {
+    color: #93c5fd;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+}
+
+.resultBox {
+    margin-top: 1rem;
+    background-color: #1e293b;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    color: #fff;
+}
+
+.timingsList {
+    list-style: disc;
+    padding-left: 1.5rem;
 }

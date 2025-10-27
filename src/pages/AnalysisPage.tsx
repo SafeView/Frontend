@@ -21,6 +21,8 @@ const AnalysisPage: React.FC = () => {
     // 🧠 얼굴 탐지 결과 URL 목록 (예: S3 업로드된 얼굴 이미지 링크 배열)
     const [faceUrls, setFaceUrls] = useState<string[] | null>(null);
 
+    const [personTimings, setPersonTimings] = useState<string[] | null>(null);
+
     return (
         <div
             className={styles.container}
@@ -34,14 +36,20 @@ const AnalysisPage: React.FC = () => {
 
             {/* 영상 업로드 영역 */}
             <div className={styles.section}>
-                {/* 업로드 후 setFaceUrls로 얼굴 URL 전달 */}
-                <VideoUpload onUpload={setFaceUrls} />
+                {/* 업로드 후 setFaceUrls로 얼굴 URL, 시간 전달 */}
+                <VideoUpload
+                    onUpload={setFaceUrls}
+                    onPersonTimingResult={setPersonTimings}
+                />
             </div>
 
             {/* 얼굴 URL이 있으면 결과 렌더링 */}
             {faceUrls && (
                 <div className={styles.section}>
-                    <AnalysisResult faceUrls={faceUrls} />
+                    <AnalysisResult
+                        faceUrls={faceUrls}
+                        personTimings={personTimings}
+                    />
                 </div>
             )}
         </div>
