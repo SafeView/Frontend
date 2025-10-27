@@ -26,6 +26,7 @@ const useFaceRecognitionTimingStore = create<FaceRecognitionTimingState>((set) =
 
     // ✅ 분석 실행 함수
     analyze: async (imageFile: File, videoFile: File) => {
+        console.log('analyzeFaceRecognitionTiming called', imageFile, videoFile);
         set({ loading: true, error: null, timings: [], total: 0, threshold: null });
 
         try {

@@ -51,13 +51,18 @@ export const analyzeFaceRecognitionTiming = async (
 ): Promise<PersonTimingResponse> => {
     try {
         const formData = new FormData();
-        formData.append('file', imageFile);
-        formData.append('file', videoFile);
+        formData.append('face_image', imageFile);
+        formData.append('video_file', videoFile);
+
+        console.log('formData:', imageFile, videoFile);
 
         const response = await axios.post<PersonTimingResponse>(
             'http://localhost:8000/face-recognition-timing/analyze',
             formData,
             {
+                headers:{
+                    'Content-Type': 'multipart/form-data',
+                },
                 withCredentials: true, // ✅ 쿠키 인증 사용하는 경우
             }
         );

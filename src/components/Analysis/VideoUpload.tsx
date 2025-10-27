@@ -3,6 +3,7 @@ import React, { type ChangeEvent, useEffect, useRef, useState } from 'react';
 import styles from './VideoUpload.module.css';
 import useFaceDetectionStore from '../../stores/faceDetectionStore';
 import usePersonTimingStore from '../../stores/personTimingStore';
+import useFaceRecognitionTimingStore from "../../stores/faceRecognitionTimingStore.ts";
 
 
 interface Props {
@@ -12,7 +13,9 @@ interface Props {
 
 const VideoUpload: React.FC<Props> = ({ onUpload, onPersonTimingResult }) => {
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-    const [file, setFile] = useState<File | null>(null);
+    const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+    const [videoFile, setVideoFile] = useState<File | null>(null);
+    const [imageFile, setImageFile] = useState<File | null>(null);
     const [minute, setMinute] = useState('');
     const [second, setSecond] = useState('');
     const [uploading, setUploading] = useState(false);
@@ -33,6 +36,16 @@ const VideoUpload: React.FC<Props> = ({ onUpload, onPersonTimingResult }) => {
         clear: clearPersonTiming,
     } = usePersonTimingStore();
 
+    // 인물(사진+비디오) 기반 분석 스토어
+    const {
+        analyze: analyzeFaceRecognitionTiming,
+        timings: faceTimings,
+        threshold,
+        error: faceError,
+        loading: faceLoading,
+        clear: clearFaceRecognition,
+    } = useFaceRecognitionTimingStore();
+
 
     const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
         const selected = e.target.files?.[0];
@@ -42,7 +55,7 @@ const VideoUpload: React.FC<Props> = ({ onUpload, onPersonTimingResult }) => {
             console.log('selected.size:', selected.size);
 
             if (selected.size > MAX_SIZE) {
-                setFile(null);
+                setVideoFile(null);
                 setPreviewUrl(null);
                 clear();
                 const msg = '⚠️ 파일 크기 제한 오류 (최대 500MB)';
@@ -55,7 +68,7 @@ const VideoUpload: React.FC<Props> = ({ onUpload, onPersonTimingResult }) => {
             const fileName = selected.name.toLowerCase();
             const fileType = selected.type.toLowerCase();
             if (!fileName.endsWith('.mp4') || fileType !== 'video/mp4') {
-                setFile(null);
+                setVideoFile(null);
                 setPreviewUrl(null);
                 clear();
                 const msg = '⚠️ 올바르지 않은 형식입니다.';
@@ -65,13 +78,22 @@ const VideoUpload: React.FC<Props> = ({ onUpload, onPersonTimingResult }) => {
             }
 
             // ✅ 통과하면 상태 업데이트
-            setFile(selected);
+            setVideoFile(selected);
             const url = URL.createObjectURL(selected);
             setPreviewUrl(url);
             clear(); // 새로운 파일 업로드 시 상태 초기화
             clearPersonTiming();
             setLocalError(null);
         }
+    };
+
+    /** 🖼️ 인물 사진 파일 선택 */
+    const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+        const selected = e.target.files?.[0];
+        if (!selected) return;
+
+        setImageFile(selected);
+        setImagePreviewUrl(URL.createObjectURL(selected)); // ✅ 사진 미리보기 생성
     };
 
 
@@ -83,9 +105,11 @@ const VideoUpload: React.FC<Props> = ({ onUpload, onPersonTimingResult }) => {
         }
     };
 
+
+    /** 기본 얼굴/사람 구간 분석 */
     const handleAnalyze = async () => {
         setLocalError(null);
-        if (!file) {
+        if (!videoFile) {
             setLocalError('파일을 선택하세요.');
             return;
         }
@@ -114,7 +138,7 @@ const VideoUpload: React.FC<Props> = ({ onUpload, onPersonTimingResult }) => {
             setUploading(true);
 
             // ✅ 1. 얼굴 분석
-            await detectFromFile(file, time_input);
+            await detectFromFile(videoFile, time_input);
 
             // ✅ 2. 사람 등장 구간 분석
             await handlePersonTimingAnalyze();
@@ -128,17 +152,38 @@ const VideoUpload: React.FC<Props> = ({ onUpload, onPersonTimingResult }) => {
     };
 
     const handlePersonTimingAnalyze = async () => {
-        if (!file) {
+        if (!videoFile) {
             setLocalError('파일을 선택하세요.');
             return;
         }
 
         try {
             setUploading(true);
-            console.log('📌 사람 등장 구간 분석 시작 :', file);
-            await analyzePersonTiming(file); // ✅ 사람 등장 구간 분석 실행
+            console.log('📌 사람 등장 구간 분석 시작 :', videoFile);
+            await analyzePersonTiming(videoFile); // ✅ 사람 등장 구간 분석 실행
         } catch (e: any) {
             setLocalError(e.message || '사람 등장 구간 분석 중 오류가 발생했습니다.');
+        } finally {
+            setUploading(false);
+        }
+    };
+
+    /** ✅ 사진 + 비디오 기반 특정 인물 등장 시간 분석 */
+    const handleFaceRecognitionAnalyze = async () => {
+        if (!imageFile || !videoFile) {
+            alert('사진과 영상을 모두 업로드해야 합니다.');
+            return;
+        }
+
+        try {
+            setUploading(true);
+            console.log('📌 특정 인물 등장 구간 분석 시작 :', imageFile, videoFile);
+            await analyzeFaceRecognitionTiming(imageFile, videoFile);
+
+
+
+        } catch (e: any) {
+            setLocalError(e.message || '인물 등장 구간 분석 중 오류가 발생했습니다.');
         } finally {
             setUploading(false);
         }
@@ -169,7 +214,6 @@ const VideoUpload: React.FC<Props> = ({ onUpload, onPersonTimingResult }) => {
             <input
                 id="video-upload"
                 type="file"
-                // accept="video/mp4"
                 onChange={handleFileChange}
                 className={styles.input}
             />
@@ -178,7 +222,7 @@ const VideoUpload: React.FC<Props> = ({ onUpload, onPersonTimingResult }) => {
                 className={styles.uploadButton}
                 onClick={() => document.getElementById('video-upload')?.click()}
             >
-                파일 업로드
+                동영상 업로드
             </button>
 
             {previewUrl && (
@@ -193,7 +237,22 @@ const VideoUpload: React.FC<Props> = ({ onUpload, onPersonTimingResult }) => {
                         비디오 미리보기를 지원하지 않습니다.
                     </video>
 
+                    <label className={styles.label}>인물 사진 선택</label>
+                    <input id="image-upload" type="file" accept="image/*" onChange={handleImageChange} className={styles.input} />
+                    <button
+                        type="button"
+                        className={styles.uploadButton}
+                        onClick={() => document.getElementById('image-upload')?.click()}
+                    >
+                        인물 사진 업로드
+                    </button>
+
+                    {imagePreviewUrl && (
+                        <img src={imagePreviewUrl} alt="사진 미리보기" className={styles.imagePreview} />
+                    )}
+
                     <div className={styles.inputRow}>
+                        <div className={styles.timeRow}>
                         <input
                             type="number"
                             placeholder="분"
@@ -208,6 +267,8 @@ const VideoUpload: React.FC<Props> = ({ onUpload, onPersonTimingResult }) => {
                             onChange={(e) => setSecond(e.target.value)}
                             className={styles.timeInput}
                         />
+                            </div>
+                        <div className={styles.buttonGroup}>
                         <button
                             className={styles.analyzeButton}
                             onClick={handleAnalyze}
@@ -215,10 +276,31 @@ const VideoUpload: React.FC<Props> = ({ onUpload, onPersonTimingResult }) => {
                         >
                             {uploading || loading ? '분석 중...' : '분석 시작'}
                         </button>
+                        <button
+                            className={styles.analyzeButton}
+                            onClick={handleFaceRecognitionAnalyze}
+                            disabled={uploading || faceLoading}
+                        >
+                            {uploading || faceLoading ? '인물 분석 중...' : '특정 인물 등장 분석'}
+                        </button>
+                        </div>
                     </div>
 
                     {localError && <p className={styles.error}>⚠️ {localError}</p>}
                     {error && <p className={styles.error}>⚠️ {error}</p>}
+                    {threshold && (
+                        <p className={styles.info}>🔹 유사도 임계값 : {threshold.toFixed(2)}</p>
+                    )}
+                    {faceTimings.length > 0 && (
+                        <div className={styles.resultBox}>
+                            <p className={styles.info}>🎯   해당 인물 등장 시간대 :</p>
+                            <ul className={styles.timingsList}>
+                                {faceTimings.map((t, idx) => (
+                                    <li key={idx}>{t}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                 </>
             )}
 
