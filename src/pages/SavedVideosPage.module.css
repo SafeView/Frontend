@@ -15,3 +15,24 @@
     letter-spacing: -0.015em;
     text-align: left;
 }
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0,0,0,0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modalContent {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    max-width: 720px;
+    width: 90%;
+}
