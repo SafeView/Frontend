@@ -194,22 +194,6 @@ const CameraPage = () => {
                         />
                     )}
                 </div>
-
-                {/* 🎛️ 컨트롤 바 (현재 미사용) */}
-                {/* <CameraControls
-                    isRecording={recording}
-                    onToggleRecording={handleToggleRecording}
-                    mode={mode}
-                    onGoLive={handleGoLive}
-                /> */}
-
-                {/* 🕒 영상 히스토리 패널 */}
-                {/*<HistoryPanel*/}
-                {/*    title="Recording History"*/}
-                {/*    records={historyRecords}*/}
-                {/*    onSelectHistory={handleSelectHistory}*/}
-                {/*    onDownload={handleDownload}*/}
-                {/*/>*/}
             </main>
         </div>
     );

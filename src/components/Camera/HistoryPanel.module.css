@@ -1,0 +1,173 @@
+/* HistoryPanel.module.css */
+
+.historyTitle {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    margin-top: 2rem;
+}
+
+.filterWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    max-width: 600px;
+}
+
+.searchInput {
+    width: 100%;
+    padding: 0.6rem 1rem;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background-color: #1f1f1f;
+    color: white;
+    font-size: 1rem;
+}
+
+.searchInput::placeholder {
+    color: #aaa;
+}
+
+.rowFilterGroup {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.filterLabel {
+    color: #ccc;
+    font-size: 0.9rem;
+    min-width: 50px;
+}
+
+.filterInput {
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background-color: #1f1f1f;
+    color: white;
+    font-size: 0.9rem;
+    min-width: 130px;
+}
+
+.tilde {
+    font-size: 1.2rem;
+    color: #888;
+}
+
+.historyTable {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #181b23;
+    border: 1px solid #2e2e2e;
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 0.95rem;
+}
+
+.historyTable th,
+.historyTable td {
+    padding: 0.8rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid #2e2e2e;
+}
+
+.historyTable th {
+    background-color: #1f1f1f;
+    font-weight: 600;
+    color: #aaa;
+}
+
+.historyRow {
+    cursor: pointer;
+}
+
+.historyRow:hover {
+    background-color: #2a2e39;
+}
+
+.badge {
+    background-color: #2f3545;
+    padding: 0.25rem 0.6rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    color: #fff;
+}
+
+.userId {
+    color: #ddd;
+    font-size: 0.85rem;
+}
+
+.noRecord {
+    text-align: center;
+    color: #aaa;
+    padding: 1rem;
+}
+
+.modalBackdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modalContent {
+    background: #2f3545;
+    padding: 2rem;
+    border-radius: 12px;
+    width: 400px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.modalActions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+}
+
+.input {
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+.errorMsg {
+    color: red;
+    margin-top: 1rem;
+}
+
+.successMsg {
+    color: green;
+    margin-top: 1rem;
+}
+
+.smallBtn {
+    padding: 0.3rem 0.8rem;
+    background-color: #2a2e39;
+    border: 1px solid #555;
+    border-radius: 6px;
+    color: white;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.smallBtn:hover:not(:disabled) {
+    background-color: #333;
+    border-color: #777;
+}
+
+.dim {
+    color: #777;
+}

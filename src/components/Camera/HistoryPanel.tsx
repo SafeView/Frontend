@@ -1,8 +1,5 @@
-// ✅ React 훅 import
-import { useMemo, useState } from "react";
-
 // ✅ 스타일 모듈 import (페이지 단위 CSS 사용 중)
-import styles from "../../pages/CameraPage.module.css";
+import styles from "./HistoryPanel.module.css";
 
 // ✅ 복호화 키 검증 Zustand 스토어
 import useKeyStore from "../../stores/keyStore";
